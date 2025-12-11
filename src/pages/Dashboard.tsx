@@ -1,0 +1,72 @@
+import DataTable from "@/components/data-table";
+import { Button } from "@/components/ui/button";
+import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
+import type { PageDirection } from "@/lib/baseTypes";
+import env from "@/lib/env";
+import { cn } from "@/lib/utils";
+import { getRecentLogActivity } from "@/services/dashboardService";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect, useState } from "react";
+import io from "socket.io-client";
+
+const Dashboard = () => {
+  const [cursor, setCursor] = useState<string | undefined>(undefined);
+  const [direction, setDirection] = useState<PageDirection | undefined>(
+    undefined,
+  );
+  const queryClient = useQueryClient();
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["logs", direction, cursor],
+    queryFn: () => getRecentLogActivity({ direction, cursor }),
+  });
+
+  useEffect(() => {
+    const sfd = io(env.BASE_URL);
+    sfd.on("connect", () => console.log("Connected to host"));
+    sfd.on("connect_error", (error) =>
+      console.error("Connection failed", error.message),
+    );
+    sfd.on("disconnect", (reason) =>
+      console.log("Client Disconnected", reason),
+    );
+    sfd.on("newAccess", () =>
+      queryClient.invalidateQueries({ queryKey: ["logs"] }),
+    );
+
+    return () => {
+      console.log("Cleaning up socket");
+      sfd.close();
+    };
+  }, []);
+
+  const nextPage = useCallback(() => {
+    if (!data) return;
+    if (!data.pagination.nextCursor) return;
+    setCursor(new Date(data.pagination.nextCursor!).toISOString());
+    setDirection("next");
+  }, []);
+
+  const prevPage = useCallback(() => {
+    if (!data) return;
+    if (!data.pagination.prevCursor) return;
+    setCursor(new Date(data.pagination.prevCursor!).toISOString());
+    setDirection("prev");
+  }, []);
+  return (
+    <div className={cn("grid grid-rows-[auto_1fr]")}>
+      <div className={cn("flex justify-between")}></div>
+      <DataTable
+        columns={ActivityLogsColumns}
+        data={data?.data ?? []}
+        loading={isLoading}
+        error={error}
+        hasNext={data?.pagination.hasNextPage ?? false}
+        hasPrev={data?.pagination.hasPrevPage ?? false}
+        next={nextPage}
+        prev={prevPage}
+      />
+    </div>
+  );
+};
+
+export default Dashboard;
