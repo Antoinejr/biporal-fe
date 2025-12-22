@@ -1,4 +1,4 @@
-import type { CursorBasedPagination } from "./baseTypes";
+import type { CursorBasedPagination, PageBasedPagination } from "./baseTypes";
 
 export type ActivitiyLog = {
   id: string;
@@ -27,3 +27,8 @@ export type Category =
   | "DEPENDENT"
   | "SUPERVISOR"
   | "ARTISAN";
+
+export type ReportLogResponse = {
+  data: ActivitiyLog[],
+  pagination: PageBasedPagination
+}

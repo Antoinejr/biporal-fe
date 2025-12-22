@@ -14,8 +14,10 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { AlertCircle, ArrowLeft, ArrowRight, Loader } from "lucide-react";
 import type { JSX } from "react";
+import { Alert, AlertDescription } from "./ui/alert";
+import { ScrollArea } from "./ui/scroll-area";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -46,11 +48,41 @@ const DataTable = <TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
   });
 
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Loader className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load information. Please try again.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  if (!data) {
+    return (
+      <Alert variant="default">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          No data found
+        </AlertDescription>
+      </Alert>
+    );
+  }
   return (
-    <div className={cn("grid grid=rows-[auto_1fr_auto]", "gap-2")}>
+    <div className={cn("grid grid-rows-[auto_1fr_auto]", "gap-2")}>
       {toolBar && toolBar}
-      <Table>
-        <TableHeader>
+      <ScrollArea className="max-h-[65vh]">
+      <Table noWrapper>
+        <TableHeader className="bg-muted/95 backdrop-blur-sm z-10">
           {table.getHeaderGroups().map((hg) => (
             <TableRow key={hg.id}>
               {hg.headers.map((h) => (
@@ -67,7 +99,7 @@ const DataTable = <TData, TValue>({
           {table.getRowModel().rows.map((row) => (
             <TableRow key={row.id}>
               {row.getAllCells().map((cell) => (
-                <TableCell key={cell.id} className="text-[16px] px-6">
+                <TableCell key={cell.id}>
                   {flexRender(cell.column.columnDef.cell, cell.getContext())}
                 </TableCell>
               ))}
@@ -75,24 +107,23 @@ const DataTable = <TData, TValue>({
           ))}
         </TableBody>
       </Table>
-      <div className={cn("flex gap-1 justify-end")}>
+    </ScrollArea>
+      <div className={cn("flex gap-2 justify-end")}>
         <Button
           size="icon-sm"
           variant="outline"
           disabled={!hasPrev}
           onClick={prev}
-          className={cn("disabled:bg-gray-500")}
         >
-          <ArrowLeft className={cn("w-2 h-2")} />
+          <ArrowLeft className={cn("w-4 h-4")} />
         </Button>
         <Button
           size="icon-sm"
           variant="outline"
           disabled={!hasNext}
           onClick={next}
-          className={cn("disabled:bg-gray-500")}
         >
-          <ArrowRight className={cn("w-2 h-2")} />
+          <ArrowRight className={cn("w-4 h-4")} />
         </Button>
       </div>
     </div>

@@ -11,6 +11,9 @@ import Contractor from "./pages/Contractor";
 import Blocked from "./pages/Blocked";
 import Policy from "./pages/Policy";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import ContractorDetails from "./features/ContractorDetails";
+import PersonDetails from "./features/PersonDetails";
+import SiteDetails from "./features/SiteDetails";
 
 const queryClient = new QueryClient();
 function App() {
@@ -29,6 +32,9 @@ function App() {
               <Route path="reports" element={<Report />} />
               <Route path="blocked" element={<Blocked />} />
               <Route path="policy" element={<Policy />} />
+              <Route path="contractors/:id" element={<ContractorDetails />} />
+              <Route path="persons/:id" element={<PersonDetails />} />
+              <Route path="sites/:id" element={<SiteDetails />} />
             </Route>
           </Routes>
         </AuthProvider>

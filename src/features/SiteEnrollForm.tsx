@@ -106,7 +106,7 @@ const SiteEnrollForm = () => {
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   {mutation.error instanceof AxiosError
-                    ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message.join(" ") : ""}`
+                    ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message : ""}`
                     : mutation.error instanceof Error
                       ? mutation.error.message
                       : "Failed to create contractor. Please try again."}

@@ -59,9 +59,9 @@ const AuthForm = () => {
       <CardContent>
         <form
           id="auth-form"
-          onFocus={() => mutation.reset()}
           onSubmit={(e) => {
             e.preventDefault();
+            mutation.reset();
             form.handleSubmit();
           }}
         >

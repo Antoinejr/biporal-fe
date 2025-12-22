@@ -76,9 +76,15 @@ const Site = () => {
         </div>
       </div>
     );
-  }, [inputValue, isLoading, handleTextChange]);
+  }, [inputValue, isLoading]);
   return (
-    <div>
+    <div className="px-4 space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Sites</h1>
+        <p className="text-muted-foreground">
+          Manage your organization's sites
+        </p>
+      </div>
       <DataTable
         columns={SiteColumns}
         data={data?.data ?? []}

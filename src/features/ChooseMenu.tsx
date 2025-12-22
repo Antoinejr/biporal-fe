@@ -16,7 +16,8 @@ type OptionType<T> = {
 type ChooseMenuProps<T> = {
   options: OptionType<T>[];
   state: T;
-  label: string;
+  label: string | React.ReactNode;
+  disabled?: boolean;
   handleSelect: (option: OptionType<T>) => void;
 };
 
@@ -30,6 +31,7 @@ const ChooseMenu = <T,>(props: ChooseMenuProps<T>) => {
         <DropdownMenuLabel>
           {props.options.map((option) => (
             <DropdownMenuItem
+              disabled={props.disabled}
               className={cn(props.state === option.value ? "bg-gray-100" : "")}
               key={option.name}
               onSelect={() => props.handleSelect(option)}

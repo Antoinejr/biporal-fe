@@ -8,7 +8,12 @@ import { signIn as signInApi } from "@/services/authService";
 import AuthContext from "@/context/authContext";
 
 const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [admin, setAdmin] = useState<Admin | null>(() => {
+    const token = typeof window !== "undefined"
+      ? sessionStorage.getItem("JWT")
+      : null;
+    return token ? { accessToken: token } : null;
+  });  
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -45,7 +50,7 @@ const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const contextValue: AuthContextType = useMemo(
     () => ({
       admin,
-      isAuthenticated: true, // !!admin, TODO:  change back to admin
+      isAuthenticated: !!admin,
       loading,
       signIn,
       signOut,

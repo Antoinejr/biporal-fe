@@ -5,12 +5,12 @@ import { cn } from "@/lib/utils";
 import {
   Clipboard,
   Home,
-  ShieldAlert,
-  ClipboardClock,
+  // ShieldAlert,
   MapPinned,
   Ticket,
   User,
   HardHat,
+  ClipboardClock,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 
@@ -31,11 +31,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
       path: "/reports",
       icon: <Clipboard className="w-5 h-5" />,
     },
-    {
-      name: "BlockList",
-      path: "/blocked",
-      icon: <ShieldAlert className="w-5 h-5" />,
-    },
+    // {
+    //   name: "BlockList",
+    //   path: "/blocked",
+    //   icon: <ShieldAlert className="w-5 h-5" />,
+    // },
     {
       name: "Policies",
       path: "/policy",

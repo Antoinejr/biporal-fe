@@ -1,5 +1,4 @@
 import DataTable from "@/components/data-table";
-import { Button } from "@/components/ui/button";
 import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
 import type { PageDirection } from "@/lib/baseTypes";
 import env from "@/lib/env";
@@ -53,8 +52,13 @@ const Dashboard = () => {
     setDirection("prev");
   }, []);
   return (
-    <div className={cn("grid grid-rows-[auto_1fr]")}>
-      <div className={cn("flex justify-between")}></div>
+    <div className={cn("grid grid-rows-[auto_1fr]", "px-4 space-y-8")}>
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <p className="text-muted-foreground">
+          View entry and exits logs
+        </p>
+      </div>
       <DataTable
         columns={ActivityLogsColumns}
         data={data?.data ?? []}

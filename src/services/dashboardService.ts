@@ -1,6 +1,17 @@
 import http from "@/lib/axiosClient";
-import type { ActivityLogResponse } from "@/lib/activityLogsTypes";
+import type { ActivityLogResponse, Category } from "@/lib/activityLogsTypes";
 import type { PageDirection } from "@/lib/baseTypes";
+import type { ReportLogResponse } from "@/lib/dashboardType";
+
+type ReportQueryType = {
+  page?: number;
+  startDate?: string;
+  endDate?: string;
+  siteId?: string;
+  action?: string;
+  category?: Category;
+  isRejected?: boolean;
+}
 
 export const getRecentLogActivity = async ({
   direction,
@@ -27,3 +38,20 @@ export const getRecentLogActivity = async ({
     throw error;
   }
 };
+
+export async function getLogSnapshot(queries: ReportQueryType) {
+  const filtered = Object.fromEntries(
+    Object.entries(queries).filter(
+      ([_, value]) => value !== undefined && value !== ""
+    ),
+  ) as ReportQueryType
+  try {
+    const response = await http.get<ReportLogResponse>("api/access/report", {
+      params: filtered
+    });
+    return response.data;
+  } catch(error) {
+    console.error(error);
+    throw error;
+  }
+}

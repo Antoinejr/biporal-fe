@@ -64,6 +64,7 @@ const Contractor = () => {
 
   // NOTE: disable search if there are errors
   const toolBar = useMemo(() => {
+    const hasIsActiveFilter = isActive.value !== undefined
     return (
       <div className={cn("flex gap-1 justify-between")}>
         <div className={cn("flex gap-1 min-w-md")}>
@@ -74,6 +75,7 @@ const Contractor = () => {
             className={cn("bg-white", "max-w-sm")}
             disabled={isLoading}
           />
+        <div className="relative">
           <ChooseMenu
             options={[
               { name: "All", value: undefined },
@@ -82,15 +84,26 @@ const Contractor = () => {
             ]}
             state={isActive.value}
             handleSelect={setIsActive}
+            disabled={isLoading}
             label="Status"
           />
+        {hasIsActiveFilter && (
+          <span className="absolute -top-1 -right-1 text-red-500 text-lg">* </span>
+        )}
+        </div>
         </div>
         <ContractorForm />
       </div>
     );
-  }, [inputValue, isLoading, isActive, handleTextChange, setIsActive]);
+  }, [inputValue, isActive.value, isLoading]);
   return (
-    <div>
+    <div className="px-4 space-y-8">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight">Contractors</h1>
+        <p className="text-muted-foreground">
+          Manage your organization's contractors
+        </p>
+      </div>
       <DataTable
         columns={ContractorColumns}
         data={data?.data ?? []}

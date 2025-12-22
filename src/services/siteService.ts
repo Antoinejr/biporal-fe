@@ -3,6 +3,7 @@ import type {
   CreateSiteType,
   GetSitesResponse,
   SiteLookupType,
+  SiteType,
 } from "@/lib/siteTypes";
 
 type GetSitesQuery = {
@@ -14,6 +15,27 @@ type CreateSiteEngagement = {
   siteId: string;
   contractorId: string;
 };
+
+export async function updateSite(payload: {id: string, payload: Partial<CreateSiteType>}) {
+  try {
+    await http.patch(`/api/site/${payload.id}`, payload.payload);
+    return;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function findSite(id: string): Promise<SiteType | undefined>{
+  try {
+    console.log(id);
+    const response = await http.get<SiteType>(`/api/site/${id}`);
+    return response.data
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 export async function getSites(payload: GetSitesQuery) {
   try {

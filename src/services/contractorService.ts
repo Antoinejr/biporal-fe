@@ -3,6 +3,7 @@ import type {
   ContractorLookupType,
   CreateContractorType,
   GetContractorResponseType,
+  GetOneContractorResponseType,
 } from "@/lib/contractorTypes";
 
 type GetContractorQuery = {
@@ -10,6 +11,58 @@ type GetContractorQuery = {
   isActive?: boolean;
   search?: string;
 };
+
+export async function restoreContractor(id: string) {
+  console.debug("Restoring contraction id: ", id);
+  try {
+    await http.patch(`api/contractor/restore/${id}`);
+    return;
+  } catch(error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function deleteContractor(id: string) {
+  console.debug(`Deleting contractor with id ${id}`);
+  try {
+    await http.delete(`/api/contractor/${id}`);
+    return;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+export async function getOneContractor(id: string) {
+  try {
+    const response = await http.get<GetOneContractorResponseType>(`/api/contractor/${id}`);
+    return response.data
+  } catch(error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function updateContractor(payload: {id: string, payload: Partial<CreateContractorType>}) {
+  try {
+    console.log("Sending out edit request: ", payload);
+    await http.patch<void>(`/api/contractor/${payload.id}`, payload.payload);
+    return;
+  } catch(error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+export async function deactivateContractor(id: string) {
+  try {
+    await http.delete<void>(`/api/contractor/${id}`);
+    return;
+  } catch(error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 export const getContractors = async (payload: GetContractorQuery) => {
   let data: GetContractorQuery = {};

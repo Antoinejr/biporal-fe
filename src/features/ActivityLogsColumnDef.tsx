@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AlertTriangle, CheckCircle } from "lucide-react";
+import CategoryBadge from "@/components/category-badge";
 
 export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
@@ -25,36 +26,7 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
     header: "Category",
     cell: ({ row }) => {
       const category = row.original.category;
-
-      const categoryConfig = {
-        RESIDENT: {
-          color: "bg-emerald-100 text-emerald-800 border-emerald-200",
-        },
-        WORKER: {
-          color: "bg-cyan-100 text-cyan-800 border-cyan-200",
-        },
-        DEPENDENT: {
-          color: "bg-pink-100 text-pink-800 border-pink-200",
-        },
-        SUPERVISOR: {
-          color: "bg-orange-100 text-orange-800 border-orange-200",
-        },
-        ARTISAN: {
-          color: "bg-violet-100 text-violet-800 border-violet-200",
-        },
-      };
-
-      const config = categoryConfig[category as keyof typeof categoryConfig];
-
-      if (!config) return category;
-
-      return (
-        <span
-          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium border ${config.color}`}
-        >
-          <span className="capitalize">{category.toLowerCase()}</span>
-        </span>
-      );
+      return <CategoryBadge value={category}/>;
     },
   },
   {
@@ -101,7 +73,7 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
     accessorKey: "createdAt",
     header: "Timestamp",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleTimeString(),
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
   },
   {
     accessorKey: "outOfOrder",

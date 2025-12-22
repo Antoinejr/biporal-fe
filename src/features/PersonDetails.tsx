@@ -1,14 +1,6 @@
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
   Field,
   FieldError,
   FieldGroup,
@@ -16,56 +8,63 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { InputPassword } from "@/components/ui/input-password";
-import type { Category } from "@/lib/activityLogsTypes";
-import { cn } from "@/lib/utils";
-import { createPerson, lookupResidents } from "@/services/personService";
+import { Textarea } from "@/components/ui/textarea";
+import type { CreatePersonType, Person } from "@/lib/personTypes";
+import {
+  getOnePerson,
+  lookupResidents,
+  // revokeToken,
+  updatePerson,
+} from "@/services/personService";
 import {
   createFormHook,
   createFormHookContexts,
   useField,
+  useStore,
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { AlertCircle, Loader } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Loader } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useNavigate, useParams } from "react-router";
 import * as z from "zod";
 import ChooseMenu from "./ChooseMenu";
-import { Textarea } from "@/components/ui/textarea";
+import type { Category } from "@/lib/activityLogsTypes";
 
 const { fieldContext, formContext } = createFormHookContexts();
-
 const { useAppForm } = createFormHook({
   fieldComponents: {
     Field,
     FieldLabel,
     FieldError,
     FieldGroup,
+    ChooseMenu,
     Textarea,
     Input,
     InputPassword,
-    ChooseMenu,
   },
+  fieldContext,
   formComponents: {
     Button,
     FieldGroup,
   },
-  fieldContext,
   formContext,
 });
+
+type PersonCategory = Exclude<Category, "ARTISAN">;
 
 const optionalString = z.string().transform((e) => (e === "" ? undefined : e));
 const appendLag = z.optional(
   z.string().transform((e) => (typeof e === "string" ? "LAG" + e : undefined)),
 );
-const ston = z.string().transform((e) => (e === "" ? 0 : Number(e)));
 
 const formSchema = z
   .object({
-    firstName: z.string().min(1, "First name must be entered"),
-    lastName: z.string().min(1, "Last name must be entered"),
+    firstName: z.string().min(1, { message: "First name must be entered" }),
+    lastName: z.string().min(1, { message: "Last name must be entered" }),
     mobile: z
       .string()
-      .min(1, "Phone must be entered")
+      .min(1, { message: "Phone must be entered" })
       .regex(/^(070|080|090|081|091)\d{8}$/, {
         message: "Invalid phone number",
       }),
@@ -88,27 +87,14 @@ const formSchema = z
     category: z.enum(["RESIDENT", "WORKER", "DEPENDENT", "SUPERVISOR"], {
       message: "Category is one of options",
     }),
-    durationOfStay: ston.pipe(
-      z
-        .int({ message: "None integers not allowed" })
-        .min(1, { message: "Minimum allowed days is 1" }),
-    ),
     residentId: optionalString.pipe(
-      z.optional(z.uuidv4({ message: "residentId has to be a valid uuidv4" })),
+      z.optional(z.uuidv4({ message: "residentId has to be a valid uuid" })),
     ),
     employerId: optionalString.pipe(
-      z.optional(z.uuidv4({ message: "employerId has to be a valid uuidv4" })),
+      z.optional(z.uuidv4({ message: "employerId has to be a valid uuid" })),
     ),
   })
   .superRefine((data, ctx) => {
-    if (["RESIDENT", "SUPERVISOR"].includes(data.category) && !data.passcode) {
-      ctx.addIssue({
-        code: "custom",
-        message: "Passcode is required for residents and supervisors",
-        path: ["passcode"],
-      });
-    }
-
     if (data.category === "DEPENDENT" && !data.residentId) {
       ctx.addIssue({
         code: "custom",
@@ -116,7 +102,6 @@ const formSchema = z
         path: ["residentId"],
       });
     }
-
     if (data.category === "WORKER" && !data.employerId) {
       ctx.addIssue({
         code: "custom",
@@ -126,60 +111,168 @@ const formSchema = z
     }
   });
 
-function PersonForm() {
+function PersonDetails() {
+  const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
-  const { data } = useQuery({
+  const [showSuccess, setShowSuccess] = useState(false);
+  const navigate = useNavigate();
+
+  if (!id) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>Person ID is missing.</AlertDescription>
+      </Alert>
+    );
+  }
+
+  const personQuery = useQuery({
+    queryKey: ["person-details", id],
+    queryFn: () => getOnePerson(id),
+  });
+
+  const lookupQuery = useQuery({
     queryKey: ["static-residents"],
     queryFn: lookupResidents,
     staleTime: Infinity,
     gcTime: Infinity,
   });
 
-  const mutation = useMutation({
-    mutationFn: createPerson,
+  const editPerson = useMutation({
+    mutationFn: updatePerson,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: ["persons"] });
-      setShow(false);
-      form.reset();
+      await queryClient.invalidateQueries({ queryKey: ["person-details", id] });
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 4000);
     },
   });
 
-  const [show, setShow] = useState<boolean>(false);
-  const form = useAppForm({
-    defaultValues: {
-      firstName: "",
-      lastName: "",
-      mobile: "",
-      address: "",
-      lagId: "",
+  const baseValues = useMemo(
+    () => ({
+      firstName: personQuery.data?.firstName ?? "",
+      lastName: personQuery.data?.lastName ?? "",
+      mobile: personQuery.data?.mobile ?? "",
+      address: personQuery.data?.address ?? "",
+      category: personQuery.data?.category ?? "RESIDENT",
+      lagId: personQuery.data?.lagId?.slice(3) ?? "",
+      employerId:
+        personQuery.data?.category === "WORKER"
+          ? personQuery.data.residentId
+          : "",
+      residentId:
+        personQuery.data?.category === "DEPENDENT"
+          ? personQuery.data.residentId
+          : "",
       passcode: "",
-      category: "RESIDENT" as Category,
-      durationOfStay: "",
-      employerId: "",
-      residentId: "",
-    },
+    }),
+    [personQuery.data],
+  );
+
+  function stripUnchanged<T extends Record<string, unknown>>(
+    original: T,
+    updated: T,
+  ): Partial<T> {
+    const result: Partial<T> = {};
+    for (const key of Object.keys(updated) as (keyof T)[]) {
+      if (key === "lagId") {
+        if (original[key] === null) {
+          result[key] = updated[key];
+        }
+        continue;
+      }
+      if (updated[key] !== original[key]) {
+        result[key] = updated[key];
+      }
+    }
+    return result;
+  }
+
+  function buildUpdatePayload(
+    original: Person,
+    formValues: Omit<CreatePersonType, "durationOfStay">,
+  ) {
+    const { passcode, residentId, employerId, ...rest } = formValues;
+
+    const commonFields = {
+      firstName: rest.firstName,
+      lastName: rest.lastName,
+      mobile: rest.mobile,
+      address: rest.address,
+      category: rest.category,
+      lagId: rest.lagId,
+    };
+
+    const diff = stripUnchanged(
+      {
+        firstName: original.firstName,
+        lastName: original.lastName,
+        mobile: original.mobile,
+        address: original.address,
+        category: original.category,
+        lagId: original.lagId,
+      },
+      commonFields,
+    );
+
+    if (diff.lagId) {
+      diff.lagId = "LAG" + diff.lagId;
+    }
+
+    if (formValues.category === "DEPENDENT" && residentId) {
+      (diff as any).residentId = residentId;
+    }
+    if (formValues.category === "WORKER" && employerId) {
+      (diff as any).employerId = employerId;
+    }
+    if (
+      ["RESIDENT", "SUPERVISOR"].includes(formValues.category) &&
+      passcode?.trim()
+    ) {
+      (diff as any).passcode = passcode;
+    }
+
+    if (
+      formValues.category !== "DEPENDENT" &&
+      (diff as any).residentId !== undefined
+    ) {
+      delete (diff as any).residentId;
+    }
+    if (
+      formValues.category !== "WORKER" &&
+      (diff as any).employerId !== undefined
+    ) {
+      delete (diff as any).employerId;
+    }
+    if (original.category === formValues.category) {
+      if (formValues.category === "DEPENDENT" && formValues.residentId === original.residentId) {
+        delete (diff as any).residentId;
+      } else if (formValues.category === "WORKER" && formValues.employerId === original.residentId)
+        delete (diff as any).employerId;
+    }
+    console.log(diff);
+    return diff;
+  }
+
+  const form = useAppForm({
+    defaultValues: baseValues,
     validators: {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const result = formSchema.safeParse(value);
-      if (!result.success) {
-        console.error("Form validation failed", result.error);
-        return;
-      }
-      console.log("Clean Data", result.data);
-      await mutation.mutateAsync(result.data, {
-        onSuccess: async () => {
-          if (result.data.category === "RESIDENT") {
-            await queryClient.refetchQueries({
-              queryKey: ["static-residents"],
-              exact: true,
-            });
-          }
-        },
-      });
+      if (!personQuery.data) return;
+      const payload = buildUpdatePayload(personQuery.data, value);
+      if (Object.keys(payload).length === 0) return;
+      await editPerson.mutateAsync({ id, payload });
     },
   });
+
+  useEffect(() => {
+    if (personQuery.data) {
+      form.reset(baseValues);
+    }
+  }, [personQuery.data, baseValues, form]);
+
+  const formState = useStore(form.store, (state) => state.isDirty);
 
   const fieldState = useField({
     form,
@@ -187,40 +280,69 @@ function PersonForm() {
   });
   const currentCategory = fieldState.state.value;
 
+  if (personQuery.isLoading) {
+    return (
+      <div className="flex min-h-[400px] items-center justify-center">
+        <Loader className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (personQuery.error) {
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Failed to load person details. Please try again.
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
   return (
-    <Dialog open={show} onOpenChange={(open) => setShow(open)}>
-      <DialogTrigger asChild>
-        <Button variant="default">Register</Button>
-      </DialogTrigger>
-      <DialogContent className={cn("max-h-[90vh] overflow-y-auto")}>
-        <DialogHeader>
-          <DialogTitle>Register Person</DialogTitle>
-        </DialogHeader>
+    <div>
+      <div>
+        <Button variant="ghost" onClick={() => navigate(-1)}>
+          <ArrowLeft className="h-4 w-4" />
+          Back
+        </Button>
+      </div>
+      <div className="flex flex-col gap-10 container mx-auto max-w-2xl">
         <form
-          id="person-form"
+          id="person-update-form"
           onSubmit={(event) => {
             event.preventDefault();
-            mutation.reset();
+            editPerson.reset();
             form.handleSubmit();
           }}
         >
-          <form.FieldGroup
-            className={cn(
-              "grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))]",
-            )}
-          >
-            {mutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
+          <form.FieldGroup>
+            {showSuccess && (
+              <Alert className="border-green-200 bg-green-50 text-green-900">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
                 <AlertDescription>
-                  {mutation.error instanceof AxiosError
-                    ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message.join(" ") : ""}`
-                    : mutation.error instanceof Error
-                      ? mutation.error.message
-                      : "Failed to create contractor. Please try again."}
+                  Person updated successfully.
                 </AlertDescription>
               </Alert>
             )}
+
+            {editPerson.isError && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  {editPerson.error instanceof AxiosError
+                    ? `${editPerson.error.message}\n${
+                        editPerson.error.response
+                          ? editPerson.error.response.data.message
+                          : ""
+                      }`
+                    : editPerson.error instanceof Error
+                      ? editPerson.error.message
+                      : "Failed to update person. Please try again."}
+                </AlertDescription>
+              </Alert>
+            )}
+
             <form.AppField
               name="firstName"
               children={(field) => {
@@ -253,6 +375,7 @@ function PersonForm() {
                 );
               }}
             />
+
             <form.AppField
               name="lastName"
               children={(field) => {
@@ -285,6 +408,7 @@ function PersonForm() {
                 );
               }}
             />
+
             <form.AppField
               name="mobile"
               children={(field) => {
@@ -305,8 +429,10 @@ function PersonForm() {
                         field.handleBlur();
                       }}
                       onChange={(event) => {
-                        const value = event.target.value;
-                        const numericVal = value.replace(/\D/g, "");
+                        const numericVal = event.target.value.replace(
+                          /\D/g,
+                          "",
+                        );
                         field.handleChange(numericVal);
                       }}
                       placeholder="Mobile"
@@ -319,6 +445,7 @@ function PersonForm() {
                 );
               }}
             />
+
             <form.AppField
               name="lagId"
               children={(field) => {
@@ -328,8 +455,7 @@ function PersonForm() {
                 return (
                   <field.Field>
                     <field.FieldLabel htmlFor={field.name}>
-                      {" "}
-                      Lagos ID{" "}
+                      Lagos ID
                     </field.FieldLabel>
                     <div className="flex">
                       <span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
@@ -338,15 +464,16 @@ function PersonForm() {
                       <field.Input
                         id={field.name}
                         name={field.name}
-                        value={field.state.value}
+                        disabled={personQuery.data?.lagId !== null}
                         className="rounded-l-none"
+                        value={field.state.value}
                         onBlur={(e) => {
                           field.handleChange(e.target.value.trim());
                           field.handleBlur();
                         }}
                         onChange={(event) => {
                           const numericVal = event.target.value.replace(
-                            /\D/g,
+                            /\D/,
                             "",
                           );
                           field.handleChange(numericVal);
@@ -371,7 +498,7 @@ function PersonForm() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field className={cn("col-span-full")}>
+                  <field.Field>
                     <field.FieldLabel htmlFor={field.name}>
                       Address
                     </field.FieldLabel>
@@ -396,6 +523,7 @@ function PersonForm() {
                 );
               }}
             />
+
             <form.AppField
               name="category"
               children={(field) => {
@@ -403,7 +531,7 @@ function PersonForm() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field className={cn("col-span-full")}>
+                  <field.Field>
                     <field.FieldLabel htmlFor={field.name}>
                       Category
                     </field.FieldLabel>
@@ -411,11 +539,21 @@ function PersonForm() {
                       <field.FieldError errors={field.state.meta.errors} />
                     )}
                     <field.ChooseMenu
+                      disabled={true}
                       options={[
-                        { name: "Resident", value: "RESIDENT" as Category },
-                        { name: "Worker", value: "WORKER" as Category },
-                        { name: "Dependent", value: "DEPENDENT" as Category },
-                        { name: "Supervisor", value: "SUPERVISOR" as Category },
+                        {
+                          name: "Resident",
+                          value: "RESIDENT" as PersonCategory,
+                        },
+                        { name: "Worker", value: "WORKER" as PersonCategory },
+                        {
+                          name: "Dependent",
+                          value: "DEPENDENT" as PersonCategory,
+                        },
+                        {
+                          name: "Supervisor",
+                          value: "SUPERVISOR" as PersonCategory,
+                        },
                       ]}
                       state={field.state.value}
                       label={field.state.value}
@@ -423,50 +561,14 @@ function PersonForm() {
                         field.handleChange(option.value);
                         if (option.value !== "WORKER")
                           form.setFieldValue("employerId", "");
-                        if (
-                          !["RESIDENT", "SUPERVISOR"].includes(option.value)
-                        ) {
+                        if (option.value !== "RESIDENT")
                           form.setFieldValue("passcode", "");
-                        }
                         if (option.value !== "DEPENDENT")
                           form.setFieldValue("residentId", "");
+                        if (option.value !== "SUPERVISOR")
+                          form.setFieldValue("passcode", "");
                       }}
                     />
-                  </field.Field>
-                );
-              }}
-            />
-
-            <form.AppField
-              name="durationOfStay"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
-                return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Duration
-                    </field.FieldLabel>
-                    <field.Input
-                      id={field.name}
-                      type="text"
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={field.handleBlur}
-                      onChange={(event) => {
-                        const value = event.target.value;
-                        let numericVal = value.replace(/\D/g, "");
-                        if (numericVal.length > 1) {
-                          numericVal = numericVal.replace(/^0+(?=\d)/, "");
-                        }
-                        field.handleChange(numericVal);
-                      }}
-                      placeholder="Duration..."
-                    />
-                    {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
-                    )}
                   </field.Field>
                 );
               }}
@@ -486,7 +588,6 @@ function PersonForm() {
                       </field.FieldLabel>
                       <field.InputPassword
                         id={field.name}
-                        name={field.name}
                         value={field.state.value}
                         onBlur={(e) => {
                           field.handleChange(e.target.value.trim());
@@ -507,6 +608,7 @@ function PersonForm() {
                 }}
               />
             )}
+
             {currentCategory === "DEPENDENT" && (
               <form.AppField
                 name="residentId"
@@ -520,11 +622,12 @@ function PersonForm() {
                         Resident
                       </field.FieldLabel>
                       <field.ChooseMenu
-                        options={data ?? []}
+                        options={lookupQuery.data ?? []}
                         state={field.state.value}
                         label={
-                          data?.find((item) => item.value === field.state.value)
-                            ?.name ?? "Select Resident"
+                          lookupQuery.data?.find(
+                            (item) => item.value === field.state.value,
+                          )?.name ?? "Select Resident"
                         }
                         handleSelect={(option) =>
                           field.handleChange(option.value)
@@ -551,12 +654,13 @@ function PersonForm() {
                       <field.FieldLabel htmlFor={field.name}>
                         Employer
                       </field.FieldLabel>
-                      <field.ChooseMenu
-                        options={data ?? []}
+                      <ChooseMenu
+                        options={lookupQuery.data ?? []}
                         state={field.state.value}
                         label={
-                          data?.find((item) => item.value === field.state.value)
-                            ?.name ?? "Select Employer"
+                          lookupQuery.data?.find(
+                            (item) => item.value === field.state.value,
+                          )?.name ?? "Select Employer"
                         }
                         handleSelect={(option) =>
                           field.handleChange(option.value)
@@ -570,30 +674,35 @@ function PersonForm() {
                 }}
               />
             )}
-            <form.AppForm>
-              <Field orientation="horizontal">
-                <form.Button type="submit">
-                  {mutation.isPending ? (
-                    <>
-                      Submitting....{" "}
-                      <Loader className="ml-2 h-4 w-4 animate-spin" />
-                    </>
-                  ) : (
-                    <>Submit</>
-                  )}
-                </form.Button>
-                <DialogClose asChild>
-                  <form.Button type="button" variant="outline">
-                    Close
-                  </form.Button>
-                </DialogClose>
-              </Field>
-            </form.AppForm>
+
+            <div className="flex gap-2 pt-4">
+              <Button
+                type="submit"
+                form="person-update-form"
+                disabled={editPerson.isPending || !formState}
+              >
+                {editPerson.isPending ? (
+                  <>
+                    Saving...
+                    <Loader className="ml-2 h-4 w-4 animate-spin" />
+                  </>
+                ) : (
+                  "Save"
+                )}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => form.reset(baseValues)}
+              >
+                Reset
+              </Button>
+            </div>
           </form.FieldGroup>
         </form>
-      </DialogContent>
-    </Dialog>
+      </div>
+    </div>
   );
 }
 
-export default PersonForm;
+export default PersonDetails;

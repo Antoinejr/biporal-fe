@@ -27,3 +27,4 @@ export type Category =
   | "DEPENDENT"
   | "SUPERVISOR"
   | "ARTISAN";
+

@@ -6,9 +6,9 @@ export type CreatePersonType = {
   lastName: string;
   mobile: string;
   address: string;
-  lagId?: string;
+  lagId?: string | null;
   passcode?: string;
-  category: Category;
+  category: Exclude<Category, "ARTISAN">;
   residentId?: string;
   employerId?: string;
   durationOfStay: number;
@@ -21,7 +21,8 @@ export type Person = {
   mobile: string;
   address: string;
   lagId: string | null;
-  category: Category;
+  category: Exclude<Category, "ARTISAN">;
+  expirationDate: Date;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
