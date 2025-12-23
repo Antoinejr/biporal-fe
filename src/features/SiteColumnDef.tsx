@@ -22,6 +22,17 @@ export const SiteColumns: ColumnDef<SiteType>[] = [
     },
   },
   {
+    accessorKey: "contractors",
+    header: "Contractor",
+    cell: ({row}) => {
+      let contractor: string | undefined;
+      if (row.original.contractors.length > 0) {
+        contractor = row.original.contractors[0].name ?? "N/A"
+      }
+      return `${contractor ?? "N/A"}`
+    }
+  },
+  {
     id: "actions",
     cell: ({row}) => {
       const site = row.original;
