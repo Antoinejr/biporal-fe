@@ -137,8 +137,8 @@ function Report() {
             <ChooseMenu
               options={[
                 { name: "All", value: undefined },
-                { name: "Accepted", value: true },
-                { name: "Rejected", value: false },
+                { name: "Granted", value: false },
+                { name: "Rejected", value: true },
               ]}
               state={isRejected.value}
               handleSelect={setIsRejected}
@@ -190,8 +190,8 @@ function Report() {
             <ChooseMenu
               options={[
                 {name: "All", value: undefined},
-                {name: "In", value: "IN"},
-                {name: "Out", value: "OUT"}
+                {name: "Entry", value: "IN"},
+                {name: "Exit", value: "OUT"}
               ]}
               state={action.value}
               handleSelect={setAction}
