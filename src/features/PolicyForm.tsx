@@ -100,7 +100,7 @@ function PolicyForm(props: PolicyFormProps) {
       if (result.error) {
         return;
       }
-      await mutation.mutateAsync(result.data);
+      mutation.mutate(result.data);
     },
   });
 

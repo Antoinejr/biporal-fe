@@ -74,7 +74,7 @@ function RateForm() {
         console.error("Form validation failed", result.error);
         return;
       }
-      await mutation.mutateAsync({cost: result.data.cost * 100});
+      mutation.mutate({cost: result.data.cost * 100});
     },
   });
 

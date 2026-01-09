@@ -79,7 +79,7 @@ const SiteEnrollForm = () => {
         return;
       }
       console.log("Cleaned data", result.data);
-      await mutation.mutateAsync(result.data);
+      mutation.mutate(result.data);
     },
   });
 

@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { InputPassword } from "@/components/ui/input-password";
 import { Textarea } from "@/components/ui/textarea";
 import type { CreateContractorType } from "@/lib/contractorTypes";
-import { cn, formatAsCurrency } from "@/lib/utils";
+import { cn, formatCurrency} from "@/lib/utils";
 import {
   updateContractor,
   getOneContractor,
@@ -42,6 +42,8 @@ import {
   ArrowLeft,
   Trash2,
   RotateCcw,
+  Edit,
+  X,
 } from "lucide-react";
 import * as z from "zod";
 import { useMemo, useEffect, useState } from "react";
@@ -75,9 +77,7 @@ const formSchema = z.object({
     .regex(/^(070|080|090|081|091)\d{8}$/, { message: "Invalid phone number" }),
   passcode: z
     .string()
-    .regex(/^\d{4}$/, {
-      message: "Passcode must be exactly 4 digits",
-    })
+    .min(5, "Passcode must be at least 5 characters long")
     .or(z.literal("")),
 });
 
@@ -102,7 +102,7 @@ const sitecolumns: ColumnConfig<Site>[] = [
   {
     key: "balance",
     header: "balance",
-    render: (s) => `${formatAsCurrency(s.balance)}`,
+    render: (s) => `${formatCurrency(s.balance)}`,
   },
   {
     key: "disengagedAt",
@@ -167,6 +167,7 @@ function ContractorDetails() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
 
   if (!id) {
     return (
@@ -198,8 +199,9 @@ function ContractorDetails() {
       await queryClient.invalidateQueries({
         queryKey: ["contractor-details", id],
       });
-      setTimeout(() => setShowSuccess(false), 4000);
       setShowSuccess(true);
+      setIsEditing(false);
+      setTimeout(() => setShowSuccess(false), 4000);
     },
   });
 
@@ -254,13 +256,13 @@ function ContractorDetails() {
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       if (!data) return;
       const payload = buildUpdatePayload(data.data.contractor, value);
       if (Object.keys(payload).length === 0) {
         return;
       }
-      await editContractor.mutateAsync({
+      editContractor.mutate({
         id: id,
         payload,
       });
@@ -303,7 +305,32 @@ function ContractorDetails() {
             Back
           </Button>
         </div>
-        <h3 className="mb-4 text-lg font-medium">Information</h3>
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium">Information</h3>
+          {!isEditing ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setIsEditing(false);
+                form.reset(baseValues);
+                editContractor.reset();
+              }}
+            >
+              <X className="mr-2 h-4 w-4 text-red-500" />
+              <span className="text-red-500">Cancel</span>
+            </Button>
+          )}
+        </div>
         <form
           id="contractor-update-form"
           onSubmit={(event) => {
@@ -358,6 +385,7 @@ function ContractorDetails() {
                       aria-invalid={isInvalid}
                       placeholder="Name..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -391,6 +419,7 @@ function ContractorDetails() {
                       }}
                       placeholder="Phone..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -421,6 +450,7 @@ function ContractorDetails() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Email..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -449,11 +479,12 @@ function ContractorDetails() {
                         field.handleBlur();
                       }}
                       onChange={(e) => {
-                        const validValue = e.target.value.replace(/\D/g, "");
+                        const validValue = e.target.value.replace(/\s/g, "");
                         field.handleChange(validValue);
                       }}
                       placeholder="Passcode..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -464,32 +495,34 @@ function ContractorDetails() {
             />
           </form.FieldGroup>
         </form>
-        <div className="mt-4 flex gap-2">
-          <Button
-            disabled={!formState || editContractor.isPending}
-            type="submit"
-            form="contractor-update-form"
-          >
-            {editContractor.isPending ? (
-              <>
-                Saving...
-                <Loader className="ml-2 h-4 w-4 animate-spin" />
-              </>
-            ) : (
-              <>Save</>
-            )}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            disabled={editContractor.isPending}
-            onClick={() => {
-              form.reset(baseValues);
-            }}
-          >
-            Reset
-          </Button>
-        </div>
+        {isEditing && (
+          <div className="mt-4 flex gap-2">
+            <Button
+              disabled={!formState || editContractor.isPending}
+              type="submit"
+              form="contractor-update-form"
+            >
+              {editContractor.isPending ? (
+                <>
+                  Saving...
+                  <Loader className="ml-2 h-4 w-4 animate-spin" />
+                </>
+              ) : (
+                <>Save</>
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={editContractor.isPending}
+              onClick={() => {
+                form.reset(baseValues);
+              }}
+            >
+              Reset
+            </Button>
+          </div>
+        )}
       </div>
       <div>
         <h3 className="mb-4 text-lg font-medium">Sites</h3>

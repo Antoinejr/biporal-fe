@@ -90,7 +90,7 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
       const diffTime = selectedDate.getTime() - expirationDate.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       
-      await mutation.mutateAsync({
+      mutation.mutate({
         id: person.id,
         payload: { length: diffDays },
       });

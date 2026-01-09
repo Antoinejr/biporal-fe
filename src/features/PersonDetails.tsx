@@ -24,7 +24,7 @@ import {
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { AlertCircle, ArrowLeft, CheckCircle2, Loader } from "lucide-react";
+import { AlertCircle, ArrowLeft, CheckCircle2, Loader, Edit, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import * as z from "zod";
@@ -115,6 +115,7 @@ function PersonDetails() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
   if (!id) {
@@ -143,6 +144,7 @@ function PersonDetails() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["person-details", id] });
       setShowSuccess(true);
+      setIsEditing(false);
       setTimeout(() => setShowSuccess(false), 4000);
     },
   });
@@ -258,11 +260,11 @@ function PersonDetails() {
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       if (!personQuery.data) return;
       const payload = buildUpdatePayload(personQuery.data, value);
       if (Object.keys(payload).length === 0) return;
-      await editPerson.mutateAsync({ id, payload });
+      editPerson.mutate({ id, payload });
     },
   });
 
@@ -308,6 +310,32 @@ function PersonDetails() {
         </Button>
       </div>
       <div className="flex flex-col gap-10 container mx-auto max-w-2xl">
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-bold">Person Details</h2>
+          {!isEditing ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <Edit className="mr-2 h-4 w-4" />
+              Edit
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setIsEditing(false);
+                form.reset(baseValues);
+                editPerson.reset();
+              }}
+            >
+              <X className="mr-2 h-4 w-4 text-red-500" />
+              <span className="text-red-500">Cancel</span>
+            </Button>
+          )}
+        </div>
         <form
           id="person-update-form"
           onSubmit={(event) => {
@@ -367,6 +395,7 @@ function PersonDetails() {
                       }
                       placeholder="First Name..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -400,6 +429,7 @@ function PersonDetails() {
                       }
                       placeholder="Last Name..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -437,6 +467,7 @@ function PersonDetails() {
                       }}
                       placeholder="Mobile"
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -464,7 +495,7 @@ function PersonDetails() {
                       <field.Input
                         id={field.name}
                         name={field.name}
-                        disabled={personQuery.data?.lagId !== null}
+                        disabled={!isEditing || personQuery.data?.lagId !== null}
                         className="rounded-l-none"
                         value={field.state.value}
                         onBlur={(e) => {
@@ -515,6 +546,7 @@ function PersonDetails() {
                       }
                       placeholder="Address"
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -599,6 +631,7 @@ function PersonDetails() {
                         }}
                         placeholder="Passcode..."
                         autoComplete="off"
+                        disabled={!isEditing}
                       />
                       {isInvalid && (
                         <field.FieldError errors={field.state.meta.errors} />
@@ -632,6 +665,7 @@ function PersonDetails() {
                         handleSelect={(option) =>
                           field.handleChange(option.value)
                         }
+                        disabled={!isEditing}
                       />
                       {isInvalid && (
                         <field.FieldError errors={field.state.meta.errors} />
@@ -665,6 +699,7 @@ function PersonDetails() {
                         handleSelect={(option) =>
                           field.handleChange(option.value)
                         }
+                        disabled={!isEditing}
                       />
                       {isInvalid && (
                         <field.FieldError errors={field.state.meta.errors} />
@@ -675,29 +710,32 @@ function PersonDetails() {
               />
             )}
 
-            <div className="flex gap-2 pt-4">
-              <Button
-                type="submit"
-                form="person-update-form"
-                disabled={editPerson.isPending || !formState}
-              >
-                {editPerson.isPending ? (
-                  <>
-                    Saving...
-                    <Loader className="ml-2 h-4 w-4 animate-spin" />
-                  </>
-                ) : (
-                  "Save"
-                )}
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => form.reset(baseValues)}
-              >
-                Reset
-              </Button>
-            </div>
+            {isEditing && (
+              <div className="flex gap-2 pt-4">
+                <Button
+                  type="submit"
+                  form="person-update-form"
+                  disabled={editPerson.isPending || !formState}
+                >
+                  {editPerson.isPending ? (
+                    <>
+                      Saving...
+                      <Loader className="ml-2 h-4 w-4 animate-spin" />
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => form.reset(baseValues)}
+                  disabled={editPerson.isPending}
+                >
+                  Reset
+                </Button>
+              </div>
+            )}
           </form.FieldGroup>
         </form>
       </div>

@@ -9,7 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { CreateSiteType, SiteType } from "@/lib/siteTypes";
-import { cn, formatAsCurrency } from "@/lib/utils";
+import { cn, formatCurrency } from "@/lib/utils";
 import { findSite, updateSite } from "@/services/siteService";
 import {
   createFormHook,
@@ -18,7 +18,14 @@ import {
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { AlertCircle, ArrowLeft, CheckCircle2, Loader } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2,
+  Loader,
+  Edit,
+  X,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import * as z from "zod";
@@ -50,6 +57,7 @@ function SiteDetails() {
   const { id } = useParams<{ id: string }>();
   const queryClient = useQueryClient();
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
   const navigate = useNavigate();
 
   if (!id) {
@@ -71,6 +79,7 @@ function SiteDetails() {
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["site-details", id] });
       setShowSuccess(true);
+      setIsEditing(false);
       setTimeout(() => setShowSuccess(false), 4000);
     },
   });
@@ -107,11 +116,11 @@ function SiteDetails() {
     validators: {
       onSubmit: formSchema,
     },
-    onSubmit: async ({ value }) => {
+    onSubmit: ({ value }) => {
       if (!data) return;
       const payload = buildUpdatePayload(data, value);
       if (Object.keys(payload).length === 0) return;
-      await editSite.mutateAsync({ id, payload });
+      editSite.mutate({ id, payload });
     },
   });
 
@@ -159,17 +168,17 @@ function SiteDetails() {
           "items-center",
         )}
       >
-        <div className="flex-1 flex flex-col gap-4 p-6 border rounded-lg bg-muted/50 min-w-2xl">
-          <div className="flex flex-col gap-2">
+        <div className="flex-1 flex flex-col gap-4 p-6 border rounded-lg bg-muted/50 min-w-2xl w-full max-w-2xl">
+          <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Site Information</h3>
-            <div className="flex flex-col gap-1">
-              <span className="text-sm text-muted-foreground">
-                Current Balance
-              </span>
-              <span className="text-2xl font-bold">
-                {formatAsCurrency(data?.balance ?? 0)}
-              </span>
-            </div>
+          </div>
+          <div className="flex flex-col gap-1">
+            <span className="text-sm text-muted-foreground">
+              Current Balance
+            </span>
+            <span className="text-2xl font-bold">
+              {formatCurrency(data?.balance ?? 0)}
+            </span>
           </div>
         </div>
         <form
@@ -184,9 +193,7 @@ function SiteDetails() {
             {showSuccess && (
               <Alert className="border-green-200 bg-green-50 text-green-900">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription>
-                  Person updated successfully.
-                </AlertDescription>
+                <AlertDescription>Site updated successfully.</AlertDescription>
               </Alert>
             )}
 
@@ -202,9 +209,36 @@ function SiteDetails() {
                       }`
                     : editSite.error instanceof Error
                       ? editSite.error.message
-                      : "Failed to update person. Please try again."}
+                      : "Failed to update site. Please try again."}
                 </AlertDescription>
               </Alert>
+            )}
+            {!isEditing ? (
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsEditing(true)}
+                >
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
+              </div>
+            ) : (
+              <div className="flex justify-end">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setIsEditing(false);
+                    form.reset(baseValues);
+                    editSite.reset();
+                  }}
+                >
+                  <X className="mr-2 h-4 w-4 text-red-500" />
+                  <span className="text-red-500">Cancel</span>
+                </Button>
+              </div>
             )}
             <form.AppField
               name="name"
@@ -228,6 +262,7 @@ function SiteDetails() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Name..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -245,8 +280,7 @@ function SiteDetails() {
                 return (
                   <field.Field>
                     <field.FieldLabel htmlFor={field.name}>
-                      {" "}
-                      Address{" "}
+                      Address
                     </field.FieldLabel>
                     <field.Textarea
                       id={field.name}
@@ -259,6 +293,7 @@ function SiteDetails() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Address..."
                       autoComplete="off"
+                      disabled={!isEditing}
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
@@ -267,30 +302,33 @@ function SiteDetails() {
                 );
               }}
             />
-            <form.AppForm>
-              <Field orientation="responsive">
-                <form.Button
-                  disabled={editSite.isPending || !formState}
-                  type="submit"
-                >
-                  {editSite.isPending ? (
-                    <>
-                      Saving...
-                      <Loader className="ml-2 h-4 w-4 animate-spin" />
-                    </>
-                  ) : (
-                    <>Save</>
-                  )}
-                </form.Button>
-                <form.Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => form.reset(baseValues)}
-                >
-                  Reset
-                </form.Button>
-              </Field>
-            </form.AppForm>
+            {isEditing && (
+              <form.AppForm>
+                <Field orientation="responsive">
+                  <form.Button
+                    disabled={editSite.isPending || !formState}
+                    type="submit"
+                  >
+                    {editSite.isPending ? (
+                      <>
+                        Saving...
+                        <Loader className="ml-2 h-4 w-4 animate-spin" />
+                      </>
+                    ) : (
+                      <>Save</>
+                    )}
+                  </form.Button>
+                  <form.Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => form.reset(baseValues)}
+                    disabled={editSite.isPending}
+                  >
+                    Reset
+                  </form.Button>
+                </Field>
+              </form.AppForm>
+            )}
           </form.FieldGroup>
         </form>
       </div>

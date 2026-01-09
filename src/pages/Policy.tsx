@@ -2,7 +2,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PolicyForm from "@/features/PolicyForm";
 import RateForm from "@/features/RateForm";
-import { formatAsCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import { findPolicy, findRate } from "@/services/adminService";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -68,7 +68,7 @@ function Policy() {
                         Current Rate
                       </p>
                       <p className="text-3xl font-bold tracking-tight">
-                        {formatAsCurrency(rateQuery.data?.rate ?? 0)}
+                        {formatCurrency(rateQuery.data?.rate ?? 0)}
                       </p>
                     </div>
                   </div>

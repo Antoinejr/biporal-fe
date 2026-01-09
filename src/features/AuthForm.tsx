@@ -45,7 +45,7 @@ const AuthForm = () => {
       onSubmit: formSchema,
       onSubmitAsync: async ({ value }) => {
         console.log("Form submit got called", { value: value });
-        await mutation.mutateAsync(value);
+        mutation.mutate(value);
       },
     },
   });

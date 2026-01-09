@@ -39,7 +39,7 @@ export async function findSite(id: string): Promise<SiteType | undefined>{
 
 export async function getSites(payload: GetSitesQuery) {
   try {
-    let data: GetSitesQuery = {};
+    const data: GetSitesQuery = {};
     if (payload.page) data.page = payload.page;
     if (payload.search) data.search = payload.search;
 

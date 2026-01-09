@@ -76,7 +76,7 @@ const Site = () => {
         </div>
       </div>
     );
-  }, [inputValue, isLoading]);
+  }, [inputValue, isLoading, handleTextChange]);
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">

@@ -1,52 +1,86 @@
 import Biporal from "@/assets/BIPORAL_2-Medium.png";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import useAuth from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 import {
   Clipboard,
   Home,
-  // ShieldAlert,
   MapPinned,
   Ticket,
   User,
   HardHat,
   ClipboardClock,
+  ChevronDown,
+  BanknoteArrowUp,
+  BanknoteArrowDown,
 } from "lucide-react";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const navigator = useNavigate();
-  const navItems = [
+  const location = useLocation();
+
+  const mainNavItems = [
     { name: "Dashboard", path: "/", icon: <Home className="w-5 h-5" /> },
     {
       name: "Contractors",
       path: "/contractors",
       icon: <HardHat className="w-5 h-5" />,
     },
-    { name: "Persons", path: "/persons", icon: <User className="w-5 h-5" /> },
     { name: "Sites", path: "/sites", icon: <MapPinned className="w-5 h-5" /> },
     { name: "Tokens", path: "/tokens", icon: <Ticket className="w-5 h-5" /> },
-    {
-      name: "Reports",
-      path: "/reports",
-      icon: <Clipboard className="w-5 h-5" />,
-    },
-    // {
-    //   name: "BlockList",
-    //   path: "/blocked",
-    //   icon: <ShieldAlert className="w-5 h-5" />,
-    // },
     {
       name: "Policies",
       path: "/policy",
       icon: <ClipboardClock className="w-5 h-5" />,
     },
   ];
+
+  const personMenuItems = [
+    { name: "Residents", path: "/persons/category/RESIDENT", icon: <User className="w-5 h-5" /> },
+    { name: "Supervisors", path: "/persons/category/SUPERVISOR", icon: <User className="w-5 h-5" /> },
+    { name: "Dependents", path: "/persons/category/DEPENDENT", icon: <User className="w-5 h-5" /> },
+    { name: "Workers", path: "/persons/category/WORKER", icon: <User className="w-5 h-5" /> },
+  ]
+
+  const reportMenuItems = [
+    {
+      name: "Logs",
+      path: "/logs",
+      icon: <ClipboardClock className="w-4 h-4" />,
+    },
+    {
+      name: "Fundings",
+      path: "/fundings",
+      icon: <BanknoteArrowUp className="w-4 h-4" />,
+    },
+    {
+      name: "Expenditures",
+      path: "/expenditures",
+      icon: <BanknoteArrowDown className="w-4 h-4" />,
+    },
+  ];
+
   const { signOut } = useAuth();
+  
   const handleLogout = () => {
     signOut();
     navigator("/login");
   };
+
+  const isReportMenuActive = reportMenuItems.some(
+    (item) => location.pathname === item.path
+  );
+
+  const isPersonMenuActive = personMenuItems.some(
+    (item) => location.pathname === item.path
+  );
 
   return (
     <div
@@ -73,7 +107,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         </Button>
       </div>
       <nav className="flex gap-1 justify-center">
-        {navItems.map((item, index) => {
+        {mainNavItems.map((item, index) => {
           return (
             <Button
               variant="link"
@@ -89,6 +123,69 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             </Button>
           );
         })}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="link"
+              className={cn(
+                "gap-1",
+                isPersonMenuActive && "bg-[#DDFFD1] text-[#059669]",
+              )}
+            >
+              <Clipboard className="w-5 h-5" />
+              <span>Persons</span>
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48">
+            {personMenuItems.map((item, index) => (
+              <DropdownMenuItem
+                key={index}
+                onClick={() => navigator(item.path)}
+                className={cn(
+                  "cursor-pointer gap-2 flex justify-start",
+                  location.pathname === item.path &&
+                    "bg-[#DDFFD1] text-[#059669]",
+                )}
+              >
+                {item.icon}
+                <span>{item.name}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="link"
+              className={cn(
+                "gap-1",
+                isReportMenuActive && "bg-[#DDFFD1] text-[#059669]",
+              )}
+            >
+              <Clipboard className="w-5 h-5" />
+              <span>Reports</span>
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="w-48">
+            {reportMenuItems.map((item, index) => (
+              <DropdownMenuItem
+                key={index}
+                onClick={() => navigator(item.path)}
+                className={cn(
+                  "cursor-pointer gap-2 flex justify-start",
+                  location.pathname === item.path &&
+                    "bg-[#DDFFD1] text-[#059669]",
+                )}
+              >
+                {item.icon}
+                <span>{item.name}</span>
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
       </nav>
       <div>{children}</div>
     </div>

@@ -8,27 +8,24 @@ import { cn } from "@/lib/utils";
 import { getPersons } from "@/services/personService";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useParams } from "react-router";
 
 const Person = () => {
+  const { category } = useParams()
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [isActive, setIsActive] = useState<{
     name: string;
     value: boolean | undefined;
   }>({ name: "All", value: undefined });
-  const [categoryState, setCategory] = useState<{
-    name: string;
-    value: Category | undefined;
-  }>({ name: "All", value: undefined });
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ["persons", page, search, isActive, categoryState],
+    queryKey: ["persons", page, search, isActive.value, category],
     queryFn: () =>
       getPersons({
         page: page,
         isActive: isActive.value,
         search: search,
-        category: categoryState.value,
+        category: category as Category,
       }),
   });
 
@@ -74,8 +71,6 @@ const Person = () => {
 
   const toolBar = useMemo(() => {
     const hasIsActiveFilter = isActive.value !== undefined;
-    const hasCategoryFilter = categoryState.value !== undefined;
-
     return (
       <div className={cn("flex gap-1 justify-between")}>
         <div className={cn("flex gap-1 min-w-md")}>
@@ -105,31 +100,11 @@ const Person = () => {
               </span>
             )}
           </div>
-          <div className="relative">
-            <ChooseMenu
-              options={[
-                { name: "All", value: undefined },
-                { name: "Resident", value: "RESIDENT" as Category },
-                { name: "Worker", value: "WORKER" as Category },
-                { name: "Dependent", value: "DEPENDENT" as Category },
-                { name: "Supervisor", value: "SUPERVISOR" as Category },
-              ]}
-              state={categoryState.value}
-              handleSelect={setCategory}
-              disabled={isLoading}
-              label="Category"
-            />
-            {hasCategoryFilter && (
-              <span className="absolute -top-1 -right-1 text-red-500 text-lg">
-                *
-              </span>
-            )}
-          </div>
         </div>
-        <PersonForm />
+        <PersonForm category={category as Category}/>
       </div>
     );
-  }, [inputValue, isActive.value, categoryState.value, isLoading]);
+  }, [inputValue, isActive.value, isLoading,handleTextChange, category]);
 
   return (
     <div className="px-4 space-y-8">

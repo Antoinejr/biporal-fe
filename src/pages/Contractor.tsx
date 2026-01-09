@@ -17,9 +17,10 @@ const Contractor = () => {
   }>({ name: "All", value: undefined });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["contractors", page, search, isActive],
-    queryFn: () =>
-      getContractors({ page: page, isActive: isActive.value, search: search }),
+    queryKey: ["contractors", page, search, isActive.value],
+    queryFn: () => {
+      return getContractors({ page: page, isActive: isActive.value, search: search });
+    }
   });
 
   const [inputValue, setInputValue] = useState(search);
@@ -95,7 +96,7 @@ const Contractor = () => {
         <ContractorForm />
       </div>
     );
-  }, [inputValue, isActive.value, isLoading]);
+  }, [inputValue, isActive.value, isLoading, handleTextChange]);
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">

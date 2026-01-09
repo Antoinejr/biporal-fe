@@ -21,7 +21,7 @@ export const getRecentLogActivity = async ({
   cursor?: string;
 }) => {
   try {
-    let payload: { direction?: PageDirection; cursor?: string } = {};
+    const payload: { direction?: PageDirection; cursor?: string } = {};
     if (direction) {
       payload.direction = direction;
     }

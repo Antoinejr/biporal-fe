@@ -74,7 +74,7 @@ export async function getOnePerson(id: string) {
 }
 
 export async function getPersons(payload: GetPersonQuery) {
-  let data: GetPersonQuery = {};
+  const data: GetPersonQuery = {};
   if (payload.page) {
     data.page = payload.page;
   }

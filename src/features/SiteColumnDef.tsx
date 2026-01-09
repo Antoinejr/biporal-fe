@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import type { SiteType } from "@/lib/siteTypes";
-import { formatAsCurrency } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye } from "lucide-react";
 import { useNavigate } from "react-router";
@@ -18,7 +18,7 @@ export const SiteColumns: ColumnDef<SiteType>[] = [
     accessorKey: "balance",
     header: "Balance",
     cell: ({ row }) => {
-      return formatAsCurrency(row.original.balance);
+      return formatCurrency(row.original.balance);
     },
   },
   {

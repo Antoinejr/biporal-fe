@@ -120,9 +120,9 @@ function PersonStatusUpdate({ person }: { person: Person }) {
         <Button
           onClick={() => {
             if (person.deletedAt) {
-              reactivePerson.mutateAsync(person.id);
+              reactivePerson.mutate(person.id);
             } else {
-              removePerson.mutateAsync(person.id);
+              removePerson.mutate(person.id);
             }
           }}
           type="button"

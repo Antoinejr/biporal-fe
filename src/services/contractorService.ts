@@ -65,7 +65,7 @@ export async function deactivateContractor(id: string) {
 }
 
 export const getContractors = async (payload: GetContractorQuery) => {
-  let data: GetContractorQuery = {};
+  const data: GetContractorQuery = {};
   if (payload.page) {
     data.page = payload.page;
   }

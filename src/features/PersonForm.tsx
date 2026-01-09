@@ -32,6 +32,10 @@ import * as z from "zod";
 import ChooseMenu from "./ChooseMenu";
 import { Textarea } from "@/components/ui/textarea";
 
+type PersonFormProps = {
+  category: Category
+}
+
 const { fieldContext, formContext } = createFormHookContexts();
 
 const { useAppForm } = createFormHook({
@@ -126,7 +130,7 @@ const formSchema = z
     }
   });
 
-function PersonForm() {
+function PersonForm({ category }: PersonFormProps) {
   const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["static-residents"],
@@ -153,7 +157,7 @@ function PersonForm() {
       address: "",
       lagId: "",
       passcode: "",
-      category: "RESIDENT" as Category,
+      category: category as Category,
       durationOfStay: "",
       employerId: "",
       residentId: "",
@@ -168,7 +172,7 @@ function PersonForm() {
         return;
       }
       console.log("Clean Data", result.data);
-      await mutation.mutateAsync(result.data, {
+      mutation.mutate(result.data, {
         onSuccess: async () => {
           if (result.data.category === "RESIDENT") {
             await queryClient.refetchQueries({
@@ -411,6 +415,7 @@ function PersonForm() {
                       <field.FieldError errors={field.state.meta.errors} />
                     )}
                     <field.ChooseMenu
+                      disabled={true}
                       options={[
                         { name: "Resident", value: "RESIDENT" as Category },
                         { name: "Worker", value: "WORKER" as Category },

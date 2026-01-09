@@ -53,7 +53,6 @@ const formSchema = z.object({
   passcode: z.string().min(5, "Passcode must be at least 5 characters long"),
 });
 
-// check operation of mutation with and without async
 function ContractorForm() {
   const queryClient = useQueryClient();
   const [show, setShow] = useState<boolean>(false);
@@ -61,15 +60,14 @@ function ContractorForm() {
     mutationFn: createContractor,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["contractors"],
+        queryKey: ["contractors"]
       });
       await queryClient.refetchQueries({
         queryKey: ["static-contractors"],
         exact: true,
       });
-    },
-    onSettled: () => {
       form.reset();
+      mutation.reset();
       setShow(false);
     },
   });
@@ -93,7 +91,7 @@ function ContractorForm() {
         passcode: value.passcode.trim(),
       };
       console.log("Submitting contractor form", cleanedValue);
-      await mutation.mutateAsync(cleanedValue);
+      mutation.mutate(cleanedValue);
     },
   });
 
@@ -110,7 +108,6 @@ function ContractorForm() {
           id="contractor-form"
           onSubmit={(event) => {
             event.preventDefault();
-            mutation.reset();
             form.handleSubmit();
           }}
         >

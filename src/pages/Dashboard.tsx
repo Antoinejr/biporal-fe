@@ -43,14 +43,14 @@ const Dashboard = () => {
     if (!data.pagination.nextCursor) return;
     setCursor(new Date(data.pagination.nextCursor!).toISOString());
     setDirection("next");
-  }, []);
+  }, [data]);
 
   const prevPage = useCallback(() => {
     if (!data) return;
     if (!data.pagination.prevCursor) return;
     setCursor(new Date(data.pagination.prevCursor!).toISOString());
     setDirection("prev");
-  }, []);
+  }, [data]);
   return (
     <div className={cn("grid grid-rows-[auto_1fr]", "px-4 space-y-8")}>
       <div className="space-y-2">
