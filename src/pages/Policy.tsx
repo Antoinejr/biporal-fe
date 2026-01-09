@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
-const Policy = () => {
+function Policy() {
   const policyQuery = useQuery({
     queryKey: ["policy"],
     queryFn: findPolicy,
