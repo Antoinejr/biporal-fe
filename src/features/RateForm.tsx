@@ -44,7 +44,7 @@ const { useAppForm } = createFormHook({
 const ston = z.string().transform((e) => (e === "" ? 0 : Number(e)));
 const formSchema = z.object({
   cost: ston.pipe(
-    z.number().min(1, { message: "Minimum price of 1 NGN" }),
+    z.number().min(0, { message: "Minimum price of 0 NGN" }),
   ),
 });
 
