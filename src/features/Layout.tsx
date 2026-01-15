@@ -20,66 +20,85 @@ import {
   BanknoteArrowUp,
   BanknoteArrowDown,
 } from "lucide-react";
+import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 
+const mainNavItems = [
+  { name: "Dashboard", path: "/", icon: <Home className="w-5 h-5" /> },
+  {
+    name: "Contractors",
+    path: "/contractors",
+    icon: <HardHat className="w-5 h-5" />,
+  },
+  { name: "Sites", path: "/sites", icon: <MapPinned className="w-5 h-5" /> },
+  { name: "Tokens", path: "/tokens", icon: <Ticket className="w-5 h-5" /> },
+  {
+    name: "Policies",
+    path: "/policy",
+    icon: <ClipboardClock className="w-5 h-5" />,
+  },
+];
+
+const personMenuItems = [
+  {
+    name: "Residents",
+    path: "/persons/category/RESIDENT",
+    icon: <User className="w-5 h-5" />,
+  },
+  {
+    name: "Supervisors",
+    path: "/persons/category/SUPERVISOR",
+    icon: <User className="w-5 h-5" />,
+  },
+  {
+    name: "Dependents",
+    path: "/persons/category/DEPENDENT",
+    icon: <User className="w-5 h-5" />,
+  },
+  {
+    name: "Workers",
+    path: "/persons/category/WORKER",
+    icon: <User className="w-5 h-5" />,
+  },
+];
+
+const reportMenuItems = [
+  {
+    name: "Logs",
+    path: "/logs",
+    icon: <ClipboardClock className="w-4 h-4" />,
+  },
+  {
+    name: "Fundings",
+    path: "/fundings",
+    icon: <BanknoteArrowUp className="w-4 h-4" />,
+  },
+  {
+    name: "Expenditures",
+    path: "/expenditures",
+    icon: <BanknoteArrowDown className="w-4 h-4" />,
+  },
+];
+
 const Layout = ({ children }: { children: React.ReactNode }) => {
+  const [personMenu, setPersonMenuName] = useState<string>("");
+  const [reportMenu, setReportMenuName] = useState<string>("");
   const navigator = useNavigate();
   const location = useLocation();
 
-  const mainNavItems = [
-    { name: "Dashboard", path: "/", icon: <Home className="w-5 h-5" /> },
-    {
-      name: "Contractors",
-      path: "/contractors",
-      icon: <HardHat className="w-5 h-5" />,
-    },
-    { name: "Sites", path: "/sites", icon: <MapPinned className="w-5 h-5" /> },
-    { name: "Tokens", path: "/tokens", icon: <Ticket className="w-5 h-5" /> },
-    {
-      name: "Policies",
-      path: "/policy",
-      icon: <ClipboardClock className="w-5 h-5" />,
-    },
-  ];
-
-  const personMenuItems = [
-    { name: "Residents", path: "/persons/category/RESIDENT", icon: <User className="w-5 h-5" /> },
-    { name: "Supervisors", path: "/persons/category/SUPERVISOR", icon: <User className="w-5 h-5" /> },
-    { name: "Dependents", path: "/persons/category/DEPENDENT", icon: <User className="w-5 h-5" /> },
-    { name: "Workers", path: "/persons/category/WORKER", icon: <User className="w-5 h-5" /> },
-  ]
-
-  const reportMenuItems = [
-    {
-      name: "Logs",
-      path: "/logs",
-      icon: <ClipboardClock className="w-4 h-4" />,
-    },
-    {
-      name: "Fundings",
-      path: "/fundings",
-      icon: <BanknoteArrowUp className="w-4 h-4" />,
-    },
-    {
-      name: "Expenditures",
-      path: "/expenditures",
-      icon: <BanknoteArrowDown className="w-4 h-4" />,
-    },
-  ];
-
   const { signOut } = useAuth();
-  
+
   const handleLogout = () => {
     signOut();
     navigator("/login");
   };
 
   const isReportMenuActive = reportMenuItems.some(
-    (item) => location.pathname === item.path
+    (item) => location.pathname === item.path,
   );
 
   const isPersonMenuActive = personMenuItems.some(
-    (item) => location.pathname === item.path
+    (item) => location.pathname === item.path,
   );
 
   return (
@@ -133,7 +152,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               )}
             >
               <Clipboard className="w-5 h-5" />
-              <span>Persons</span>
+              <span>{personMenu === "" ? "Persons" : personMenu}</span>
               <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -141,7 +160,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {personMenuItems.map((item, index) => (
               <DropdownMenuItem
                 key={index}
-                onClick={() => navigator(item.path)}
+                onClick={() => {
+                  setPersonMenuName(item.name);
+                  navigator(item.path);
+                }}
                 className={cn(
                   "cursor-pointer gap-2 flex justify-start",
                   location.pathname === item.path &&
@@ -165,7 +187,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               )}
             >
               <Clipboard className="w-5 h-5" />
-              <span>Reports</span>
+              <span>{reportMenu === "" ? "Reports" : reportMenu}</span>
               <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -173,7 +195,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {reportMenuItems.map((item, index) => (
               <DropdownMenuItem
                 key={index}
-                onClick={() => navigator(item.path)}
+                onClick={() => {
+                  navigator(item.path)
+                  setReportMenuName(item.name)
+                }}
                 className={cn(
                   "cursor-pointer gap-2 flex justify-start",
                   location.pathname === item.path &&

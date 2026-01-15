@@ -31,7 +31,7 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   },
   {
     accessorKey: "destination",
-    header: "Destination",
+    header: "Site",
     cell: (ctx) => `${ctx.row.original.destination ?? "N/A"}`,
   },
   {
