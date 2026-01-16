@@ -7,7 +7,10 @@ import { useNavigate } from "react-router";
 
 export const SiteColumns: ColumnDef<SiteType>[] = [
   {
-    accessorKey: "name",
+    id: "name",
+    accessorFn(row) {
+      return row.name.toUpperCase()
+    },
     header: "Name",
   },
   {
@@ -29,7 +32,7 @@ export const SiteColumns: ColumnDef<SiteType>[] = [
       if (row.original.contractors.length > 0) {
         contractor = row.original.contractors[0].name ?? "N/A"
       }
-      return `${contractor ?? "N/A"}`
+      return `${contractor?.toUpperCase() ?? "N/A"}`
     }
   },
   {

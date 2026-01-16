@@ -6,7 +6,7 @@ export const InvoiceColumns: ColumnDef<Invoice>[] = [
   {
     id: "contractorName",
     accessorFn(row) {
-     return `${row.contractor.name}` 
+     return `${row.contractor.name.toUpperCase()}` 
     },
     header: "Contractor",
   },
@@ -27,7 +27,7 @@ export const InvoiceColumns: ColumnDef<Invoice>[] = [
   {
     id: "siteName",
     accessorFn(row) {
-      return `${row.site.name}`
+      return `${row.site.name.toUpperCase()}`
     },
     header: "Site"
   },

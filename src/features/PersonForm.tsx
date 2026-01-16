@@ -210,7 +210,7 @@ function PersonForm({ category }: PersonFormProps) {
         >
           <form.FieldGroup
             className={cn(
-              "grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))]",
+              "grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))]",
             )}
           >
             {mutation.isError && (
@@ -355,7 +355,7 @@ function PersonForm({ category }: PersonFormProps) {
                           );
                           field.handleChange(numericVal);
                         }}
-                        placeholder="Lagos ID"
+                        placeholder="Lagos Resident ID"
                         autoComplete="off"
                         maxLength={10}
                       />
@@ -467,7 +467,7 @@ function PersonForm({ category }: PersonFormProps) {
                         }
                         field.handleChange(numericVal);
                       }}
-                      placeholder="Duration..."
+                      placeholder="Length of days of access"
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />

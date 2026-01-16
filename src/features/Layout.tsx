@@ -15,12 +15,12 @@ import {
   Ticket,
   User,
   HardHat,
+  Settings,
   ClipboardClock,
   ChevronDown,
   BanknoteArrowUp,
   BanknoteArrowDown,
 } from "lucide-react";
-import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 
 const mainNavItems = [
@@ -33,9 +33,9 @@ const mainNavItems = [
   { name: "Sites", path: "/sites", icon: <MapPinned className="w-5 h-5" /> },
   { name: "Tokens", path: "/tokens", icon: <Ticket className="w-5 h-5" /> },
   {
-    name: "Policies",
-    path: "/policy",
-    icon: <ClipboardClock className="w-5 h-5" />,
+    name: "Settings",
+    path: "/settings",
+    icon: <Settings className="w-5 h-5" />,
   },
 ];
 
@@ -81,8 +81,6 @@ const reportMenuItems = [
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
-  const [personMenu, setPersonMenuName] = useState<string>("");
-  const [reportMenu, setReportMenuName] = useState<string>("");
   const navigator = useNavigate();
   const location = useLocation();
 
@@ -151,8 +149,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 isPersonMenuActive && "bg-[#DDFFD1] text-[#059669]",
               )}
             >
-              <Clipboard className="w-5 h-5" />
-              <span>{personMenu === "" ? "Persons" : personMenu}</span>
+              <User className="w-5 h-5" />
+              <span>Persons</span>
               <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -160,10 +158,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {personMenuItems.map((item, index) => (
               <DropdownMenuItem
                 key={index}
-                onClick={() => {
-                  setPersonMenuName(item.name);
-                  navigator(item.path);
-                }}
+                onClick={() => navigator(item.path)}
                 className={cn(
                   "cursor-pointer gap-2 flex justify-start",
                   location.pathname === item.path &&
@@ -187,7 +182,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               )}
             >
               <Clipboard className="w-5 h-5" />
-              <span>{reportMenu === "" ? "Reports" : reportMenu}</span>
+              <span>Reports</span>
               <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -195,10 +190,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
             {reportMenuItems.map((item, index) => (
               <DropdownMenuItem
                 key={index}
-                onClick={() => {
-                  navigator(item.path)
-                  setReportMenuName(item.name)
-                }}
+                onClick={() => navigator(item.path)}
                 className={cn(
                   "cursor-pointer gap-2 flex justify-start",
                   location.pathname === item.path &&

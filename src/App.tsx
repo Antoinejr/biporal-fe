@@ -8,7 +8,6 @@ import AuthProvider from "./providers/authProvider";
 import { BrowserRouter, Routes, Route } from "react-router";
 import Contractor from "./pages/Contractor";
 import Blocked from "./pages/Blocked";
-import Policy from "./pages/Policy";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ContractorDetails from "./features/ContractorDetails";
 import PersonDetails from "./features/PersonDetails";
@@ -16,6 +15,7 @@ import SiteDetails from "./features/SiteDetails";
 import Funding from "./pages/Funding";
 import Expenditure from "./pages/Expenditure";
 import Logs from "./pages/Logs";
+import Setting from "./pages/Setting";
 
 const queryClient = new QueryClient();
 function App() {
@@ -34,7 +34,7 @@ function App() {
               <Route path="fundings" element={<Funding />} />
               <Route path="expenditures" element={<Expenditure/>} />
               <Route path="blocked" element={<Blocked />} />
-              <Route path="policy" element={<Policy />} />
+              <Route path="settings" element={<Setting />} />
               <Route path="contractors/:id" element={<ContractorDetails />} />
               <Route path="persons/category/:category" element={<Person />} />
               <Route path="persons/:id" element={<PersonDetails />} />

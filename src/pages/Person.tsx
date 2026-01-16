@@ -8,10 +8,12 @@ import { cn } from "@/lib/utils";
 import { getPersons } from "@/services/personService";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams } from "react-router";
+import { useParams, useLocation} from "react-router";
+
 
 const Person = () => {
   const { category } = useParams()
+  const location = useLocation()
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
   const [isActive, setIsActive] = useState<{
@@ -31,6 +33,13 @@ const Person = () => {
 
   const [inputValue, setInputValue] = useState(search);
   const timeoutRef = useRef<number | undefined>(undefined);
+
+  const pageName= useMemo(()=> {
+    const splitstring = location.pathname.split("/");
+    const length = splitstring.length
+    return splitstring[length-1];
+  }, [location.pathname]);
+
 
   const handleTextChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,9 +118,9 @@ const Person = () => {
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Persons</h1>
+        <h1 className="text-3xl font-bold tracking-tight">{pageName}</h1>
         <p className="text-muted-foreground">
-          Manage your organization's Residents, and others
+          Manage your organization's registered persons.
         </p>
       </div>
       <DataTable

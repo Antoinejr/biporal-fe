@@ -12,8 +12,9 @@ import CategoryBadge from "@/components/category-badge";
 export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
     id: "fullName",
-    accessorFn: (row) =>
-      `${row.firstName.toUpperCase()} ${row.lastName.toUpperCase()}`,
+    accessorFn(row) {
+      return `${row.firstName.toUpperCase()} ${row.lastName.toUpperCase()}`
+    },
     header: "Name",
   },
   {
@@ -32,7 +33,10 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
     accessorKey: "site",
     header: "Site",
-    cell: (ctx) => `${ctx.row.original.site ?? "N/A"}`,
+    cell(ctx) {
+      const site = ctx.row.original.site ?? "N/A"
+      return site.toUpperCase();
+    }
   },
   {
     accessorKey: "action",

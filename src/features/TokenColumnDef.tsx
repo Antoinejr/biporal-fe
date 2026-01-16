@@ -4,7 +4,10 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 export const TokenColumns: ColumnDef<Token>[] =[
   {
-    accessorKey: "fullName",
+    id: "fullName",
+    accessorFn(row) {
+     return row.fullName ? row.fullName.toLowerCase() : "N/A"
+    },
     header: "Full Name"
   },
   {
@@ -21,9 +24,7 @@ export const TokenColumns: ColumnDef<Token>[] =[
     cell: ({row}) => {
       const token = row.original;
       return `${new Date(token.createdAt).toDateString()}`
-      
     }
-    
   },
   {
     accessorKey:"category",

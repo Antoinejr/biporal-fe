@@ -6,7 +6,7 @@ export const FundingColumns: ColumnDef<Payment>[] = [
   {
     id: "contractorName",
     accessorFn(row) {
-     return `${row.contractor.name}` 
+     return `${row.contractor.name.toUpperCase()}` 
     },
     header: "Contractor",
   },
@@ -17,7 +17,7 @@ export const FundingColumns: ColumnDef<Payment>[] = [
   {
     id: "siteName",
     accessorFn(row) {
-      return `${row.site.name}`
+      return `${row.site.name.toUpperCase()}`
     },
     header: "Site"
   },

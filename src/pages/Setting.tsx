@@ -13,7 +13,7 @@ import {
   Users,
 } from "lucide-react";
 
-function Policy() {
+function Setting() {
   const policyQuery = useQuery({
     queryKey: ["policy"],
     queryFn: findPolicy,
@@ -47,7 +47,7 @@ function Policy() {
       <div className="container mx-auto max-w-4xl py-12 px-4 space-y-8">
         {/* Header */}
         <div className="space-y-2">
-          <h1 className="text-3xl font-bold tracking-tight">Policies</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Settings</h1>
           <p className="text-muted-foreground">
             Manage your organization's token rate and entry/exit policies
           </p>
@@ -134,4 +134,4 @@ function Policy() {
   );
 };
 
-export default Policy;
+export default Setting;

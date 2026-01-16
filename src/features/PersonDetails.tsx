@@ -176,12 +176,6 @@ function PersonDetails() {
   ): Partial<T> {
     const result: Partial<T> = {};
     for (const key of Object.keys(updated) as (keyof T)[]) {
-      if (key === "lagId") {
-        if (original[key] === null) {
-          result[key] = updated[key];
-        }
-        continue;
-      }
       if (updated[key] !== original[key]) {
         result[key] = updated[key];
       }
@@ -495,7 +489,7 @@ function PersonDetails() {
                       <field.Input
                         id={field.name}
                         name={field.name}
-                        disabled={!isEditing || personQuery.data?.lagId !== null}
+                        disabled={!isEditing}
                         className="rounded-l-none"
                         value={field.state.value}
                         onBlur={(e) => {

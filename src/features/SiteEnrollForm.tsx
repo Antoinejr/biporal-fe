@@ -3,7 +3,11 @@ import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import ChooseMenu from "./ChooseMenu";
 import { useState } from "react";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { createSiteEngagement, lookupSites } from "@/services/siteService";
 import { lookupContractors } from "@/services/contractorService";
 import {
@@ -41,6 +45,7 @@ const formSchema = z.object({
 });
 
 const SiteEnrollForm = () => {
+  const queryClient = useQueryClient();
   const [show, setShow] = useState(false);
   const contractorLookupQuery = useQuery({
     queryKey: ["static-contractors"],
@@ -60,6 +65,7 @@ const SiteEnrollForm = () => {
     mutationFn: createSiteEngagement,
     onSuccess: async () => {
       form.reset();
+      queryClient.invalidateQueries({ queryKey: ["sites"] });
       setShow(false);
     },
   });
