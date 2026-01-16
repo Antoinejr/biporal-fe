@@ -233,6 +233,7 @@ function Logs() {
         prev={prevPage}
         hasNext={data ? page < data.pagination.totalPages : false}
         hasPrev={page > 1}
+        fileName="logs"
       />
     </div>
   );

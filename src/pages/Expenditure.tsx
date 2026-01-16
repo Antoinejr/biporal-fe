@@ -185,6 +185,7 @@ function Expenditure() {
         prev={prevPage}
         hasNext={data ? page < data.pagination.totalPages : false}
         hasPrev={page > 1}
+        fileName="expenditure"
       />
     </div>
   );

@@ -14,10 +14,17 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-import { AlertCircle, ArrowLeft, ArrowRight, Loader } from "lucide-react";
-import type { JSX } from "react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  ArrowRight,
+  Loader,
+  Printer,
+} from "lucide-react";
+import { useRef, type JSX } from "react";
 import { Alert, AlertDescription } from "./ui/alert";
 import { ScrollArea } from "./ui/scroll-area";
+import useExport from "@/hooks/useExport";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -29,6 +36,7 @@ type DataTableProps<TData, TValue> = {
   hasNext: boolean;
   hasPrev: boolean;
   toolBar?: JSX.Element;
+  fileName?: string;
 };
 
 const DataTable = <TData, TValue>({
@@ -41,12 +49,15 @@ const DataTable = <TData, TValue>({
   hasNext,
   hasPrev,
   toolBar,
+  fileName,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
+  const tableRef = useRef<HTMLTableElement>(null);
+  const toPdf = useExport(tableRef.current, fileName ?? "base");
 
   if (loading) {
     return (
@@ -71,43 +82,59 @@ const DataTable = <TData, TValue>({
     return (
       <Alert variant="default">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          No data found
-        </AlertDescription>
+        <AlertDescription>No data found</AlertDescription>
       </Alert>
     );
   }
   return (
     <div className={cn("grid grid-rows-[auto_1fr_auto]", "gap-2")}>
+      {fileName && (
+        <div className="flex justify-start">
+          <Button
+            variant="outline"
+            onClick={async function() {
+              return await toPdf.handleExport()
+              }
+            }
+          >
+            {toPdf.loading ? (
+              <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
+            ) : (
+              <Printer />
+            )}
+            <span>Download</span>
+          </Button>
+        </div>
+      )}
       {toolBar && toolBar}
       <ScrollArea className="max-h-[65vh]">
-      <Table noWrapper>
-        <TableHeader className="bg-muted/95 backdrop-blur-sm z-10">
-          {table.getHeaderGroups().map((hg) => (
-            <TableRow key={hg.id}>
-              {hg.headers.map((h) => (
-                <TableHead key={h.id}>
-                  {h.isPlaceholder
-                    ? null
-                    : flexRender(h.column.columnDef.header, h.getContext())}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getAllCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </ScrollArea>
+        <Table ref={tableRef} noWrapper>
+          <TableHeader className="bg-muted/95 backdrop-blur-sm z-10">
+            {table.getHeaderGroups().map((hg) => (
+              <TableRow key={hg.id}>
+                {hg.headers.map((h) => (
+                  <TableHead key={h.id}>
+                    {h.isPlaceholder
+                      ? null
+                      : flexRender(h.column.columnDef.header, h.getContext())}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getAllCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </ScrollArea>
       <div className={cn("flex gap-2 justify-end")}>
         <Button
           size="icon-sm"
