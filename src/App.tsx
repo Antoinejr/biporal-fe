@@ -16,6 +16,8 @@ import Funding from "./pages/Funding";
 import Expenditure from "./pages/Expenditure";
 import Logs from "./pages/Logs";
 import Setting from "./pages/Setting";
+import FunctionalityRoute from "./features/FunctionalityRoute";
+import FunctionalityProvider from "./providers/functionalityProvider";
 
 const queryClient = new QueryClient();
 function App() {
@@ -23,24 +25,28 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <AuthProvider>
+          <FunctionalityProvider>
           <Routes>
             <Route path="login" element={<Login />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="contractors" element={<Contractor />} />
-              <Route path="sites" element={<Site />} />
-              <Route path="tokens" element={<Token />} />
-              <Route path="logs" element={<Logs />} />
-              <Route path="fundings" element={<Funding />} />
-              <Route path="expenditures" element={<Expenditure/>} />
-              <Route path="blocked" element={<Blocked />} />
-              <Route path="settings" element={<Setting />} />
-              <Route path="contractors/:id" element={<ContractorDetails />} />
-              <Route path="persons/category/:category" element={<Person />} />
-              <Route path="persons/:id" element={<PersonDetails />} />
-              <Route path="sites/:id" element={<SiteDetails />} />
+              <Route element={<ProtectedRoute />}>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route element={<FunctionalityRoute/>}>
+                  <Route path="contractors" element={<Contractor />} />
+                  <Route path="sites" element={<Site />} />
+                  <Route path="tokens" element={<Token />} />
+                  <Route path="logs" element={<Logs />} />
+                  <Route path="fundings" element={<Funding />} />
+                  <Route path="expenditures" element={<Expenditure/>} />
+                  <Route path="blocked" element={<Blocked />} />
+                  <Route path="settings" element={<Setting />} />
+                  <Route path="contractors/:id" element={<ContractorDetails />} />
+                  <Route path="persons/category/:category" element={<Person />} />
+                  <Route path="persons/:id" element={<PersonDetails />} />
+                  <Route path="sites/:id" element={<SiteDetails />} />
+              </Route>
             </Route>
           </Routes>
+          </FunctionalityProvider>
         </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>

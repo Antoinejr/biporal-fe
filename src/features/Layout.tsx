@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useAuth from "@/hooks/useAuth";
+import useFunctionality from "@/hooks/useFunctionality";
 import { cn } from "@/lib/utils";
 import {
   Clipboard,
@@ -83,7 +84,7 @@ const reportMenuItems = [
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const navigator = useNavigate();
   const location = useLocation();
-
+  const { level } = useFunctionality();
   const { signOut } = useAuth();
 
   const handleLogout = () => {
@@ -102,11 +103,13 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       className={cn(
-        "grid grid-rows-[auto_auto_1fr]",
+        "grid",
+        level === "partial" ? "grid-rows-[auto_1fr]" : "grid-rows-[auto_auto_1fr]",
         "p-4 min-h-screen min-w-screen",
         "gap-2",
       )}
     >
+      {/* Header with logo and logout */}
       <div className="flex items-center justify-between">
         <div className="flex items-center">
           <img
@@ -123,87 +126,96 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           Logout
         </Button>
       </div>
-      <nav className="flex gap-1 justify-center">
-        {mainNavItems.map((item, index) => {
-          return (
-            <Button
-              variant="link"
-              key={index}
-              className={cn(
-                location.pathname === item.path &&
-                  "bg-[#DDFFD1] text-[#059669]",
-              )}
-              onClick={() => navigator(item.path)}
-            >
-              {item.icon}
-              <span>{item.name}</span>
-            </Button>
-          );
-        })}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="link"
-              className={cn(
-                "gap-1",
-                isPersonMenuActive && "bg-[#DDFFD1] text-[#059669]",
-              )}
-            >
-              <User className="w-5 h-5" />
-              <span>Persons</span>
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48">
-            {personMenuItems.map((item, index) => (
-              <DropdownMenuItem
-                key={index}
-                onClick={() => navigator(item.path)}
-                className={cn(
-                  "cursor-pointer gap-2 flex justify-start",
-                  location.pathname === item.path &&
-                    "bg-[#DDFFD1] text-[#059669]",
-                )}
-              >
-                {item.icon}
-                <span>{item.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
 
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="link"
-              className={cn(
-                "gap-1",
-                isReportMenuActive && "bg-[#DDFFD1] text-[#059669]",
-              )}
-            >
-              <Clipboard className="w-5 h-5" />
-              <span>Reports</span>
-              <ChevronDown className="w-4 h-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="w-48">
-            {reportMenuItems.map((item, index) => (
-              <DropdownMenuItem
+      {/* Navigation - only show when not in partial mode */}
+      {level !== "partial" && (
+        <nav className="flex gap-1 justify-center">
+          {mainNavItems.map((item, index) => {
+            return (
+              <Button
+                variant="link"
                 key={index}
-                onClick={() => navigator(item.path)}
                 className={cn(
-                  "cursor-pointer gap-2 flex justify-start",
                   location.pathname === item.path &&
                     "bg-[#DDFFD1] text-[#059669]",
                 )}
+                onClick={() => navigator(item.path)}
               >
                 {item.icon}
                 <span>{item.name}</span>
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </nav>
+              </Button>
+            );
+          })}
+          
+          {/* Persons Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="link"
+                className={cn(
+                  "gap-1",
+                  isPersonMenuActive && "bg-[#DDFFD1] text-[#059669]",
+                )}
+              >
+                <User className="w-5 h-5" />
+                <span>Persons</span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
+              {personMenuItems.map((item, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  onClick={() => navigator(item.path)}
+                  className={cn(
+                    "cursor-pointer gap-2 flex justify-start",
+                    location.pathname === item.path &&
+                      "bg-[#DDFFD1] text-[#059669]",
+                  )}
+                >
+                  {item.icon}
+                  <span>{item.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Reports Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="link"
+                className={cn(
+                  "gap-1",
+                  isReportMenuActive && "bg-[#DDFFD1] text-[#059669]",
+                )}
+              >
+                <Clipboard className="w-5 h-5" />
+                <span>Reports</span>
+                <ChevronDown className="w-4 h-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-48">
+              {reportMenuItems.map((item, index) => (
+                <DropdownMenuItem
+                  key={index}
+                  onClick={() => navigator(item.path)}
+                  className={cn(
+                    "cursor-pointer gap-2 flex justify-start",
+                    location.pathname === item.path &&
+                      "bg-[#DDFFD1] text-[#059669]",
+                  )}
+                >
+                  {item.icon}
+                  <span>{item.name}</span>
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </nav>
+      )}
+
+      {/* Main content */}
       <div>{children}</div>
     </div>
   );
