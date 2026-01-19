@@ -8,12 +8,15 @@ import {
 import type { ColumnDef } from "@tanstack/react-table";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import CategoryBadge from "@/components/category-badge";
+import env from "@/lib/env";
+
+const showAll = env.FUNCTIONALITY_LEVEL === "full";
 
 export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
     id: "fullName",
     accessorFn(row) {
-      return `${row.firstName.toUpperCase()} ${row.lastName.toUpperCase()}`
+      return `${row.firstName.toUpperCase()} ${row.lastName.toUpperCase()}`;
     },
     header: "Name",
   },
@@ -22,22 +25,24 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
     header: "Lag ID",
     cell: (ctx) => `${ctx.row.original.lagId ?? "N/A"}`,
   },
-  {
-    accessorKey: "category",
-    header: "Category",
-    cell: ({ row }) => {
-      const category = row.original.category;
-      return <CategoryBadge value={category}/>;
-    },
-  },
-  {
-    accessorKey: "site",
-    header: "Site",
-    cell(ctx) {
-      const site = ctx.row.original.site ?? "N/A"
-      return site.toUpperCase();
-    }
-  },
+  ...(showAll
+    ? [
+        {
+          accessorKey: "category",
+          header: "Category",
+          cell: ({ row }) => <CategoryBadge value={row.original.category} />,
+        } satisfies ColumnDef<ActivitiyLog>, // keeps TS happy
+      ]
+    : []),
+  ...(showAll
+    ? [
+        {
+          accessorKey: "site",
+          header: "Site",
+          cell: (ctx) => (ctx.row.original.site ?? "N/A").toUpperCase(),
+        } satisfies ColumnDef<ActivitiyLog>,
+      ]
+    : []),
   {
     accessorKey: "action",
     header: "Type",
