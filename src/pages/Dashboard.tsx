@@ -1,7 +1,6 @@
 import DataTable from "@/components/data-table";
 import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
 import type { PageDirection } from "@/lib/baseTypes";
-import env from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { getRecentLogActivity } from "@/services/dashboardService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -20,7 +19,7 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    const sfd = io(env.BASE_URL);
+    const sfd = io();
     sfd.on("connect", () => console.log("Connected to host"));
     sfd.on("connect_error", (error) =>
       console.error("Connection failed", error.message),
