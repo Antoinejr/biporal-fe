@@ -41,11 +41,11 @@ function Logs() {
     queryKey: [
       "reports",
       page,
-      action,
-      isRejected,
+      action.value,
+      isRejected.value,
       startDate,
       endDate,
-      categoryState,
+      categoryState.value,
       site.value,
     ],
     queryFn: () =>
