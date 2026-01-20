@@ -88,25 +88,27 @@ const DataTable = <TData, TValue>({
   }
   return (
     <div className={cn("grid grid-rows-[auto_1fr_auto]", "gap-2")}>
-      {fileName && (
-        <div className="flex justify-start">
-          <Button
-            variant="outline"
-            onClick={async function() {
-              return await toPdf.handleExport()
-              }
-            }
-          >
-            {toPdf.loading ? (
-              <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
-            ) : (
-              <Printer />
-            )}
-            <span>Download</span>
-          </Button>
-        </div>
-      )}
-      {toolBar && toolBar}
+      <div className={cn(fileName && toolBar ? "grid grid-cols-[auto_1fr]" : "")}>
+        {toolBar && toolBar}
+        {fileName && (
+          <div className="flex justify-end">
+            <Button
+              variant="outline"
+              onClick={async function () {
+                await toPdf.handleExport();
+                return;
+              }}
+            >
+              {toPdf.loading ? (
+                <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
+              ) : (
+                <Printer />
+              )}
+              <span>Download</span>
+            </Button>
+          </div>
+        )}
+      </div>
       <ScrollArea className="max-h-[65vh]">
         <Table ref={tableRef} noWrapper>
           <TableHeader className="bg-muted/95 backdrop-blur-sm z-10">
