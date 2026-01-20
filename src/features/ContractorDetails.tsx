@@ -354,7 +354,7 @@ function ContractorDetails() {
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
                   {editContractor.error instanceof AxiosError
-                    ? `${editContractor.error.message}\n${editContractor.error.response ? editContractor.error.response.data.message.join(" ") : ""}`
+                    ? `${editContractor.error.message}\n${editContractor.error.response ? editContractor.error.response.data.message : ""}`
                     : editContractor.error instanceof Error
                       ? editContractor.error.message
                       : "Failed to update contractor. Please try again."}
