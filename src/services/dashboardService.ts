@@ -55,3 +55,27 @@ export async function getLogSnapshot(queries: ReportQueryType) {
     throw error;
   }
 }
+
+export async function getLogPdf(queries: ReportQueryType) {
+  const filtered = Object.fromEntries(
+    Object.entries(queries).filter(
+      ([_, value]) => value !== undefined && value !== ""
+    ),
+  ) as ReportQueryType
+  try {
+     const response = await http.get("api/export/download/access", {
+      params: filtered,
+      responseType: "blob"
+    });
+    const href = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = `log_report_${new Date().toLocaleDateString("en-NG")}.pdf`
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(href);
+  } catch(error) {
+    console.error(error);
+  }
+}

@@ -48,9 +48,17 @@ const { useAppForm } = createFormHook({
   formContext,
 });
 
+const optionalString = z.string().transform((e) => (e === "" ? undefined : e));
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   address: z.string().min(1, { message: "Address is required" }),
+  owner: optionalString.pipe(z.string().min(1, {message: "Address must be entered"})),
+  contact: optionalString.pipe(z
+    .string()
+    .min(1, "Phone must be entered")
+    .regex(/^(070|080|090|081|091)\d{8}$/, {
+      message: "Invalid phone number",
+    })),
 });
 
 function SiteDetails() {
@@ -75,8 +83,7 @@ function SiteDetails() {
   });
 
   const editSite = useMutation({
-    mutationFn: updateSite,
-    onSuccess: async () => {
+    mutationFn: updateSite, onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["site-details", id] });
       setShowSuccess(true);
       setIsEditing(false);
@@ -88,6 +95,8 @@ function SiteDetails() {
     () => ({
       name: data?.name ?? "",
       address: data?.address ?? "",
+      owner: data?.owner ?? "",
+      contact: data?.contact ?? "",
     }),
     [data],
   );
@@ -106,7 +115,7 @@ function SiteDetails() {
   }
 
   function buildUpdatePayload(original: SiteType, formValues: CreateSiteType) {
-    const { id, balance, createdAt, updatedAt, deletedAt, ...rest } = original;
+    const { id, balance, createdAt, updatedAt, deletedAt, contractors, ...rest } = original;
     const diff = stripUnchanged(rest, formValues);
     return diff;
   }
@@ -292,6 +301,72 @@ function SiteDetails() {
                       }}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Address..."
+                      autoComplete="off"
+                      disabled={!isEditing}
+                    />
+                    {isInvalid && (
+                      <field.FieldError errors={field.state.meta.errors} />
+                    )}
+                  </field.Field>
+                );
+              }}
+            />
+            <form.AppField
+              name="owner"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0;
+                return (
+                  <field.Field>
+                    <field.FieldLabel htmlFor={field.name}>
+                      Owner
+                    </field.FieldLabel>
+                    <field.Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={(e) => {
+                        field.handleChange(e.target.value.trim());
+                        field.handleBlur();
+                      }}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Owner..."
+                      autoComplete="off"
+                      disabled={!isEditing}
+                    />
+                    {isInvalid && (
+                      <field.FieldError errors={field.state.meta.errors} />
+                    )}
+                  </field.Field>
+                );
+              }}
+            />
+
+            <form.AppField
+              name="contact"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0;
+                return (
+                  <field.Field>
+                    <field.FieldLabel htmlFor={field.name}>
+                      Contact
+                    </field.FieldLabel>
+                    <field.Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={(e) => {
+                        field.handleChange(e.target.value.trim());
+                        field.handleBlur();
+                      }}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/\D/g, "");
+                        field.handleChange(numericValue);
+                      }}
+                      placeholder="Contact..."
                       autoComplete="off"
                       disabled={!isEditing}
                     />

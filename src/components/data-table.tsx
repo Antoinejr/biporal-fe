@@ -19,12 +19,10 @@ import {
   ArrowLeft,
   ArrowRight,
   Loader,
-  Printer,
 } from "lucide-react";
-import { useRef, type JSX } from "react";
 import { Alert, AlertDescription } from "./ui/alert";
 import { ScrollArea } from "./ui/scroll-area";
-import useExport from "@/hooks/useExport";
+import type { JSX } from "react";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -36,7 +34,6 @@ type DataTableProps<TData, TValue> = {
   hasNext: boolean;
   hasPrev: boolean;
   toolBar?: JSX.Element;
-  fileName?: string;
 };
 
 const DataTable = <TData, TValue>({
@@ -49,15 +46,12 @@ const DataTable = <TData, TValue>({
   hasNext,
   hasPrev,
   toolBar,
-  fileName,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
-  const tableRef = useRef<HTMLTableElement>(null);
-  const toPdf = useExport(tableRef.current, fileName ?? "base");
 
   if (loading) {
     return (
@@ -88,29 +82,9 @@ const DataTable = <TData, TValue>({
   }
   return (
     <div className={cn("grid grid-rows-[auto_1fr_auto]", "gap-2")}>
-      <div className={cn(fileName && toolBar ? "grid grid-cols-[auto_1fr]" : "")}>
-        {toolBar && toolBar}
-        {fileName && (
-          <div className="flex justify-end">
-            <Button
-              variant="outline"
-              onClick={async function () {
-                await toPdf.handleExport();
-                return;
-              }}
-            >
-              {toPdf.loading ? (
-                <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
-              ) : (
-                <Printer />
-              )}
-              <span>Download</span>
-            </Button>
-          </div>
-        )}
-      </div>
+      {toolBar && toolBar}
       <ScrollArea className="max-h-[65vh]">
-        <Table ref={tableRef} noWrapper>
+        <Table noWrapper>
           <TableHeader className="bg-muted/95 backdrop-blur-sm z-10">
             {table.getHeaderGroups().map((hg) => (
               <TableRow key={hg.id}>

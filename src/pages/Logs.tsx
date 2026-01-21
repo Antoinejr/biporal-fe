@@ -1,16 +1,19 @@
 import DataTable from "@/components/data-table";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
 import ChooseMenu from "@/features/ChooseMenu";
 import type { Category } from "@/lib/activityLogsTypes";
 import { cn } from "@/lib/utils";
-import { getLogSnapshot } from "@/services/dashboardService";
+import { getLogPdf, getLogSnapshot } from "@/services/dashboardService";
 import { lookupSites } from "@/services/siteService";
 import { useQuery } from "@tanstack/react-query";
+import { Loader, Printer } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 function Logs() {
+  const [downloading, setIsDownloading] = useState(false);
   const [page, setPage] = useState(1);
   const [action, setAction] = useState<{
     name: string;
@@ -59,6 +62,26 @@ function Logs() {
         siteId: site.value,
       }),
   });
+
+  async function downloadPdf() {
+    try {
+      setIsDownloading(true);
+      await getLogPdf({
+        page: page,
+        action: action.value?.toUpperCase(),
+        isRejected: isRejected.value,
+        startDate: startDate,
+        endDate: endDate,
+        category: categoryState.value,
+        siteId: site.value,
+      });
+      return;
+    } catch (err) {
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
 
   const siteLookupQuery = useQuery({
     queryKey: ["static-sites"],
@@ -205,6 +228,20 @@ function Logs() {
             )}
           </div>
         </div>
+        <Button
+          variant="outline"
+          onClick={async function () {
+            await downloadPdf();
+            return;
+          }}
+        >
+          {downloading ? (
+            <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
+          ) : (
+            <Printer />
+          )}
+          <span>Download</span>
+        </Button>
       </div>
     );
   }, [
@@ -233,7 +270,6 @@ function Logs() {
         prev={prevPage}
         hasNext={data ? page < data.pagination.totalPages : false}
         hasPrev={page > 1}
-        fileName="logs"
       />
     </div>
   );

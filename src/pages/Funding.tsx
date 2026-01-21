@@ -1,16 +1,19 @@
 import DataTable from "@/components/data-table";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ChooseMenu from "@/features/ChooseMenu";
 import { FundingColumns } from "@/features/FundingColumnDef";
 import { cn } from "@/lib/utils";
 import { lookupContractors } from "@/services/contractorService";
-import { findPayments } from "@/services/paymentService";
+import { findPayments, getPaymentPdf } from "@/services/paymentService";
 import { lookupSites } from "@/services/siteService";
 import { useQuery } from "@tanstack/react-query";
+import { Loader, Printer } from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 function Funding() {
+  const [downloading, setIsDownloading] = useState(false);
   const [page, setPage] = useState(1);
   const [site, setSite] = useState<{
     name: string;
@@ -60,6 +63,24 @@ function Funding() {
     staleTime: Infinity,
     gcTime: Infinity,
   });
+
+  async function downloadPdf() {
+    try {
+      setIsDownloading(true);
+      await getPaymentPdf({
+        page: page,
+        siteId: site.value,
+        contractorId: contractor.value,
+        startDate: startDate,
+        endDate: endDate,
+      });
+      return;
+    } catch (err) {
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
 
   const contractorLookupTable = useMemo(
     () => [
@@ -157,6 +178,21 @@ function Funding() {
             )}
           </div>
         </div>
+
+        <Button
+          variant="outline"
+          onClick={async function () {
+            await downloadPdf();
+            return;
+          }}
+        >
+          {downloading ? (
+            <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
+          ) : (
+            <Printer />
+          )}
+          <span>Download</span>
+        </Button>
       </div>
     );
   }, [
@@ -185,7 +221,6 @@ function Funding() {
         prev={prevPage}
         hasNext={data ? page < data.pagination.totalPages : false}
         hasPrev={page > 1}
-        fileName="funding"
       />
     </div>
   );

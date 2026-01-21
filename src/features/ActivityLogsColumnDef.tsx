@@ -14,6 +14,11 @@ const showAll = env.FUNCTIONALITY_LEVEL === "full";
 
 export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
+    accessorKey: "createdAt",
+    header: "Timestamp",
+    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
+  },
+  {
     id: "fullName",
     accessorFn(row) {
       return `${row.firstName.toUpperCase()} ${row.lastName.toUpperCase()}`;
@@ -78,11 +83,6 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
         {row.original.isRejected ? "Rejected" : "Granted"}
       </span>
     ),
-  },
-  {
-    accessorKey: "createdAt",
-    header: "Timestamp",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
   },
   {
     accessorKey: "outOfOrder",

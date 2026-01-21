@@ -28,8 +28,8 @@ export async function updateSite(payload: {id: string, payload: Partial<CreateSi
 
 export async function findSite(id: string): Promise<SiteType | undefined>{
   try {
-    console.log(id);
     const response = await http.get<SiteType>(`/api/site/${id}`);
+    console.log(response.data);
     return response.data
   } catch (error) {
     console.error(error);

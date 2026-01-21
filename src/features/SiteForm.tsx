@@ -45,6 +45,13 @@ const { useAppForm } = createFormHook({
 const formSchema = z.object({
   name: z.string().trim().min(1, "Name must be entered"),
   address: z.string().trim().min(1, "Address must be entered"),
+  owner: z.string().trim().min(1, "Address must be entered"),
+  contact: z
+    .string()
+    .min(1, "Phone must be entered")
+    .regex(/^(070|080|090|081|091)\d{8}$/, {
+      message: "Invalid phone number",
+    }),
 });
 
 const SiteForm = () => {
@@ -69,6 +76,8 @@ const SiteForm = () => {
     defaultValues: {
       name: "",
       address: "",
+      owner: "",
+      contact: ""
     },
     validators: {
       onSubmit: formSchema,
@@ -167,6 +176,70 @@ const SiteForm = () => {
                       placeholder="Address..."
                       autoComplete="off"
                       aria-multiline
+                    />
+                    {isInvalid && (
+                      <field.FieldError errors={field.state.meta.errors} />
+                    )}
+                  </field.Field>
+                );
+              }}
+            />
+
+            <form.AppField
+              name="owner"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0;
+                return (
+                  <field.Field>
+                    <field.FieldLabel htmlFor={field.name}>
+                      Owner
+                    </field.FieldLabel>
+                    <field.Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={(e) => {
+                        field.handleChange(e.target.value.trim());
+                        field.handleBlur();
+                      }}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      placeholder="Owner..."
+                      autoComplete="off"
+                    />
+                    {isInvalid && (
+                      <field.FieldError errors={field.state.meta.errors} />
+                    )}
+                  </field.Field>
+                );
+              }}
+            />
+            <form.AppField
+              name="contact"
+              children={(field) => {
+                const isInvalid =
+                  field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0;
+                return (
+                  <field.Field>
+                    <field.FieldLabel htmlFor={field.name}>
+                      Contact
+                    </field.FieldLabel>
+                    <field.Input
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={(e) => {
+                        field.handleChange(e.target.value.trim());
+                        field.handleBlur();
+                      }}
+                      onChange={(e) => {
+                        const numericValue = e.target.value.replace(/\D/g, "");
+                        field.handleChange(numericValue);
+                      }}
+                      placeholder="Contact..."
+                      autoComplete="off"
                     />
                     {isInvalid && (
                       <field.FieldError errors={field.state.meta.errors} />
