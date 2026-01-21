@@ -48,17 +48,16 @@ const { useAppForm } = createFormHook({
   formContext,
 });
 
-const optionalString = z.string().transform((e) => (e === "" ? undefined : e));
 const formSchema = z.object({
   name: z.string().min(1, { message: "Name is required" }),
   address: z.string().min(1, { message: "Address is required" }),
-  owner: optionalString.pipe(z.string().min(1, {message: "Address must be entered"})),
-  contact: optionalString.pipe(z
+  owner: z.string().min(1, {message: "Address must be entered"}),
+  contact: z
     .string()
     .min(1, "Phone must be entered")
     .regex(/^(070|080|090|081|091)\d{8}$/, {
       message: "Invalid phone number",
-    })),
+    }),
 });
 
 function SiteDetails() {
