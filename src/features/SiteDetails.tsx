@@ -315,9 +315,9 @@ function SiteDetails() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
+                  !field.state.meta.isValid;
                 return (
-                  <field.Field>
+                  <field.Field data-invalid={isInvalid}>
                     <field.FieldLabel htmlFor={field.name}>
                       Owner
                     </field.FieldLabel>
@@ -325,7 +325,9 @@ function SiteDetails() {
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
+                      aria-invalid={isInvalid}
                       onBlur={(e) => {
+                        if (!isEditing) return;
                         field.handleChange(e.target.value.trim());
                         field.handleBlur();
                       }}
@@ -341,7 +343,6 @@ function SiteDetails() {
                 );
               }}
             />
-
             <form.AppField
               name="contact"
               children={(field) => {
@@ -358,6 +359,7 @@ function SiteDetails() {
                       name={field.name}
                       value={field.state.value}
                       onBlur={(e) => {
+                        if (!isEditing) return;
                         field.handleChange(e.target.value.trim());
                         field.handleBlur();
                       }}
