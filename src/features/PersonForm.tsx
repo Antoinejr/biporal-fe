@@ -105,10 +105,10 @@ const formSchema = z
     ),
   })
   .superRefine((data, ctx) => {
-    if (["RESIDENT", "SUPERVISOR"].includes(data.category) && !data.passcode) {
+    if (["SUPERVISOR"].includes(data.category) && !data.passcode) {
       ctx.addIssue({
         code: "custom",
-        message: "Passcode is required for residents and supervisors",
+        message: "Passcode is required for supervisors",
         path: ["passcode"],
       });
     }
@@ -477,7 +477,7 @@ function PersonForm({ category }: PersonFormProps) {
               }}
             />
 
-            {["RESIDENT", "SUPERVISOR"].includes(currentCategory) && (
+            {["SUPERVISOR"].includes(currentCategory) && (
               <form.AppField
                 name="passcode"
                 children={(field) => {

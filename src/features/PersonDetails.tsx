@@ -599,7 +599,7 @@ function PersonDetails() {
               }}
             />
 
-            {["RESIDENT", "SUPERVISOR"].includes(currentCategory) && (
+            {["SUPERVISOR"].includes(currentCategory) && (
               <form.AppField
                 name="passcode"
                 children={(field) => {
