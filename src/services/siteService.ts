@@ -16,6 +16,16 @@ type CreateSiteEngagement = {
   contractorId: string;
 };
 
+export async function removeContractorFromSite(id: string) {
+  try {
+    await http.delete(`/api/site/site-engagement/${id}`);
+    return;
+  } catch(error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 export async function updateSite(payload: {id: string, payload: Partial<CreateSiteType>}) {
   try {
     await http.patch(`/api/site/${payload.id}`, payload.payload);

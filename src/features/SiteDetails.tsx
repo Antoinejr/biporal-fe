@@ -226,8 +226,9 @@ function SiteDetails() {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => setIsEditing(true)}
-                >
+                  onClick={() => {
+                    setIsEditing(true);
+                  }}>
                   <Edit className="mr-2 h-4 w-4" />
                   Edit
                 </Button>
@@ -315,7 +316,7 @@ function SiteDetails() {
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched &&
-                  !field.state.meta.isValid;
+                  field.state.meta.errors.length > 0;
                 return (
                   <field.Field data-invalid={isInvalid}>
                     <field.FieldLabel htmlFor={field.name}>

@@ -13,7 +13,6 @@ import type { CreatePersonType, Person } from "@/lib/personTypes";
 import {
   getOnePerson,
   lookupResidents,
-  // revokeToken,
   updatePerson,
 } from "@/services/personService";
 import {

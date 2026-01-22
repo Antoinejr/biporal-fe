@@ -10,7 +10,7 @@ export type SiteType = {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
-  contractors: {name: string, disnegagedAt: Date | null}[];
+  contractors: {id: string, name: string, disnegagedAt: Date | null}[];
 };
 
 export type GetSitesResponse = {
