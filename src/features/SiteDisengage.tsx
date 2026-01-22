@@ -45,9 +45,9 @@ function SiteDisengage({ site }: { site: SiteType }) {
           <DialogDescription>
             This actions removes a contractor from a site.
             <br />
-            Are you sure you want to remove
-            <span className="font-bold>">{site.contractors.length > 0 && site.contractors[0].name}</span>
-            from <span className="font-bold">{site.name}</span>
+            Are you sure you want to remove{" "}
+            <span className="font-bold>">{site.contractors.length > 0 ? site.contractors[0].name : "N/A"}</span>
+            {" "}from{" "}<span className="font-bold">{site.name}</span>
           </DialogDescription>
         </DialogHeader>
         <div className="flex gap-2">

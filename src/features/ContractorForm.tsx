@@ -227,7 +227,7 @@ function ContractorForm() {
                 return (
                   <field.Field>
                     <field.FieldLabel htmlFor={field.name}>
-                      Passcode
+                      Password
                     </field.FieldLabel>
                     <field.InputPassword
                       id={field.name}
@@ -241,7 +241,7 @@ function ContractorForm() {
                         const validValue = e.target.value.replace(/\s/g, "");
                         field.handleChange(validValue);
                       }}
-                      placeholder="Passcode..."
+                      placeholder="Password..."
                       autoComplete="off"
                     />
                     {isInvalid && (
