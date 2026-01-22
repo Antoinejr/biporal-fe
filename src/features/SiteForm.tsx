@@ -224,7 +224,7 @@ const SiteForm = () => {
                 return (
                   <field.Field>
                     <field.FieldLabel htmlFor={field.name}>
-                      Contact
+                      Phone
                     </field.FieldLabel>
                     <field.Input
                       id={field.name}
@@ -238,7 +238,7 @@ const SiteForm = () => {
                         const numericValue = e.target.value.replace(/\D/g, "");
                         field.handleChange(numericValue);
                       }}
-                      placeholder="Contact..."
+                      placeholder="Phone..."
                       autoComplete="off"
                     />
                     {isInvalid && (

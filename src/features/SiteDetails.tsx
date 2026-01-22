@@ -353,7 +353,7 @@ function SiteDetails() {
                 return (
                   <field.Field>
                     <field.FieldLabel htmlFor={field.name}>
-                      Contact
+                      Phone
                     </field.FieldLabel>
                     <field.Input
                       id={field.name}
@@ -368,7 +368,7 @@ function SiteDetails() {
                         const numericValue = e.target.value.replace(/\D/g, "");
                         field.handleChange(numericValue);
                       }}
-                      placeholder="Contact..."
+                      placeholder="Phone..."
                       autoComplete="off"
                       disabled={!isEditing}
                     />

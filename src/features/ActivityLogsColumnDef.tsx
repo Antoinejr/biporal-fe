@@ -9,6 +9,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { AlertTriangle, CheckCircle } from "lucide-react";
 import CategoryBadge from "@/components/category-badge";
 import env from "@/lib/env";
+import { formatDateTime } from "@/lib/utils";
 
 const showAll = env.FUNCTIONALITY_LEVEL === "full";
 
@@ -16,7 +17,7 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
     accessorKey: "createdAt",
     header: "Timestamp",
-    cell: ({ row }) => new Date(row.original.createdAt).toLocaleString(),
+    cell: ({ row }) => formatDateTime(new Date(row.original.createdAt)),
   },
   {
     id: "fullName",
