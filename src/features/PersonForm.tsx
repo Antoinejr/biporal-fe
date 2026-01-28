@@ -166,7 +166,7 @@ function PersonForm({ category }: PersonFormProps) {
       onSubmit: formSchema,
     },
     onSubmit: async ({ value }) => {
-      const result = formSchema.safeParse(value);
+      const result = await formSchema.safeParseAsync(value);
       if (!result.success) {
         console.error("Form validation failed", result.error);
         return;

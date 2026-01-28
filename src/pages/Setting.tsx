@@ -2,16 +2,11 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import PolicyForm from "@/features/PolicyForm";
 import RateForm from "@/features/RateForm";
+import UpdateAdminPasswordForm from "@/features/UpdateAdminPasswordForm";
 import { formatCurrency } from "@/lib/utils";
 import { findPolicy, findRate } from "@/services/adminService";
 import { useQuery } from "@tanstack/react-query";
-import {
-  AlertCircle,
-  Banknote,
-  Clock,
-  Loader,
-  Users,
-} from "lucide-react";
+import { AlertCircle, Banknote, Clock, Loader, Users } from "lucide-react";
 
 function Setting() {
   const policyQuery = useQuery({
@@ -76,11 +71,8 @@ function Setting() {
                 </div>
               </div>
             </Card>
-
-            {/* Add Policy Form */}
           </div>
-
-          {/* Right Column - Policies List */}
+          {/* Policy Card */}
           <div className="space-y-6">
             <Card>
               <CardHeader className="pb-4">
@@ -128,10 +120,18 @@ function Setting() {
               </CardContent>
             </Card>
           </div>
+          <div>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                  <CardTitle className="text-xl font-bold"> Update Admin Password </CardTitle>
+                  <UpdateAdminPasswordForm />
+              </CardHeader>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
   );
-};
+}
 
 export default Setting;

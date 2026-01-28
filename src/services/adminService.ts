@@ -42,3 +42,17 @@ export async function updateRate(payload: {cost: number}) {
     throw error;
   }
 }
+
+export async function updatePassword(payload: {
+  password: string;
+  oldPassword: string;
+}) {
+  try {
+    await http.post("api/admin/password", payload);
+    return;
+  } catch(err) {
+    console.error(err);
+    throw err;
+  }
+  
+}
