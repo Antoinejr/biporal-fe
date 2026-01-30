@@ -86,7 +86,7 @@ const formSchema = z
         z
           .string()
           .min(4, { message: "Passcode must be at least 4 characters long" })
-          .max(4, { message: "Passcode must be at most 4 characters" }),
+          .max(4, { message: "Passcode must be at most 4 characters" })
       ),
     ),
     category: z.enum(["RESIDENT", "WORKER", "DEPENDENT", "SUPERVISOR"], {
@@ -487,22 +487,20 @@ function PersonForm({ category }: PersonFormProps) {
                   return (
                     <field.Field>
                       <field.FieldLabel htmlFor={field.name}>
-                        Passcode
+                        Pin
                       </field.FieldLabel>
                       <field.InputPassword
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
-                        onBlur={(e) => {
-                          field.handleChange(e.target.value.trim());
-                          field.handleBlur();
-                        }}
+                        onBlur={field.handleBlur}
                         onChange={(e) => {
                           const validValue = e.target.value.replace(/\D/g, "");
                           field.handleChange(validValue);
                         }}
-                        placeholder="Passcode..."
+                        placeholder="Pin..."
                         autoComplete="off"
+                        maxLength={4}
                       />
                       {isInvalid && (
                         <field.FieldError errors={field.state.meta.errors} />
