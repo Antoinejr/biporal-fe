@@ -57,6 +57,17 @@ export async function getLogSnapshot(queries: ReportQueryType) {
   }
 }
 
+function getFileName(r: AxiosResponse, extension: string) {
+  const contentDisposition = r.headers["content-disposition"];
+  let fileName= `log_report_${new Date().toLocaleDateString("en-NG")}.${extension}`
+  if (contentDisposition) {
+    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/)
+    if (fileNameMatch > 1)
+    fileName = fileNameMatch[1]
+  }
+  return fileName
+}
+
 export async function getLogPdf(queries: ReportQueryType) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
@@ -64,7 +75,7 @@ export async function getLogPdf(queries: ReportQueryType) {
     ),
   ) as ReportQueryType
   try {
-     const response = await http.get("api/export/download/access", {
+     const response = await http.get("api/export/access/pdf", {
       params: filtered,
       responseType: "blob"
     });
@@ -81,17 +92,6 @@ export async function getLogPdf(queries: ReportQueryType) {
   }
 }
 
-function getFileName(r: AxiosResponse, extension: string) {
-  const contentDisposition = r.headers["content-disposition"];
-  let fileName= `log_report_${new Date().toLocaleDateString("en-NG")}.${extension}`
-  if (contentDisposition) {
-    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/)
-    if (fileNameMatch > 1)
-    fileName = fileNameMatch[1]
-  }
-  return fileName
-}
-
 export async function getLogCsv(queries: ReportQueryType) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
@@ -99,7 +99,7 @@ export async function getLogCsv(queries: ReportQueryType) {
     ),
   ) as ReportQueryType
   try {
-     const response = await http.get("api/export/download/csv/access", {
+     const response = await http.get("api/export/access/csv", {
       params: filtered,
       responseType: "blob"
     });
@@ -124,7 +124,7 @@ export async function getLogXlsx(queries: ReportQueryType) {
     ),
   ) as ReportQueryType
   try {
-     const response = await http.get("api/export/download/xlsx/access", {
+     const response = await http.get("api/export/access/xlsx", {
       params: filtered,
       responseType: "blob"
     });

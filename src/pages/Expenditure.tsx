@@ -1,5 +1,12 @@
 import DataTable from "@/components/data-table";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ChooseMenu from "@/features/ChooseMenu";
@@ -7,9 +14,20 @@ import { InvoiceColumns } from "@/features/InvoiceColumnDef";
 import { cn } from "@/lib/utils";
 import { lookupContractors } from "@/services/contractorService";
 import { lookupSites } from "@/services/siteService";
-import { findInvoices, getInvoicePdf } from "@/services/tokenService";
+import {
+  findInvoices,
+  getInvoiceCsv,
+  getInvoicePdf,
+  getInvoiceXlsx,
+} from "@/services/tokenService";
 import { useQuery } from "@tanstack/react-query";
-import { Loader, Printer } from "lucide-react";
+import {
+  FileSpreadsheet,
+  FileText,
+  Loader,
+  Printer,
+  Sheet,
+} from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 function Expenditure() {
@@ -61,6 +79,42 @@ function Expenditure() {
     try {
       setIsDownloading(true);
       await getInvoicePdf({
+        page: page,
+        siteId: site.value,
+        contractorId: contractor.value,
+        startDate: startDate,
+        endDate: endDate,
+      });
+      return;
+    } catch (err) {
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
+  async function downloadCsv() {
+    try {
+      setIsDownloading(true);
+      await getInvoiceCsv({
+        page: page,
+        siteId: site.value,
+        contractorId: contractor.value,
+        startDate: startDate,
+        endDate: endDate,
+      });
+      return;
+    } catch (err) {
+      console.error(error);
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
+  async function downloadXlsx() {
+    try {
+      setIsDownloading(true);
+      await getInvoiceXlsx({
         page: page,
         siteId: site.value,
         contractorId: contractor.value,
@@ -178,20 +232,49 @@ function Expenditure() {
             )}
           </div>
         </div>
-        <Button
-          variant="outline"
-          onClick={async function () {
-            await downloadPdf();
-            return;
-          }}
-        >
-          {downloading ? (
-            <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
-          ) : (
-            <Printer />
-          )}
-          <span>Download</span>
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline">
+              {downloading ? (
+                <Loader className="h-8 w-8 text-muted-foreground animate-spin" />
+              ) : (
+                <Printer />
+              )}
+              <span>Download</span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent>
+            <DropdownMenuItem
+              onClick={async function () {
+                await downloadPdf();
+                return;
+              }}
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              <span>Pdf</span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={async function () {
+                await downloadCsv();
+                return;
+              }}
+            >
+              <FileSpreadsheet className="w-4 h-4 mr-2" />
+              <span> Csv </span>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={async function () {
+                await downloadXlsx();
+                return;
+              }}
+            >
+              <Sheet className="w-4 h-4 mr-2" />
+              <span>Excel</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     );
   }, [

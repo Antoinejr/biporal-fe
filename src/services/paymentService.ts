@@ -2,6 +2,7 @@ import http from "@/lib/axiosClient";
 import type { PageBasedPagination } from "@/lib/baseTypes";
 import type { ContractorType } from "@/lib/contractorTypes";
 import type { SiteType } from "@/lib/siteTypes";
+import type { AxiosResponse } from "axios";
 
 type FindPaymentFilters = {
   page?: number;
@@ -41,6 +42,16 @@ export async function findPayments(queries: FindPaymentFilters) {
     throw error;
   }
 }
+function getFileName(r: AxiosResponse, extension: string) {
+  const contentDisposition = r.headers["content-disposition"];
+  let fileName= `funding_report_${new Date().toLocaleDateString("en-NG")}.${extension}`
+  if (contentDisposition) {
+    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/)
+    if (fileNameMatch > 1)
+    fileName = fileNameMatch[1]
+  }
+  return fileName
+}
 
 export async function getPaymentPdf(queries: FindPaymentFilters) {
   const filtered = Object.fromEntries(
@@ -49,14 +60,62 @@ export async function getPaymentPdf(queries: FindPaymentFilters) {
     ),
   ) as FindPaymentFilters
   try {
-     const response = await http.get("api/export/download/funding", {
+     const response = await http.get("api/export/funding/pdf", {
       params: filtered,
       responseType: "blob"
     });
     const href = window.URL.createObjectURL(response.data);
     const link = document.createElement("a");
     link.href = href;
-    link.download = `funding_report_${new Date().toLocaleDateString("en-NG")}.pdf`
+    link.download = getFileName(response, "pdf")
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(href);
+  } catch(error) {
+    console.error(error);
+  }
+}
+
+export async function getPaymentCsv(queries: FindPaymentFilters) {
+  const filtered = Object.fromEntries(
+    Object.entries(queries).filter(
+      ([_, value]) => value !== undefined && value !== ""
+    ),
+  ) as FindPaymentFilters
+  try {
+     const response = await http.get("api/export/funding/csv", {
+      params: filtered,
+      responseType: "blob"
+    });
+    const href = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = getFileName(response, "csv")
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(href);
+  } catch(error) {
+    console.error(error);
+  }
+}
+
+export async function getPaymentXlsx(queries: FindPaymentFilters) {
+  const filtered = Object.fromEntries(
+    Object.entries(queries).filter(
+      ([_, value]) => value !== undefined && value !== ""
+    ),
+  ) as FindPaymentFilters
+  try {
+     const response = await http.get("api/export/funding/xlsx", {
+      params: filtered,
+      responseType: "blob"
+    });
+    const href = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = getFileName(response, "xlsx")
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
