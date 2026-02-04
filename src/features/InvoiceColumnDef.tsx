@@ -4,6 +4,14 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 export const InvoiceColumns: ColumnDef<Invoice>[] = [
   {
+    accessorKey: "createdAt",
+    cell({row}) {
+      const date = new Date(row.original.createdAt)
+      return <span>{formatDateTime(date)}</span>
+    },
+    header: "Timestamp"
+  },
+  {
     id: "contractorName",
     accessorFn(row) {
      return `${row.contractor.name.toUpperCase()}` 
@@ -43,12 +51,4 @@ export const InvoiceColumns: ColumnDef<Invoice>[] = [
     accessorKey: "quantity",
     header: "Quantity"
   },
-  {
-    accessorKey: "createdAt",
-    cell({row}) {
-      const date = new Date(row.original.createdAt)
-      return <span>{formatDateTime(date)}</span>
-    },
-    header: "Created At"
-  }
 ]

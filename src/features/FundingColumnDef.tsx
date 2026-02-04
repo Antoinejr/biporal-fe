@@ -4,6 +4,14 @@ import type { ColumnDef } from "@tanstack/react-table";
 
 export const FundingColumns: ColumnDef<Payment>[] = [
   {
+    accessorKey: "paidAt",
+    cell({row}) {
+      const paidAt = row.original.paidAt;
+      return <span>{formatDateTime(new Date(paidAt))}</span>
+    },
+    header: "Timestamp"
+  },
+  {
     id: "contractorName",
     accessorFn(row) {
      return `${row.contractor.name.toUpperCase()}` 
@@ -28,13 +36,5 @@ export const FundingColumns: ColumnDef<Payment>[] = [
       return <span>{formatCurrency(amount)}</span>
     },
     header: "Amount"
-  },
-  {
-    accessorKey: "paidAt",
-    cell({row}) {
-      const paidAt = row.original.paidAt;
-      return <span>{formatDateTime(new Date(paidAt))}</span>
-    },
-    header: "Paid At"
   }
 ]
