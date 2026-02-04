@@ -32,6 +32,11 @@ const mainNavItems = [
     path: "/contractors",
     icon: <HardHat className="w-5 h-5" />,
   },
+  {
+    name: "Supervisors",
+    path: "/persons/category/SUPERVISOR",
+    icon: <User className="w-5 h-5" />,
+  },
   { name: "Sites", path: "/sites", icon: <MapPinned className="w-5 h-5" /> },
   { name: "Tokens", path: "/tokens", icon: <Ticket className="w-5 h-5" /> },
   {
@@ -41,6 +46,7 @@ const mainNavItems = [
   },
 ];
 
+// TOOD: Add back when feature is needed
 const personMenuItems = [
   {
     name: "Residents",
@@ -154,7 +160,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           })}
           
           {/* Persons Dropdown */}
-          <DropdownMenu>
+          {false && (<DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
                 variant="link"
@@ -184,7 +190,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
                 </DropdownMenuItem>
               ))}
             </DropdownMenuContent>
-          </DropdownMenu>
+          </DropdownMenu>)}
 
           {/* Reports Dropdown */}
           <DropdownMenu>

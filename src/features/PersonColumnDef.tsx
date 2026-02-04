@@ -114,7 +114,7 @@ export const PersonColumns: ColumnDef<Person>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate(`/persons/${person.id}`)}>
+            <DropdownMenuItem onClick={() => navigate(`/persons/d/${person.id}`)}>
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>

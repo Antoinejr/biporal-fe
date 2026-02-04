@@ -8,11 +8,12 @@ import { cn } from "@/lib/utils";
 import { getPersons } from "@/services/personService";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useLocation} from "react-router";
+import { useParams, useLocation, useNavigate} from "react-router";
 
 
 const Person = () => {
-  const { category } = useParams()
+  const { category } = useParams();
+  const navigator = useNavigate();
   const location = useLocation()
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
@@ -33,6 +34,12 @@ const Person = () => {
 
   const [inputValue, setInputValue] = useState(search);
   const timeoutRef = useRef<number | undefined>(undefined);
+
+  useEffect(()=>{
+    if (category !== "SUPERVISOR") {
+      navigator("not-found", {replace: true})
+    }
+  }, [])
 
   const pageName= useMemo(()=> {
     const splitstring = location.pathname.split("/");

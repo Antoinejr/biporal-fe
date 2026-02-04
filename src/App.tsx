@@ -19,6 +19,7 @@ import Setting from "./pages/Setting";
 import FunctionalityRoute from "./features/FunctionalityRoute";
 import FunctionalityProvider from "./providers/functionalityProvider";
 import Defaulters from "./pages/Defaulters";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 function App() {
@@ -41,10 +42,11 @@ function App() {
                   <Route path="defaulters" element={<Defaulters />} />
                   <Route path="blocked" element={<Blocked />} />
                   <Route path="settings" element={<Setting />} />
-                  <Route path="contractors/:id" element={<ContractorDetails />} />
+                  <Route path="contractors/d/:id" element={<ContractorDetails />} />
                   <Route path="persons/category/:category" element={<Person />} />
-                  <Route path="persons/:id" element={<PersonDetails />} />
-                  <Route path="sites/:id" element={<SiteDetails />} />
+                  <Route path="persons/d/:id" element={<PersonDetails />} />
+                  <Route path="sites/d/:id" element={<SiteDetails />} />
+                  <Route path="*" element={<NotFound/>} />
               </Route>
             </Route>
           </Routes>

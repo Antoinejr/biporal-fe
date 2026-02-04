@@ -68,7 +68,7 @@ export const SiteColumns: ColumnDef<SiteType>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate(`/sites/${site.id}`)}>
+            <DropdownMenuItem onClick={() => navigate(`/sites/d/${site.id}`)}>
               <Eye className="h-4 w-4" />
               View Details
             </DropdownMenuItem>
