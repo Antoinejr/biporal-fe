@@ -123,7 +123,7 @@ function Setting() {
           <div>
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                  <CardTitle className="text-xl font-bold"> Update Admin Password </CardTitle>
+                  <CardTitle className="text-xl font-bold"> Update Password </CardTitle>
                   <UpdateAdminPasswordForm />
               </CardHeader>
             </Card>

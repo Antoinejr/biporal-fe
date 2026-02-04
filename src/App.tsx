@@ -18,6 +18,7 @@ import Logs from "./pages/Logs";
 import Setting from "./pages/Setting";
 import FunctionalityRoute from "./features/FunctionalityRoute";
 import FunctionalityProvider from "./providers/functionalityProvider";
+import Defaulters from "./pages/Defaulters";
 
 const queryClient = new QueryClient();
 function App() {
@@ -36,7 +37,8 @@ function App() {
                   <Route path="tokens" element={<Token />} />
                   <Route path="logs" element={<Logs />} />
                   <Route path="fundings" element={<Funding />} />
-                  <Route path="expenditures" element={<Expenditure/>} />
+                  <Route path="expenditures" element={<Expenditure />} />
+                  <Route path="defaulters" element={<Defaulters />} />
                   <Route path="blocked" element={<Blocked />} />
                   <Route path="settings" element={<Setting />} />
                   <Route path="contractors/:id" element={<ContractorDetails />} />

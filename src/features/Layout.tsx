@@ -21,6 +21,7 @@ import {
   ChevronDown,
   BanknoteArrowUp,
   BanknoteArrowDown,
+  UserLock,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
 
@@ -78,6 +79,11 @@ const reportMenuItems = [
     name: "Expenditures",
     path: "/expenditures",
     icon: <BanknoteArrowDown className="w-4 h-4" />,
+  },
+  {
+    name: "Defaulters",
+    path: "/defaulters",
+    icon: <UserLock className="w-4 h-4" />,
   },
 ];
 
