@@ -1,11 +1,14 @@
 import DataTable from "@/components/data-table";
 import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
+import StatCard from "@/features/StatCard";
 import type { PageDirection } from "@/lib/baseTypes";
+import env from "@/lib/env";
 import { cn } from "@/lib/utils";
-import { getRecentLogActivity } from "@/services/dashboardService";
+import { getDashboardKpi, getRecentLogActivity } from "@/services/dashboardService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import io from "socket.io-client";
+import { config } from "zod";
 
 const Dashboard = () => {
   const [cursor, setCursor] = useState<string | undefined>(undefined);
@@ -17,9 +20,13 @@ const Dashboard = () => {
     queryKey: ["logs", direction, cursor],
     queryFn: () => getRecentLogActivity({ direction, cursor }),
   });
+  const statsQuery = useQuery({
+    queryKey: ["kpi"],
+    queryFn: ()=>getDashboardKpi()
+  })
 
   useEffect(() => {
-    const sfd = io();
+    const sfd = io(env.BASE_URL);
     sfd.on("connect", () => console.log("Connected to host"));
     sfd.on("connect_error", (error) =>
       console.error("Connection failed", error.message),
@@ -57,6 +64,13 @@ const Dashboard = () => {
         <p className="text-muted-foreground">
           View entry and exits logs
         </p>
+      </div>
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+        <StatCard title="Total Entries Today" value={statsQuery.data?.totalEntriesToday ?? 0} />
+        <StatCard title="Total Exits Today" value={statsQuery.data?.totalExitsToday?? 0} />
+        <StatCard title="Busiest Site Today" value={statsQuery.data?.topSite.site ?? ""} />
+        <StatCard title="Busiest Hour Today" value={statsQuery.data?.peakHourToday.hour ?? 0} />
+        <StatCard title="Busiest Day All-time" value={statsQuery.data?.peakDayAllTime.day?? ""} />
       </div>
       <DataTable
         columns={ActivityLogsColumns}

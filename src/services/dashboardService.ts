@@ -14,6 +14,22 @@ type ReportQueryType = {
   isRejected?: boolean;
 }
 
+export interface Kpi {
+  totalEntriesToday: number;
+  totalExitsToday: number;
+  topSite: {site: string, count: number};
+  peakHourToday: {hour: number, count: number};
+  peakDayAllTime: {day: string, count: number};
+}
+
+export async function getDashboardKpi() {
+  try {
+    const res = await http.get<Kpi>("api/analytics/dashboard")
+    return res.data
+  } catch(err) {
+    throw err;
+  }
+}
 export const getRecentLogActivity = async ({
   direction,
   cursor,
