@@ -12,6 +12,8 @@ type ReportQueryType = {
   action?: string;
   category?: Category;
   isRejected?: boolean;
+  isLate?: boolean;
+  hasNotLeft?: boolean;
 }
 
 export interface Kpi {

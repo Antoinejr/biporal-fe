@@ -1,54 +1,57 @@
-import type { ActivitiyLog } from "@/lib/activityLogsTypes";
+import CategoryBadge from "@/components/category-badge";
 import {
-  TooltipProvider,
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
 } from "@/components/ui/tooltip";
+import type { LogReport } from "@/lib/dashboardType";
+import { cn, formatDateTime } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 import { AlertTriangle, CheckCircle } from "lucide-react";
-import CategoryBadge from "@/components/category-badge";
-import env from "@/lib/env";
-import { formatDateTime } from "@/lib/utils";
 
-const showAll = env.FUNCTIONALITY_LEVEL === "full";
-
-export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
+export const ReportLogsColumns: ColumnDef<LogReport>[] = [
   {
     accessorKey: "createdAt",
     header: "Timestamp",
-    cell: ({ row }) => formatDateTime(new Date(row.original.createdAt)),
+    cell({ row }) {
+      return formatDateTime(new Date(row.original.createdAt));
+    },
   },
   {
     id: "fullName",
-    accessorFn(row) {
-      return `${row.firstName.toUpperCase()} ${row.lastName.toUpperCase()}`;
-    },
     header: "Name",
+    cell({ row }) {
+      const firstName = row.original.firstName;
+      const lastName = row.original.lastName;
+      const isPersonFlagged = row.original.isLate || row.original.hasNotLeft;
+      const cell = `${firstName.toUpperCase()} ${lastName.toUpperCase()}`;
+      return (
+        <span className={cn(isPersonFlagged ? "text-red-500" : "")}>
+          {cell}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "lagId",
     header: "Lag ID",
     cell: (ctx) => `${ctx.row.original.lagId ?? "N/A"}`,
   },
-  ...(showAll
-    ? [
-        {
-          accessorKey: "category",
-          header: "Category",
-          cell: ({ row }) => <CategoryBadge value={row.original.category} />,
-        } satisfies ColumnDef<ActivitiyLog>, // keeps TS happy
-      ]
-    : []),
-  ...(showAll
-    ? [
-        {
-          accessorKey: "siteName",
-          header: "Site",
-          cell: ({row}) => (row.original.siteName ?? "N/A").toUpperCase(),
-        } satisfies ColumnDef<ActivitiyLog>,
-      ]
-    : []),
+  {
+    accessorKey: "category",
+    header: "Category",
+    cell({ row }) {
+      return <CategoryBadge value={row.original.category} />;
+    },
+  },
+  {
+    accessorKey: "siteName",
+    header: "Site",
+    cell({ row }) {
+      return (row.original.siteName ?? "N/A").toUpperCase();
+    },
+  },
   {
     accessorKey: "action",
     header: "Type",
@@ -69,7 +72,6 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
       );
     },
   },
-
   {
     accessorKey: "isRejected",
     header: "Access",
@@ -125,4 +127,28 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
       );
     },
   },
+  {
+    accessorKey: "isLate",
+    header: "Late Exit",
+    cell({row}) {
+      return (
+        row.original.isLate ? (
+          <span>Yes</span>
+        ) : (
+          <span>No</span>
+        )
+    )}
+  },
+  {
+    accessorKey: "hasNotLeft",
+    header: "Has Not Left",
+    cell({row}) {
+      return (
+        row.original.hasNotLeft ? (
+          <span>Yes</span>
+        ) : (
+          <span>No</span>
+        )
+    )}
+  }
 ];

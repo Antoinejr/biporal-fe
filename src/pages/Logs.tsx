@@ -9,8 +9,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
 import ChooseMenu from "@/features/ChooseMenu";
+import { ReportLogsColumns } from "@/features/ReportColumnDef";
 import type { Category } from "@/lib/activityLogsTypes";
 import { cn } from "@/lib/utils";
 import {
@@ -44,6 +44,20 @@ function Logs() {
     name: "All",
     value: undefined,
   });
+  const [isLate, setIsLate] = useState<{
+    name: string;
+    value: boolean | undefined;
+  }>({
+    name: "All",
+    value: undefined,
+  });
+  const [hasNotLeft, setHasNotLeft] = useState<{
+    name: string;
+    value: boolean | undefined;
+  }>({
+    name: "All",
+    value: undefined,
+  });
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
   const [categoryState, setCategory] = useState<{
@@ -68,6 +82,8 @@ function Logs() {
       endDate,
       categoryState.value,
       site.value,
+      isLate.value,
+      hasNotLeft.value
     ],
     queryFn: () =>
       getLogSnapshot({
@@ -78,6 +94,8 @@ function Logs() {
         endDate: endDate,
         category: categoryState.value,
         siteId: site.value,
+        isLate: isLate.value,
+        hasNotLeft: hasNotLeft.value
       }),
   });
 
@@ -92,6 +110,8 @@ function Logs() {
         endDate: endDate,
         category: categoryState.value,
         siteId: site.value,
+        isLate: isLate.value,
+        hasNotLeft: hasNotLeft.value
       });
       return;
     } catch (err) {
@@ -112,6 +132,8 @@ function Logs() {
         endDate: endDate,
         category: categoryState.value,
         siteId: site.value,
+        isLate: isLate.value,
+        hasNotLeft: hasNotLeft.value
       });
       return;
     } catch (err) {
@@ -132,6 +154,8 @@ function Logs() {
         endDate: endDate,
         category: categoryState.value,
         siteId: site.value,
+        isLate: isLate.value,
+        hasNotLeft: hasNotLeft.value
       });
       return;
     } catch (err) {
@@ -170,6 +194,8 @@ function Logs() {
     const hasEndDate = endDate !== "";
     const hasActionFilter = action.value !== undefined;
     const hasRejectedFilter = isRejected.value !== undefined;
+    const hasLateFilter= isLate.value !== undefined;
+    const hasNotLeftFilter = hasNotLeft.value !== undefined;
     const hasCategoryFilter = categoryState.value !== undefined;
     const hasSiteFilter = site.value !== undefined;
     return (
@@ -285,6 +311,42 @@ function Logs() {
               </span>
             )}
           </div>
+          <div className="relative">
+            <ChooseMenu
+              options={[
+                { name: "All", value: undefined },
+                { name: "Yes", value: true},
+                { name: "No", value: false },
+              ]}
+              state={isLate.value}
+              handleSelect={setIsLate}
+              disabled={isLoading}
+              label="Late Exit"
+            />
+            {hasLateFilter && (
+              <span className="absolute -top-1 -right-1 text-red-500 text-lg">
+                *
+              </span>
+            )}
+          </div>
+          <div className="relative">
+            <ChooseMenu
+              options={[
+                { name: "All", value: undefined },
+                { name: "Yes", value: true },
+                { name: "No", value: false},
+              ]}
+              state={hasNotLeft.value}
+              handleSelect={setHasNotLeft}
+              disabled={isLoading}
+              label="Still In"
+            />
+            {hasNotLeftFilter && (
+              <span className="absolute -top-1 -right-1 text-red-500 text-lg">
+                *
+              </span>
+            )}
+          </div>
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -335,6 +397,8 @@ function Logs() {
     startDate,
     endDate,
     isRejected.value,
+    isLate.value,
+    hasNotLeft.value,
     categoryState.value,
     site.value,
     action.value,
@@ -348,7 +412,7 @@ function Logs() {
         <p className="text-muted-foreground">Filter through access logs</p>
       </div>
       <DataTable
-        columns={ActivityLogsColumns}
+        columns={ReportLogsColumns}
         data={data?.data ?? []}
         loading={isLoading}
         error={error}

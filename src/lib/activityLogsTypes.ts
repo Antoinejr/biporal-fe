@@ -10,7 +10,7 @@ export type ActivitiyLog = {
   action: Action;
   category: Category;
   createdAt: Date;
-  site: string | null;
+  siteName: string | null;
   tokenId: string;
 };
 

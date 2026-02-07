@@ -1,5 +1,22 @@
 import type { CursorBasedPagination, PageBasedPagination } from "./baseTypes";
 
+export type LogReport = {
+  id: string;
+  firstName: string;
+  lastName: string;
+  lagId: string | null;
+  isRejected: boolean;
+  isOutOfOrder: boolean;
+  action: Action;
+  category: Category;
+  isLate: boolean;
+  hasNotLeft: boolean;
+  tokenId: string;
+  siteId: string;
+  siteName: string;
+  createdAt: Date;
+}
+
 export type ActivitiyLog = {
   id: string;
   firstName: string;
@@ -29,6 +46,6 @@ export type Category =
   | "ARTISAN";
 
 export type ReportLogResponse = {
-  data: ActivitiyLog[],
+  data: LogReport[],
   pagination: PageBasedPagination
 }
