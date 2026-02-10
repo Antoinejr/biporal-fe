@@ -56,7 +56,7 @@ export const CATEGORIES = [
   // "RESIDENT",
   // "WORKER",
   // "DEPENDENT",
-  // "SUPERVISOR",
+  "SUPERVISOR",
   "ARTISAN",
 ] as const satisfies readonly Category[];
 
@@ -167,13 +167,13 @@ function PolicyForm(props: PolicyFormProps) {
                         // { name: "Resident", value: "RESIDENT" as Category },
                         // { name: "Worker", value: "WORKER" as Category },
                         // { name: "Dependent", value: "DEPENDENT" as Category },
-                        // { name: "Supervisor", value: "SUPERVISOR" as Category },
+                        { name: "Supervisor", value: "SUPERVISOR" as Category },
                         { name: "Artisan", value: "ARTISAN" as Category },
                       ]}
                       state={field.state.value}
                       label={field.state.value}
-                      // disabled={!!props.policy}
-                      disabled={true}
+                      disabled={!!props.policy}
+                      // disabled={true}
                       handleSelect={(option) => {
                         field.handleChange(option.value);
                       }}

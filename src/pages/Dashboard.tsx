@@ -3,12 +3,11 @@ import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
 import StatCard from "@/features/StatCard";
 import type { PageDirection } from "@/lib/baseTypes";
 import env from "@/lib/env";
-import { cn } from "@/lib/utils";
+import { cn, convertHourToString } from "@/lib/utils";
 import { getDashboardKpi, getRecentLogActivity } from "@/services/dashboardService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useState } from "react";
 import io from "socket.io-client";
-import { config } from "zod";
 
 const Dashboard = () => {
   const [cursor, setCursor] = useState<string | undefined>(undefined);
@@ -68,9 +67,9 @@ const Dashboard = () => {
       <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
         <StatCard title="Total Entries Today" value={statsQuery.data?.totalEntriesToday ?? 0} />
         <StatCard title="Total Exits Today" value={statsQuery.data?.totalExitsToday?? 0} />
-        <StatCard title="Busiest Site Today" value={statsQuery.data?.topSite.site ?? ""} />
-        <StatCard title="Busiest Hour Today" value={statsQuery.data?.peakHourToday.hour ?? 0} />
-        <StatCard title="Busiest Day All-time" value={statsQuery.data?.peakDayAllTime.day?? ""} />
+        <StatCard title="Busiest Site Today" value={(statsQuery.data?.topSite.site.toUpperCase() ?? "----").toUpperCase()} />
+        <StatCard title="Busiest Hour Today" value={statsQuery.data ? convertHourToString(statsQuery.data.peakHourToday.hour) : "----"} />
+        <StatCard title="Busiest Day All-time" value={statsQuery.data?.peakDayAllTime.day?? "----"} />
       </div>
       <DataTable
         columns={ActivityLogsColumns}

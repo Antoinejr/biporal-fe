@@ -2,6 +2,13 @@ import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import ngNG, { type Locale } from "./locale";
 
+export function convertHourToString(hour: number) {
+  if (hour >= 0 && hour <= 12) {
+    return `${hour} AM`
+  }
+  return `${hour - 12} PM`
+}
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
