@@ -45,7 +45,7 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
         {
           accessorKey: "siteName",
           header: "Site",
-          cell: ({row}) => (row.original.siteName ?? "N/A").toUpperCase(),
+          cell: ({ row }) => (row.original.siteName ?? "N/A").toUpperCase(),
         } satisfies ColumnDef<ActivitiyLog>,
       ]
     : []),
@@ -85,44 +85,48 @@ export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
       </span>
     ),
   },
-  {
-    accessorKey: "outOfOrder",
-    header: "Sequence Status",
-    cell: ({ row }) => {
-      const isOutOfOrder = row.original.isOutOfOrder;
-      const action = row.original.action;
-
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md cursor-help ${
-                  isOutOfOrder
-                    ? "bg-amber-50 text-amber-700 border border-amber-200"
-                    : "bg-green-50 text-green-700 border border-green-200"
-                }`}
-              >
-                {isOutOfOrder ? (
-                  <AlertTriangle className="h-3.5 w-3.5" />
-                ) : (
-                  <CheckCircle className="h-3.5 w-3.5" />
-                )}
-                <span className="text-xs font-medium">
-                  {isOutOfOrder ? "Irregular" : "Normal"}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-xs">
-              <p className="text-xs">
-                {isOutOfOrder
-                  ? `Anomaly detected: Consecutive ${action}s without alternating pattern`
-                  : "Actions are alternating as expected"}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    },
-  },
+  // {
+  //   accessorKey: "outOfOrder",
+  //   header: "Sequence Status",
+  //   cell: ({ row }) => {
+  //     const isOutOfOrder = row.original.isOutOfOrder;
+  //     const action = row.original.action;
+  //
+  //     return (
+  //       <TooltipProvider>
+  //         <Tooltip>
+  //           <TooltipTrigger asChild>
+  //             <div
+  //               className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md cursor-help ${
+  //                 isOutOfOrder
+  //                   ? "bg-amber-50 text-amber-700 border border-amber-200"
+  //                   : "bg-green-50 text-green-700 border border-green-200"
+  //               }`}
+  //             >
+  //               {isOutOfOrder ? (
+  //                 <AlertTriangle className="h-3.5 w-3.5" />
+  //               ) : (
+  //                 <CheckCircle className="h-3.5 w-3.5" />
+  //               )}
+  //               <span className="text-xs font-medium">
+  //                 {isOutOfOrder ? "Irregular" : "Normal"}
+  //               </span>
+  //             </div>
+  //           </TooltipTrigger>
+  //           <TooltipContent side="left" className="max-w-xs">
+  //             <p className="text-xs">
+  //               {isOutOfOrder
+  //                 ? `Anomaly detected: Consecutive ${action}s without alternating pattern`
+  //                 : "Actions are alternating as expected"}
+  //             </p>
+  //           </TooltipContent>
+  //         </Tooltip>
+  //       </TooltipProvider>
+  //     );
+  //   },
+  // },
+  // {
+  //   accessorKey: "reason",
+  //   header: "Reason",
+  // },
 ];

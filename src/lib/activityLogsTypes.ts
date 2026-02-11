@@ -12,6 +12,7 @@ export type ActivitiyLog = {
   createdAt: Date;
   siteName: string | null;
   tokenId: string;
+  reason: string | null;
 };
 
 export type ActivityLogResponse = {
@@ -27,4 +28,3 @@ export type Category =
   | "DEPENDENT"
   | "SUPERVISOR"
   | "ARTISAN";
-

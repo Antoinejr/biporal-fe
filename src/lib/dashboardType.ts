@@ -14,8 +14,9 @@ export type LogReport = {
   tokenId: string;
   siteId: string;
   siteName: string;
+  reason: string | null;
   createdAt: Date;
-}
+};
 
 export type ActivitiyLog = {
   id: string;
@@ -46,6 +47,6 @@ export type Category =
   | "ARTISAN";
 
 export type ReportLogResponse = {
-  data: LogReport[],
-  pagination: PageBasedPagination
-}
+  data: LogReport[];
+  pagination: PageBasedPagination;
+};

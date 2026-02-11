@@ -1,14 +1,7 @@
 import CategoryBadge from "@/components/category-badge";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import type { LogReport } from "@/lib/dashboardType";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlertTriangle, CheckCircle } from "lucide-react";
 
 export const ReportLogsColumns: ColumnDef<LogReport>[] = [
   {
@@ -88,67 +81,21 @@ export const ReportLogsColumns: ColumnDef<LogReport>[] = [
     ),
   },
   {
-    accessorKey: "outOfOrder",
-    header: "Sequence Status",
-    cell: ({ row }) => {
-      const isOutOfOrder = row.original.isOutOfOrder;
-      const action = row.original.action;
-
-      return (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div
-                className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md cursor-help ${
-                  isOutOfOrder
-                    ? "bg-amber-50 text-amber-700 border border-amber-200"
-                    : "bg-green-50 text-green-700 border border-green-200"
-                }`}
-              >
-                {isOutOfOrder ? (
-                  <AlertTriangle className="h-3.5 w-3.5" />
-                ) : (
-                  <CheckCircle className="h-3.5 w-3.5" />
-                )}
-                <span className="text-xs font-medium">
-                  {isOutOfOrder ? "Irregular" : "Normal"}
-                </span>
-              </div>
-            </TooltipTrigger>
-            <TooltipContent side="left" className="max-w-xs">
-              <p className="text-xs">
-                {isOutOfOrder
-                  ? `Anomaly detected: Consecutive ${action}s without alternating pattern`
-                  : "Actions are alternating as expected"}
-              </p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      );
-    },
-  },
-  {
     accessorKey: "isLate",
     header: "Late Exit",
-    cell({row}) {
-      return (
-        row.original.isLate ? (
-          <span>Yes</span>
-        ) : (
-          <span>No</span>
-        )
-    )}
+    cell({ row }) {
+      return row.original.isLate ? <span>Yes</span> : <span>No</span>;
+    },
   },
   {
     accessorKey: "hasNotLeft",
     header: "Has Not Left",
-    cell({row}) {
-      return (
-        row.original.hasNotLeft ? (
-          <span>Yes</span>
-        ) : (
-          <span>No</span>
-        )
-    )}
-  }
+    cell({ row }) {
+      return row.original.hasNotLeft ? <span>Yes</span> : <span>No</span>;
+    },
+  },
+  {
+    accessorKey: "reason",
+    header: "Notes",
+  },
 ];
