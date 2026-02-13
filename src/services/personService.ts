@@ -33,10 +33,23 @@ type GetSupervisorHistoryResponse = {
   pagination: PageBasedPagination;
 };
 
-export async function getSupervisorHistory(id: string) {
+type GetSupervisorHistoryFilters = {
+  search?: string;
+};
+
+export async function getSupervisorHistory(
+  id: string,
+  filters: GetSupervisorHistoryFilters,
+) {
+  const filtered = Object.fromEntries(
+    Object.entries(filters).filter(
+      ([_, value]) => value !== undefined && value !== "",
+    ),
+  ) as GetSupervisorHistoryFilters;
   try {
     const res = await http.get<GetSupervisorHistoryResponse>(
       `/api/person/history/${id}`,
+      { params: filtered },
     );
     console.log(JSON.stringify(res.data.data));
     return res.data;

@@ -19,8 +19,12 @@ const Contractor = () => {
   const { data, isLoading, error } = useQuery({
     queryKey: ["contractors", page, search, isActive.value],
     queryFn: () => {
-      return getContractors({ page: page, isActive: isActive.value, search: search });
-    }
+      return getContractors({
+        page: page,
+        isActive: isActive.value,
+        search: search,
+      });
+    },
   });
 
   const [inputValue, setInputValue] = useState(search);
@@ -65,7 +69,7 @@ const Contractor = () => {
 
   // NOTE: disable search if there are errors
   const toolBar = useMemo(() => {
-    const hasIsActiveFilter = isActive.value !== undefined
+    const hasIsActiveFilter = isActive.value !== undefined;
     return (
       <div className={cn("flex gap-1 justify-between")}>
         <div className={cn("flex gap-1 min-w-md")}>
@@ -76,22 +80,24 @@ const Contractor = () => {
             className={cn("bg-white", "max-w-sm")}
             disabled={isLoading}
           />
-        <div className="relative">
-          <ChooseMenu
-            options={[
-              { name: "All", value: undefined },
-              { name: "Active", value: true },
-              { name: "Inactive", value: false },
-            ]}
-            state={isActive.value}
-            handleSelect={setIsActive}
-            disabled={isLoading}
-            label="Status"
-          />
-        {hasIsActiveFilter && (
-          <span className="absolute -top-1 -right-1 text-red-500 text-lg">* </span>
-        )}
-        </div>
+          <div className="relative">
+            <ChooseMenu
+              options={[
+                { name: "All", value: undefined },
+                { name: "Active", value: true },
+                { name: "Inactive", value: false },
+              ]}
+              state={isActive.value}
+              handleSelect={setIsActive}
+              disabled={isLoading}
+              label="Status"
+            />
+            {hasIsActiveFilter && (
+              <span className="absolute -top-1 -right-1 text-red-500 text-lg">
+                *{" "}
+              </span>
+            )}
+          </div>
         </div>
         <ContractorForm />
       </div>

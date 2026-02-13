@@ -1,12 +1,13 @@
 import DataTable from "@/components/data-table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { SupervisorHistoryColumns } from "@/features/PersonColumnDef";
 import { cn } from "@/lib/utils";
 import { getSupervisorHistory } from "@/services/personService";
 import { useQuery } from "@tanstack/react-query";
 import { AlertCircle, ArrowLeft, Loader } from "lucide-react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
 function SupervisorHistory() {
@@ -22,10 +23,39 @@ function SupervisorHistory() {
   }
 
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState<string>("");
   const { data, isLoading, error } = useQuery({
-    queryKey: ["supervisor-history", id],
-    queryFn: () => getSupervisorHistory(id),
+    queryKey: ["supervisor-history", id, search],
+    queryFn: () => getSupervisorHistory(id, { search }),
   });
+
+  const [inputValue, setInputValue] = useState(search);
+  const timeoutRef = useRef<number | undefined>(undefined);
+
+  const handleTextChange = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const value = event.target.value;
+      setInputValue(value);
+
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+      const newTimeout = setTimeout(() => {
+        setSearch(value);
+        setPage(1);
+      }, 500);
+      timeoutRef.current = newTimeout;
+    },
+    [setSearch, setPage],
+  );
+
+  useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   const prevPage = useCallback(() => {
     if (!data) return;
@@ -38,6 +68,22 @@ function SupervisorHistory() {
     if (page >= data.pagination.totalPages) return;
     setPage(page + 1);
   }, [data, page]);
+
+  const toolBar = useMemo(() => {
+    return (
+      <div className={cn("flex gap-1 justify-between")}>
+        <div className={cn("flex gap-1 min-w-md")}>
+          <Input
+            value={inputValue}
+            onChange={handleTextChange}
+            placeholder="Search..."
+            className={cn("bg-white", "max-w-sm")}
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+    );
+  }, [inputValue, isLoading, handleTextChange]);
 
   if (isLoading) {
     return (
@@ -74,6 +120,7 @@ function SupervisorHistory() {
         columns={SupervisorHistoryColumns}
         data={data?.data ?? []}
         loading={isLoading}
+        toolBar={toolBar}
         error={error}
         next={nextPage}
         prev={prevPage}
