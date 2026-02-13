@@ -1,12 +1,5 @@
 import type { ActivitiyLog } from "@/lib/activityLogsTypes";
-import {
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-} from "@/components/ui/tooltip";
 import type { ColumnDef } from "@tanstack/react-table";
-import { AlertTriangle, CheckCircle } from "lucide-react";
 import CategoryBadge from "@/components/category-badge";
 import env from "@/lib/env";
 import { formatDateTime } from "@/lib/utils";

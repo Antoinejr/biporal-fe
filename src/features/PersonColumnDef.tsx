@@ -1,10 +1,10 @@
 import CategoryBadge from "@/components/category-badge";
 import type { Person } from "@/lib/personTypes";
-import { cn } from "@/lib/utils";
-import {  type ColumnDef } from "@tanstack/react-table";
+import { cn, formatDate } from "@/lib/utils";
+import { type ColumnDef } from "@tanstack/react-table";
 import PersonExtendDurationForm from "./PersonExtendDurationForm";
 import { useNavigate } from "react-router";
-import { Eye, MoreHorizontal } from "lucide-react";
+import { Eye, HistoryIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import PersonStatusUpdate from "./PersonStatusUpdate";
+import type { SupervisorHistory } from "@/services/personService";
 
 export const PersonColumns: ColumnDef<Person>[] = [
   {
@@ -114,19 +115,102 @@ export const PersonColumns: ColumnDef<Person>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate(`/persons/d/${person.id}`)}>
+            <DropdownMenuItem
+              onClick={() => navigate(`/persons/d/${person.id}`)}
+            >
               <Eye className="mr-2 h-4 w-4" />
               View Details
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <PersonExtendDurationForm
-              person={person}
-            />
+            <DropdownMenuItem
+              onClick={() => navigate(`/persons/d/history/${person.id}`)}
+            >
+              <HistoryIcon className="mr-2 h-4 w-4" />
+              View History
+            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <PersonStatusUpdate person={person}/>
+            <PersonExtendDurationForm person={person} />
+            <DropdownMenuSeparator />
+            <PersonStatusUpdate person={person} />
           </DropdownMenuContent>
         </DropdownMenu>
       );
+    },
+  },
+];
+
+export const SupervisorHistoryColumns: ColumnDef<SupervisorHistory>[] = [
+  {
+    header: "Site",
+    accessorKey: "siteName",
+    cell({ row }) {
+      const siteName = row.original.siteName;
+      return (siteName ?? "N/A").toUpperCase();
+    },
+  },
+  {
+    header: "Contractor",
+    accessorKey: "contractorName",
+    cell({ row }) {
+      const contractorName = row.original.contractorName;
+      return (contractorName ?? "N/A").toUpperCase();
+    },
+  },
+  {
+    header: "Recent Engagement Date",
+    accessorKey: "startDate",
+    cell({ row }) {
+      let display: string = "N/A";
+      const startDate = row.original.startDate;
+      if (startDate) {
+        display = formatDate(new Date(startDate));
+      }
+      return display;
+    },
+  },
+  {
+    accessorKey: "Disengagement Date",
+    cell({ row }) {
+      let display: string = "N/A";
+      const endDate = row.original.endDate;
+      if (endDate) {
+        display = formatDate(new Date(endDate));
+      }
+      return display;
+    },
+  },
+  {
+    header: "Initial Engagement Date",
+    accessorKey: "firstDate",
+    cell({ row }) {
+      let display: string = "N/A";
+      const firstDate = row.original.firstDate;
+      if (firstDate) {
+        display = formatDate(new Date(firstDate));
+      }
+      return display;
+    },
+  },
+  {
+    header: "Last Engagement Update",
+    accessorKey: "recentChange",
+    cell({ row }) {
+      let display: string = "N/A";
+      const recentChange = row.original.recentChange;
+      if (recentChange) {
+        display = formatDate(new Date(recentChange));
+      }
+      return display;
+    },
+  },
+  {
+    accessorKey: "Still Enageged?",
+    cell({ row }) {
+      const isActive = row.original.isActive;
+      if (isActive === undefined || isActive === null) {
+        return "----";
+      }
+      return isActive ? "Yes" : "No";
     },
   },
 ];

@@ -20,6 +20,7 @@ import FunctionalityRoute from "./features/FunctionalityRoute";
 import FunctionalityProvider from "./providers/functionalityProvider";
 import Defaulters from "./pages/Defaulters";
 import NotFound from "./pages/NotFound";
+import SupervisorHistory from "./pages/SupervisorHistory";
 
 const queryClient = new QueryClient();
 function App() {
@@ -28,11 +29,11 @@ function App() {
       <BrowserRouter>
         <AuthProvider>
           <FunctionalityProvider>
-          <Routes>
-            <Route path="login" element={<Login />} />
+            <Routes>
+              <Route path="login" element={<Login />} />
               <Route element={<ProtectedRoute />}>
-                  <Route path="/" element={<Dashboard />} />
-                  <Route element={<FunctionalityRoute/>}>
+                <Route path="/" element={<Dashboard />} />
+                <Route element={<FunctionalityRoute />}>
                   <Route path="contractors" element={<Contractor />} />
                   <Route path="sites" element={<Site />} />
                   <Route path="tokens" element={<Token />} />
@@ -42,14 +43,24 @@ function App() {
                   <Route path="defaulters" element={<Defaulters />} />
                   <Route path="blocked" element={<Blocked />} />
                   <Route path="settings" element={<Setting />} />
-                  <Route path="contractors/d/:id" element={<ContractorDetails />} />
-                  <Route path="persons/category/:category" element={<Person />} />
+                  <Route
+                    path="contractors/d/:id"
+                    element={<ContractorDetails />}
+                  />
+                  <Route
+                    path="persons/category/:category"
+                    element={<Person />}
+                  />
                   <Route path="persons/d/:id" element={<PersonDetails />} />
+                  <Route
+                    path="persons/d/history/:id"
+                    element={<SupervisorHistory />}
+                  />
                   <Route path="sites/d/:id" element={<SiteDetails />} />
-                  <Route path="*" element={<NotFound/>} />
+                  <Route path="*" element={<NotFound />} />
+                </Route>
               </Route>
-            </Route>
-          </Routes>
+            </Routes>
           </FunctionalityProvider>
         </AuthProvider>
       </BrowserRouter>
