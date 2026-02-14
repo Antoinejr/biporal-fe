@@ -2,7 +2,6 @@ import DataTable from "@/components/data-table";
 import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
 // import StatCard from "@/features/StatCard";
 import type { PageDirection } from "@/lib/baseTypes";
-import env from "@/lib/env";
 import { cn } from "@/lib/utils";
 import {
   // getDashboardKpi,
