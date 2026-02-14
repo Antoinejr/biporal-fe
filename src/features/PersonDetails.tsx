@@ -23,7 +23,14 @@ import {
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
-import { AlertCircle, ArrowLeft, CheckCircle2, Loader, Edit, X } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  CheckCircle2,
+  Loader,
+  Edit,
+  X,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import * as z from "zod";
@@ -239,9 +246,15 @@ function PersonDetails() {
       delete (diff as any).employerId;
     }
     if (original.category === formValues.category) {
-      if (formValues.category === "DEPENDENT" && formValues.residentId === original.residentId) {
+      if (
+        formValues.category === "DEPENDENT" &&
+        formValues.residentId === original.residentId
+      ) {
         delete (diff as any).residentId;
-      } else if (formValues.category === "WORKER" && formValues.employerId === original.residentId)
+      } else if (
+        formValues.category === "WORKER" &&
+        formValues.employerId === original.residentId
+      )
         delete (diff as any).employerId;
     }
     console.log(diff);
@@ -609,7 +622,7 @@ function PersonDetails() {
                   return (
                     <field.Field>
                       <field.FieldLabel htmlFor={field.name}>
-                        Passcode
+                        Pin
                       </field.FieldLabel>
                       <field.InputPassword
                         id={field.name}
@@ -622,7 +635,7 @@ function PersonDetails() {
                           const validValue = e.target.value.replace(/\D/g, "");
                           field.handleChange(validValue);
                         }}
-                        placeholder="Passcode..."
+                        placeholder="Pin..."
                         autoComplete="off"
                         disabled={!isEditing}
                       />

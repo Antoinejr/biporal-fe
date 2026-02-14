@@ -98,7 +98,7 @@ const AuthForm = () => {
                 // field.state.meta.isTouched && !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name}>Passcode</FieldLabel>
+                    <FieldLabel htmlFor={field.name}>Password</FieldLabel>
                     <InputPassword
                       id={field.name}
                       name={field.name}
@@ -106,7 +106,7 @@ const AuthForm = () => {
                       onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
-                      placeholder="Passcode..."
+                      placeholder="Password..."
                       autoComplete="off"
                     />
                     {isInvalid && (
