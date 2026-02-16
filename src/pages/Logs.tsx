@@ -83,7 +83,7 @@ function Logs() {
       categoryState.value,
       site.value,
       isLate.value,
-      hasNotLeft.value
+      hasNotLeft.value,
     ],
     queryFn: () =>
       getLogSnapshot({
@@ -95,7 +95,7 @@ function Logs() {
         category: categoryState.value,
         siteId: site.value,
         isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value
+        hasNotLeft: hasNotLeft.value,
       }),
   });
 
@@ -111,7 +111,7 @@ function Logs() {
         category: categoryState.value,
         siteId: site.value,
         isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value
+        hasNotLeft: hasNotLeft.value,
       });
       return;
     } catch (err) {
@@ -133,7 +133,7 @@ function Logs() {
         category: categoryState.value,
         siteId: site.value,
         isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value
+        hasNotLeft: hasNotLeft.value,
       });
       return;
     } catch (err) {
@@ -155,7 +155,7 @@ function Logs() {
         category: categoryState.value,
         siteId: site.value,
         isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value
+        hasNotLeft: hasNotLeft.value,
       });
       return;
     } catch (err) {
@@ -194,7 +194,7 @@ function Logs() {
     const hasEndDate = endDate !== "";
     const hasActionFilter = action.value !== undefined;
     const hasRejectedFilter = isRejected.value !== undefined;
-    const hasLateFilter= isLate.value !== undefined;
+    const hasLateFilter = isLate.value !== undefined;
     const hasNotLeftFilter = hasNotLeft.value !== undefined;
     const hasCategoryFilter = categoryState.value !== undefined;
     const hasSiteFilter = site.value !== undefined;
@@ -261,10 +261,10 @@ function Logs() {
           <div className="relative">
             <ChooseMenu
               options={[
-                { name: "All", value: undefined },
-                { name: "Resident", value: "RESIDENT" as Category },
-                { name: "Worker", value: "WORKER" as Category },
-                { name: "Dependent", value: "DEPENDENT" as Category },
+                // { name: "All", value: undefined },
+                // { name: "Resident", value: "RESIDENT" as Category },
+                // { name: "Worker", value: "WORKER" as Category },
+                // { name: "Dependent", value: "DEPENDENT" as Category },
                 { name: "Supervisor", value: "SUPERVISOR" as Category },
                 { name: "Artisan", value: "ARTISAN" as Category },
               ]}
@@ -315,7 +315,7 @@ function Logs() {
             <ChooseMenu
               options={[
                 { name: "All", value: undefined },
-                { name: "Yes", value: true},
+                { name: "Yes", value: true },
                 { name: "No", value: false },
               ]}
               state={isLate.value}
@@ -334,7 +334,7 @@ function Logs() {
               options={[
                 { name: "All", value: undefined },
                 { name: "Yes", value: true },
-                { name: "No", value: false},
+                { name: "No", value: false },
               ]}
               state={hasNotLeft.value}
               handleSelect={setHasNotLeft}

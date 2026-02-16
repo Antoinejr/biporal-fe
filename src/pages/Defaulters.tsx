@@ -1,14 +1,32 @@
 import DataTable from "@/components/data-table";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import ChooseMenu from "@/features/ChooseMenu";
 import { DefaultersColumns } from "@/features/DefaultersColumnDef";
 import { cn } from "@/lib/utils";
-import { getDefaulters, getDefaultersCsv, getDefaultersPdf, getDefaultersXlsx, type InfractionReason } from "@/services/defaultersService";
+import {
+  getDefaulters,
+  getDefaultersCsv,
+  getDefaultersPdf,
+  getDefaultersXlsx,
+  type InfractionReason,
+} from "@/services/defaultersService";
 import { useQuery } from "@tanstack/react-query";
-import { FileSpreadsheet, FileText, Loader, Printer, Sheet } from "lucide-react";
+import {
+  FileSpreadsheet,
+  FileText,
+  Loader,
+  Printer,
+  Sheet,
+} from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 
 function Defaulters() {
@@ -22,13 +40,7 @@ function Defaulters() {
   }>({ name: "All", value: undefined });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: [
-      "defaulters",
-      page,
-      startDate,
-      endDate,
-      reason.value,
-    ],
+    queryKey: ["defaulters", page, startDate, endDate, reason.value],
     queryFn: () =>
       getDefaulters({
         page,
@@ -104,7 +116,7 @@ function Defaulters() {
   const toolBar = useMemo(() => {
     const hasStartDate = startDate !== "";
     const hasEndDate = endDate !== "";
-    const hasReasonFilter= reason.value !== undefined;
+    const hasReasonFilter = reason.value !== undefined;
     return (
       <div className={cn("flex gap-1 justify-between")}>
         <div className={cn("flex gap-1 min-w-md")}>
@@ -211,13 +223,8 @@ function Defaulters() {
         </DropdownMenu>
       </div>
     );
-  }, [
-    startDate,
-    endDate,
-    reason.value,
-    isLoading,
-  ]);
-  return(
+  }, [startDate, endDate, reason.value, isLoading]);
+  return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Defaulters</h1>

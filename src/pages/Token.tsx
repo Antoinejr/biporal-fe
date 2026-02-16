@@ -176,9 +176,9 @@ function Token() {
             <ChooseMenu
               options={[
                 { name: "All", value: undefined },
-                { name: "Resident", value: "RESIDENT" as Category },
-                { name: "Worker", value: "WORKER" as Category },
-                { name: "Dependent", value: "DEPENDENT" as Category },
+                // { name: "Resident", value: "RESIDENT" as Category },
+                // { name: "Worker", value: "WORKER" as Category },
+                // { name: "Dependent", value: "DEPENDENT" as Category },
                 { name: "Supervisor", value: "SUPERVISOR" as Category },
                 { name: "Artisan", value: "ARTISAN" as Category },
               ]}
