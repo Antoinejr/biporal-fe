@@ -157,8 +157,8 @@ export const SupervisorHistoryColumns: ColumnDef<SupervisorHistory>[] = [
     },
   },
   {
-    header: "Recent Engagement Date",
-    accessorKey: "startDate",
+    header: "Start Date",
+    accessorKey: "firstDate",
     cell({ row }) {
       let display: string = "N/A";
       const startDate = row.original.startDate;
@@ -169,7 +169,8 @@ export const SupervisorHistoryColumns: ColumnDef<SupervisorHistory>[] = [
     },
   },
   {
-    accessorKey: "Disengagement Date",
+    header: "End Date",
+    accessorKey: "endDate",
     cell({ row }) {
       let display: string = "N/A";
       const endDate = row.original.endDate;
@@ -177,40 +178,6 @@ export const SupervisorHistoryColumns: ColumnDef<SupervisorHistory>[] = [
         display = formatDate(new Date(endDate));
       }
       return display;
-    },
-  },
-  {
-    header: "Initial Engagement Date",
-    accessorKey: "firstDate",
-    cell({ row }) {
-      let display: string = "N/A";
-      const firstDate = row.original.firstDate;
-      if (firstDate) {
-        display = formatDate(new Date(firstDate));
-      }
-      return display;
-    },
-  },
-  {
-    header: "Last Engagement Update",
-    accessorKey: "recentChange",
-    cell({ row }) {
-      let display: string = "N/A";
-      const recentChange = row.original.recentChange;
-      if (recentChange) {
-        display = formatDate(new Date(recentChange));
-      }
-      return display;
-    },
-  },
-  {
-    accessorKey: "Still Enageged?",
-    cell({ row }) {
-      const isActive = row.original.isActive;
-      if (isActive === undefined || isActive === null) {
-        return "----";
-      }
-      return isActive ? "Yes" : "No";
     },
   },
 ];

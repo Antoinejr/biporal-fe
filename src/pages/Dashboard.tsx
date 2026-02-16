@@ -2,6 +2,7 @@ import DataTable from "@/components/data-table";
 import { ActivityLogsColumns } from "@/features/ActivityLogsColumnDef";
 // import StatCard from "@/features/StatCard";
 import type { PageDirection } from "@/lib/baseTypes";
+import env from "@/lib/env";
 import { cn } from "@/lib/utils";
 import {
   // getDashboardKpi,
@@ -21,13 +22,14 @@ const Dashboard = () => {
     queryKey: ["logs", direction, cursor],
     queryFn: () => getRecentLogActivity({ direction, cursor }),
   });
+
   // const statsQuery = useQuery({
   //   queryKey: ["kpi"],
   //   queryFn: () => getDashboardKpi(),
   // });
 
   useEffect(() => {
-    const sfd = io();
+    const sfd = io(env.BASE_URL);
     sfd.on("connect", () => console.log("Connected to host"));
     sfd.on("connect_error", (error) =>
       console.error("Connection failed", error.message),
