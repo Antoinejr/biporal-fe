@@ -5,50 +5,50 @@ import type { ColumnDef } from "@tanstack/react-table";
 export const InvoiceColumns: ColumnDef<Invoice>[] = [
   {
     accessorKey: "createdAt",
-    cell({row}) {
-      const date = new Date(row.original.createdAt)
-      return <span>{formatDateTime(date)}</span>
+    cell({ row }) {
+      const date = new Date(row.original.createdAt);
+      return <span>{formatDateTime(date)}</span>;
     },
-    header: "Timestamp"
+    header: "Timestamp",
   },
   {
     id: "contractorName",
     accessorFn(row) {
-     return `${row.contractor.name.toUpperCase()}` 
+      return `${row.contractor.name.toUpperCase()}`;
     },
     header: "Contractor",
   },
   {
     id: "supervisorName",
     accessorFn(row) {
-      return `${row.supervisor.firstName} ${row.supervisor.lastName}`
+      return `${row.supervisor.firstName} ${row.supervisor.lastName}`;
     },
-    header: "Supervisor"
+    header: "Supervisor",
   },
   {
     id: "supervisorLagId",
     accessorFn(row) {
-      return `${row.supervisor.lagId}`
+      return `${row.supervisor.lagId ?? "N/A"}`;
     },
-    header: "Supervisor's Lagos ID"
+    header: "Supervisor's Lagos ID",
   },
   {
     id: "siteName",
     accessorFn(row) {
-      return `${row.site.name.toUpperCase()}`
+      return `${row.site.name.toUpperCase()}`;
     },
-    header: "Site"
+    header: "Site",
   },
   {
     accessorKey: "cost",
-    cell({row}) {
-      const amount = row.original.cost
-      return <span>{formatCurrency(amount)}</span>
+    cell({ row }) {
+      const amount = row.original.cost;
+      return <span>{formatCurrency(amount)}</span>;
     },
-    header: "Cost"
+    header: "Cost",
   },
   {
     accessorKey: "quantity",
-    header: "Quantity"
+    header: "Quantity",
   },
-]
+];
