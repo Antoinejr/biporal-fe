@@ -96,6 +96,6 @@ export const ReportLogsColumns: ColumnDef<LogReport>[] = [
   },
   {
     accessorKey: "reason",
-    header: "Notes",
+    header: "Reason",
   },
 ];
