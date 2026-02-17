@@ -84,14 +84,36 @@ export const ReportLogsColumns: ColumnDef<LogReport>[] = [
     accessorKey: "isLate",
     header: "Late Exit",
     cell({ row }) {
-      return row.original.isLate ? <span>Yes</span> : <span>No</span>;
+      const isLate = row.original.isLate;
+      const isRejected = row.original.isRejected;
+
+      if (isRejected) {
+        return "N/A";
+      } else {
+        if (isLate) {
+          return "Yes";
+        } else {
+          return "No";
+        }
+      }
     },
   },
   {
     accessorKey: "hasNotLeft",
-    header: "Has Not Left",
+    header: "Still In",
     cell({ row }) {
-      return row.original.hasNotLeft ? <span>Yes</span> : <span>No</span>;
+      const hasNotLeft = row.original.hasNotLeft;
+      const isRejected = row.original.isRejected;
+
+      if (isRejected) {
+        return "N/A";
+      } else {
+        if (hasNotLeft) {
+          return "Yes";
+        } else {
+          return "No";
+        }
+      }
     },
   },
   {
