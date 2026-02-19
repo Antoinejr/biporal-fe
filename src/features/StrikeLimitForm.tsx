@@ -1,4 +1,5 @@
 import FormError from "@/components/form-error";
+import FormStepper from "@/components/stepper";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,12 +16,11 @@ import {
   FieldGroup,
   FieldLabel,
 } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { updateRate } from "@/services/adminService";
-import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
+import { updateWarning } from "@/services/blocklistService";
+import { createFormHookContexts, createFormHook } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Banknote, Loader } from "lucide-react";
+import { Loader, Minus, Plus } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 
@@ -31,18 +31,18 @@ const { useAppForm } = createFormHook({
   fieldContext,
   formContext,
 });
-const ston = z.string().transform((e) => (e === "" ? 0 : Number(e)));
-const formSchema = z.object({
-  cost: ston.pipe(z.number().min(0, { message: "Minimum price of 0 NGN" })),
+
+const STRIKE_LIMIT_SCHEMA = z.object({
+  limit: z.int().min(1, "Limit must be at least 1"),
 });
 
-function RateForm() {
+function StrikeLimitForm() {
   const queryClient = useQueryClient();
   const mutation = useMutation({
-    mutationFn: updateRate,
+    mutationFn: updateWarning,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["rate"],
+        queryKey: ["strikeLimit"],
       });
       form.reset();
       setShow(false);
@@ -51,18 +51,18 @@ function RateForm() {
   const [show, setShow] = useState<boolean>(false);
   const form = useAppForm({
     defaultValues: {
-      cost: "0.00",
+      limit: 1,
     },
     validators: {
-      onSubmit: formSchema,
+      onSubmit: STRIKE_LIMIT_SCHEMA,
     },
     onSubmit: async ({ value }) => {
-      const result = formSchema.safeParse(value);
+      const result = STRIKE_LIMIT_SCHEMA.safeParse(value);
       if (!result.success) {
         console.error("Form validation failed", result.error);
         return;
       }
-      mutation.mutate({ cost: result.data.cost * 100 });
+      mutation.mutate({ limit: value.limit });
     },
   });
 
@@ -70,29 +70,27 @@ function RateForm() {
     <Dialog open={show} onOpenChange={(open) => setShow(open)}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Banknote className="h-4 w-4" />
-          Update Pricing
+          Set Strike Limit
         </Button>
       </DialogTrigger>
       <DialogContent className={cn("max-h-[90vh] overflow-y-auto")}>
         <DialogHeader>
-          <DialogTitle>Update Ticket Price</DialogTitle>
+          <DialogTitle>Update Strike Limit</DialogTitle>
           <DialogDescription>
-            Change the base price for all new tickets. This won't affect tickets
-            already sold.
+            Change the threshold of strikes before automatic suspension
           </DialogDescription>
         </DialogHeader>
         <form
-          id="rate-form"
-          onSubmit={(event) => {
-            event.preventDefault();
+          id="stikeForm"
+          onSubmit={(e) => {
+            e.preventDefault();
             form.handleSubmit();
           }}
         >
-          <FieldGroup className={cn("flex")}>
+          <FieldGroup>
             <FormError error={mutation.error} title="Update Failed" />
             <form.AppField
-              name="cost"
+              name="limit"
               children={(field) => {
                 const isInvalid =
                   field.state.meta.isTouched &&
@@ -103,28 +101,12 @@ function RateForm() {
                       htmlFor={field.name}
                       className="text-md font-semibold"
                     >
-                      New Ticket Price (NGN)
+                      New Strike Limit
                     </FieldLabel>
-                    <Input
-                      className="pl-7 font-mono"
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, "");
-                        const numericalValue = digits
-                          ? parseInt(digits, 10) / 100
-                          : 0;
-                        const formatted = numericalValue.toFixed(2);
-                        field.handleChange(formatted);
-                      }}
-                      placeholder="Enter new price..."
-                      autoComplete="off"
-                    />
+                    <FormStepper field={field} />
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      Maximum allowed late exits before automatic gate lockout.
+                    </p>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}
@@ -135,8 +117,18 @@ function RateForm() {
             <form.AppForm>
               <Field
                 className="flex justify-end gap-3 pt-4"
-                orientation="responsive"
+                orientation="vertical"
               >
+                <Button type="submit" disabled={mutation.isPending}>
+                  {mutation.isPending ? (
+                    <>
+                      <Loader className="animate-spin" /> Saving...
+                    </>
+                  ) : (
+                    <>Save Policy</>
+                  )}
+                </Button>
+
                 <DialogClose asChild>
                   <Button
                     disabled={mutation.isPending}
@@ -147,17 +139,6 @@ function RateForm() {
                     Cancel
                   </Button>
                 </DialogClose>
-
-                <Button disabled={mutation.isPending} type="submit">
-                  {mutation.isPending ? (
-                    <>
-                      <Loader className="animate-spin" />
-                      Saving...
-                    </>
-                  ) : (
-                    <>Save Price</>
-                  )}
-                </Button>
               </Field>
             </form.AppForm>
           </FieldGroup>
@@ -166,5 +147,4 @@ function RateForm() {
     </Dialog>
   );
 }
-
-export default RateForm;
+export default StrikeLimitForm;

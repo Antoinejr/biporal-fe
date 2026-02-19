@@ -31,7 +31,7 @@ const Site = () => {
       const newTimeout = setTimeout(() => {
         setSearch(value);
         setPage(1);
-      }, 500);
+      }, 1000);
       timeoutRef.current = newTimeout;
     },
     [setSearch, setPage],
@@ -57,8 +57,8 @@ const Site = () => {
     setPage(page + 1);
   }, [data, page]);
 
-  // NOTE: disable search if there are errors
   const toolBar = useMemo(() => {
+    const disable = isLoading || !!error;
     return (
       <div className={cn("flex gap-1 justify-between")}>
         <div className={cn("flex gap-1 min-w-md")}>
@@ -67,7 +67,7 @@ const Site = () => {
             onChange={handleTextChange}
             placeholder="Search..."
             className={cn("bg-white", "max-w-sm")}
-            disabled={isLoading}
+            disabled={disable}
           />
         </div>
         <div className={cn("flex gap-1")}>
@@ -77,6 +77,7 @@ const Site = () => {
       </div>
     );
   }, [inputValue, isLoading, handleTextChange]);
+
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">

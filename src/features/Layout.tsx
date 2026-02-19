@@ -22,6 +22,7 @@ import {
   BanknoteArrowUp,
   BanknoteArrowDown,
   UserLock,
+  Ban,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
 
@@ -38,7 +39,8 @@ const mainNavItems = [
     icon: <User className="w-5 h-5" />,
   },
   { name: "Sites", path: "/sites", icon: <MapPinned className="w-5 h-5" /> },
-  { name: "Tokens", path: "/tokens", icon: <Ticket className="w-5 h-5" /> },
+  // { name: "Tokens", path: "/tokens", icon: <Ticket className="w-5 h-5" /> },
+  { name: "Blocklist", path: "/blocklist", icon: <Ban className="w-5 h-5" /> },
   {
     name: "Settings",
     path: "/settings",
@@ -86,11 +88,11 @@ const reportMenuItems = [
     path: "/expenditures",
     icon: <BanknoteArrowDown className="w-4 h-4" />,
   },
-  {
-    name: "Defaulters",
-    path: "/defaulters",
-    icon: <UserLock className="w-4 h-4" />,
-  },
+  // {
+  //   name: "Defaulters",
+  //   path: "/defaulters",
+  //   icon: <UserLock className="w-4 h-4" />,
+  // },
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
@@ -116,7 +118,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     <div
       className={cn(
         "grid",
-        level === "partial" ? "grid-rows-[auto_1fr]" : "grid-rows-[auto_auto_1fr]",
+        level === "partial"
+          ? "grid-rows-[auto_1fr]"
+          : "grid-rows-[auto_auto_1fr]",
         "p-4 min-h-screen min-w-screen",
         "gap-2",
       )}
@@ -158,39 +162,41 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
               </Button>
             );
           })}
-          
+
           {/* Persons Dropdown */}
-          {false && (<DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="link"
-                className={cn(
-                  "gap-1",
-                  isPersonMenuActive && "bg-[#DDFFD1] text-[#059669]",
-                )}
-              >
-                <User className="w-5 h-5" />
-                <span>Persons</span>
-                <ChevronDown className="w-4 h-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-48">
-              {personMenuItems.map((item, index) => (
-                <DropdownMenuItem
-                  key={index}
-                  onClick={() => navigator(item.path)}
+          {false && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="link"
                   className={cn(
-                    "cursor-pointer gap-2 flex justify-start",
-                    location.pathname === item.path &&
-                      "bg-[#DDFFD1] text-[#059669]",
+                    "gap-1",
+                    isPersonMenuActive && "bg-[#DDFFD1] text-[#059669]",
                   )}
                 >
-                  {item.icon}
-                  <span>{item.name}</span>
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>)}
+                  <User className="w-5 h-5" />
+                  <span>Persons</span>
+                  <ChevronDown className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-48">
+                {personMenuItems.map((item, index) => (
+                  <DropdownMenuItem
+                    key={index}
+                    onClick={() => navigator(item.path)}
+                    className={cn(
+                      "cursor-pointer gap-2 flex justify-start",
+                      location.pathname === item.path &&
+                        "bg-[#DDFFD1] text-[#059669]",
+                    )}
+                  >
+                    {item.icon}
+                    <span>{item.name}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
 
           {/* Reports Dropdown */}
           <DropdownMenu>

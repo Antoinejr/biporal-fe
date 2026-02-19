@@ -1,4 +1,3 @@
-
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -10,9 +9,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   Field,
   FieldError,
@@ -48,7 +45,9 @@ const { useAppForm } = createFormHook({
 });
 
 const formSchema = z.object({
-  expirationDate: z.string().min(1, { message: "Please select an expiration date" }),
+  expirationDate: z
+    .string()
+    .min(1, { message: "Please select an expiration date" }),
 });
 
 function PersonExtendDurationForm({ person }: { person: Person }) {
@@ -64,9 +63,9 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
     },
   });
   const [show, setShow] = useState(false);
-  
+
   const minDate = new Date(person.expirationDate).toISOString().split("T")[0];
-  
+
   const form = useAppForm({
     defaultValues: {
       expirationDate: minDate,
@@ -80,16 +79,16 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
         console.error("Form validation failed", result.error);
         return;
       }
-      
+
       const selectedDate = new Date(result.data.expirationDate);
       const expirationDate = new Date(person.expirationDate);
-      
+
       selectedDate.setHours(0, 0, 0, 0);
       expirationDate.setHours(0, 0, 0, 0);
-      
+
       const diffTime = selectedDate.getTime() - expirationDate.getTime();
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      
+
       mutation.mutate({
         id: person.id,
         payload: { length: diffDays },
@@ -100,7 +99,7 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
   return (
     <Dialog open={show} onOpenChange={setShow}>
       <DialogTrigger asChild>
-        <DropdownMenuItem 
+        <DropdownMenuItem
           disabled={!!person.deletedAt}
           onSelect={(e) => {
             e.preventDefault();
@@ -183,7 +182,11 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
                   )}
                 </Button>
                 <DialogClose asChild>
-                  <Button type="button" variant="outline" onClick={() => form.reset()}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => form.reset()}
+                  >
                     Close
                   </Button>
                 </DialogClose>

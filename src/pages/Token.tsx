@@ -93,14 +93,13 @@ function Token() {
   );
 
   const prevPage = useCallback(() => {
-    if (!data) return;
-    if (page <= 1) return;
+    if (!data || page <= 1) return;
+
     setPage(page - 1);
   }, [data, page]);
 
   const nextPage = useCallback(() => {
-    if (!data) return;
-    if (page >= data.pagination.totalPages) return;
+    if (!data || page >= data.pagination.totalPages) return;
     setPage(page + 1);
   }, [data, page]);
 
@@ -111,6 +110,7 @@ function Token() {
     const hasCategoryFilter = categoryState.value !== undefined;
     const hasSiteFilter = site.value !== undefined;
     const hasContractorFilter = contractor.value !== undefined;
+    const disable = isLoading || !!error;
 
     return (
       <div className={cn("flex gap-1 justify-between")}>
@@ -125,7 +125,7 @@ function Token() {
                 onChange={(e) => setStartDate(e.target.value)}
                 placeholder="Start Date"
                 className={cn("bg-white", "max-w-sm")}
-                disabled={isLoading}
+                disabled={disable}
               />
               {hasStartDate && (
                 <span className="absolute -top-1 -right-1 text-red-500 text-lg">
@@ -145,7 +145,7 @@ function Token() {
                 onChange={(e) => setEndDate(e.target.value)}
                 placeholder="End Date"
                 className={cn("bg-white", "max-w-sm")}
-                disabled={isLoading}
+                disabled={disable}
               />
               {hasEndDate && (
                 <span className="absolute -top-1 -right-1 text-red-500 text-lg">
@@ -163,7 +163,7 @@ function Token() {
               ]}
               state={isExpired.value}
               handleSelect={setIsExpired}
-              disabled={isLoading}
+              disabled={disable}
               label="Status"
             />
             {hasExpiredFilter && (
@@ -184,7 +184,7 @@ function Token() {
               ]}
               state={categoryState.value}
               handleSelect={setCategory}
-              disabled={isLoading}
+              disabled={disable}
               label="Category"
             />
             {hasCategoryFilter && (
@@ -198,7 +198,7 @@ function Token() {
               options={siteLookupTable}
               state={site.value}
               handleSelect={setSite}
-              disabled={isLoading}
+              disabled={disable}
               label="Site"
             />
             {hasSiteFilter && (
@@ -212,7 +212,7 @@ function Token() {
               options={contractorLookupTable}
               state={contractor.value}
               handleSelect={setContractor}
-              disabled={isLoading}
+              disabled={disable}
               label="Contractor"
             />
             {hasContractorFilter && (
@@ -235,6 +235,7 @@ function Token() {
     siteLookupTable,
     contractorLookupTable,
   ]);
+
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">

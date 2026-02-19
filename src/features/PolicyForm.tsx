@@ -22,25 +22,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { AlertCircle, Edit2, Loader, Plus } from "lucide-react";
+import { Edit2, Loader, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AxiosError } from "axios";
+import FormError from "@/components/form-error";
 
 const { formContext, fieldContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
-  fieldComponents: {
-    Field,
-    FieldError,
-    FieldLabel,
-    ChooseMenu,
-    Input,
-  },
+  fieldComponents: {},
   fieldContext,
-  formComponents: {
-    FieldGroup,
-    Button,
-  },
+  formComponents: {},
   formContext,
 });
 type PolicyFormProps = {
@@ -53,9 +43,6 @@ type PolicyFormProps = {
 };
 
 export const CATEGORIES = [
-  // "RESIDENT",
-  // "WORKER",
-  // "DEPENDENT",
   "SUPERVISOR",
   "ARTISAN",
 ] as const satisfies readonly Category[];
@@ -72,7 +59,7 @@ const formSchema = z.object({
   }),
 });
 
-function PolicyForm(props: PolicyFormProps) {
+function PolicyForm({ policy }: PolicyFormProps) {
   const queryClient = useQueryClient();
   const [show, setShow] = useState<boolean>(false);
   const mutation = useMutation({
@@ -88,9 +75,9 @@ function PolicyForm(props: PolicyFormProps) {
 
   const form = useAppForm({
     defaultValues: {
-      role: props.policy?.role ?? "ARTISAN",
-      entryTime: props.policy?.entryTime ?? "00:00",
-      exitTime: props.policy?.exitTime ?? "23:59",
+      role: policy?.role ?? "ARTISAN",
+      entryTime: policy?.entryTime ?? "00:00",
+      exitTime: policy?.exitTime ?? "23:59",
     },
     validators: {
       onSubmit: formSchema,
@@ -103,28 +90,32 @@ function PolicyForm(props: PolicyFormProps) {
       mutation.mutate(result.data);
     },
   });
+  const isEditing = !!policy;
 
   return (
     <Dialog open={show} onOpenChange={(open) => setShow(open)}>
       <DialogTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-        >
-          {props?.policy?.id ? (
+        <Button className="gap-2" variant={isEditing ? "ghost" : "outline"}>
+          {isEditing ? (
             <Edit2 className="h-4 w-4" />
           ) : (
-            <Plus className="h-4 w-4" />
+            <>
+              <>
+                <Plus className="h-4 w-4" />
+                Define Access Hours
+              </>
+            </>
           )}
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>{props.policy === undefined ? "Add Policy" : "Update Policy"}</DialogTitle>
-          <DialogDescription> {
-          props.policy === undefined ?
-          "Adding a policy on an existing role updates policy for that role"
-            : "Update policy"}
+          <DialogTitle>
+            {isEditing ? "Modify Access Rule" : "New Gate Access Rule"}
+          </DialogTitle>
+          <DialogDescription>
+            Set the time window during which this group is allowed to enter the
+            estate. Access will be denied outside of these hours.
           </DialogDescription>
         </DialogHeader>
         <form
@@ -135,19 +126,8 @@ function PolicyForm(props: PolicyFormProps) {
             form.handleSubmit();
           }}
         >
-          <form.FieldGroup className={cn("grid grid-cols-1]")}>
-            {mutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {mutation.error instanceof AxiosError
-                    ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message : ""}`
-                    : mutation.error instanceof Error
-                      ? mutation.error.message
-                      : "Failed to create contractor. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
+          <FieldGroup className={cn("grid grid-cols-1]")}>
+            <FormError error={mutation.error} title="Create/Update Failed" />
             <form.AppField
               name="role"
               children={(field) => {
@@ -155,30 +135,27 @@ function PolicyForm(props: PolicyFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field className={cn("col-span-full")}>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Category
-                    </field.FieldLabel>
+                  <Field className={cn("col-span-full")}>
+                    <FieldLabel htmlFor={field.name}>Category</FieldLabel>
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                    <field.ChooseMenu
+                    <ChooseMenu
                       options={[
-                        // { name: "Resident", value: "RESIDENT" as Category },
-                        // { name: "Worker", value: "WORKER" as Category },
-                        // { name: "Dependent", value: "DEPENDENT" as Category },
-                        { name: "Supervisor", value: "SUPERVISOR" as Category },
-                        { name: "Artisan", value: "ARTISAN" as Category },
+                        {
+                          name: "Supervisors",
+                          value: "SUPERVISOR" as Category,
+                        },
+                        { name: "Artisans", value: "ARTISAN" as Category },
                       ]}
                       state={field.state.value}
                       label={field.state.value}
-                      disabled={!!props.policy}
-                      // disabled={true}
-                      handleSelect={(option) => {
-                        field.handleChange(option.value);
+                      disabled={isEditing}
+                      handleSelect={(opt) => {
+                        field.handleChange(opt.value);
                       }}
                     />
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -189,11 +166,11 @@ function PolicyForm(props: PolicyFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Entry Time
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field className="space-y-2">
+                    <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground">
+                      Gate Opens At
+                    </FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       type="time"
@@ -205,9 +182,9 @@ function PolicyForm(props: PolicyFormProps) {
                       autoComplete="off"
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -218,11 +195,11 @@ function PolicyForm(props: PolicyFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Exit Time
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field className="space-y-2">
+                    <FieldLabel className="text-xs uppercase tracking-wider text-muted-foreground">
+                      Gate Closes At
+                    </FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
@@ -234,31 +211,40 @@ function PolicyForm(props: PolicyFormProps) {
                       autoComplete="off"
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
             <form.AppForm>
-              <Field orientation="vertical">
+              <Field
+                className="flex justify-end gap-3 pt-4"
+                orientation="vertical"
+              >
                 <Button type="submit" disabled={mutation.isPending}>
                   {mutation.isPending ? (
                     <>
-                      Save... <Loader className="ml-2 h-4 w-4 animate-spin" />
+                      <Loader className="animate-spin" /> Saving...
                     </>
                   ) : (
-                    <>Save</>
+                    <>Save Policy</>
                   )}
                 </Button>
+
                 <DialogClose asChild>
-                  <Button disabled={mutation.isPending} type="button" variant="outline" onClick={() => form.reset()}>
+                  <Button
+                    disabled={mutation.isPending}
+                    type="button"
+                    variant="outline"
+                    onClick={() => form.reset()}
+                  >
                     Close
                   </Button>
                 </DialogClose>
               </Field>
             </form.AppForm>
-          </form.FieldGroup>
+          </FieldGroup>
         </form>
       </DialogContent>
     </Dialog>

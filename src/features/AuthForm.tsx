@@ -19,10 +19,9 @@ import { InputPassword } from "@/components/ui/input-password";
 import useAuth from "@/hooks/useAuth";
 import { useNavigate } from "react-router";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { AlertCircle } from "lucide-react";
-import { AxiosError } from "axios";
 import { cn } from "@/lib/utils";
+import FormError from "@/components/form-error";
+import { Loader } from "lucide-react";
 
 const AuthForm = () => {
   const { signIn } = useAuth();
@@ -50,9 +49,8 @@ const AuthForm = () => {
     },
   });
 
-  const isSubmitting = form.state.isSubmitting;
   return (
-    <Card className="min-w-sm min-h-sm sm:max-w-md">
+    <Card className="min-w-md sm:max-w-md">
       <CardHeader className="flex flex-col items-center gap-2">
         <img src={Biporal} alt="Biporal logo" width="150px" height="150px" />
       </CardHeader>
@@ -70,7 +68,8 @@ const AuthForm = () => {
               name="username"
               children={(field) => {
                 const isInvalid =
-                  field.state.meta.isTouched && !field.state.meta.isValid;
+                  field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Username</FieldLabel>
@@ -94,8 +93,9 @@ const AuthForm = () => {
             <form.Field
               name="passcode"
               children={(field) => {
-                const isInvalid = field.state.meta.errors.length > 0;
-                // field.state.meta.isTouched && !field.state.meta.isValid;
+                const isInvalid =
+                  field.state.meta.isTouched &&
+                  field.state.meta.errors.length > 0;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Password</FieldLabel>
@@ -122,20 +122,15 @@ const AuthForm = () => {
       <CardFooter>
         <Field className={cn("flex flex-col")} orientation="vertical">
           <Button type="submit" form="auth-form">
-            {isSubmitting ? "Logging In..." : "Login"}
+            {mutation.isPending ? (
+              <>
+                <Loader className="animate-spin" /> Logging In...
+              </>
+            ) : (
+              "Login"
+            )}
           </Button>
-          {mutation.isError && (
-            <Alert variant="destructive">
-              <AlertCircle className="h-4 w-4" />
-              <AlertDescription>
-                {mutation.error instanceof AxiosError
-                  ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message : ""}`
-                  : mutation.error instanceof Error
-                    ? mutation.error.message
-                    : "Failed to login . Please try again."}
-              </AlertDescription>
-            </Alert>
-          )}
+          <FormError error={mutation.error} title="Failed to login" />
         </Field>
       </CardFooter>
     </Card>

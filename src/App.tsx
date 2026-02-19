@@ -7,7 +7,6 @@ import Token from "./pages/Token";
 import AuthProvider from "./providers/authProvider";
 import { BrowserRouter, Routes, Route } from "react-router";
 import Contractor from "./pages/Contractor";
-import Blocked from "./pages/Blocked";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ContractorDetails from "./features/ContractorDetails";
 import PersonDetails from "./features/PersonDetails";
@@ -21,6 +20,8 @@ import FunctionalityProvider from "./providers/functionalityProvider";
 import Defaulters from "./pages/Defaulters";
 import NotFound from "./pages/NotFound";
 import SupervisorHistory from "./pages/SupervisorHistory";
+import Blocklist from "./pages/Blocklist";
+import Notes from "./pages/Notes";
 
 const queryClient = new QueryClient();
 function App() {
@@ -41,8 +42,9 @@ function App() {
                   <Route path="fundings" element={<Funding />} />
                   <Route path="expenditures" element={<Expenditure />} />
                   <Route path="defaulters" element={<Defaulters />} />
-                  <Route path="blocked" element={<Blocked />} />
+                  <Route path="blocklist" element={<Blocklist />} />
                   <Route path="settings" element={<Setting />} />
+                  <Route path="notes/d/:tid" element={<Notes />} />
                   <Route
                     path="contractors/d/:id"
                     element={<ContractorDetails />}

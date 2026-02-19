@@ -18,13 +18,8 @@ const Contractor = () => {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["contractors", page, search, isActive.value],
-    queryFn: () => {
-      return getContractors({
-        page: page,
-        isActive: isActive.value,
-        search: search,
-      });
-    },
+    queryFn: () =>
+      getContractors({ page: page, isActive: isActive.value, search: search }),
   });
 
   const [inputValue, setInputValue] = useState(search);
@@ -41,7 +36,7 @@ const Contractor = () => {
       const newTimeout = setTimeout(() => {
         setSearch(value);
         setPage(1);
-      }, 500);
+      }, 1000);
       timeoutRef.current = newTimeout;
     },
     [setSearch, setPage],
@@ -56,20 +51,20 @@ const Contractor = () => {
   }, []);
 
   const prevPage = useCallback(() => {
-    if (!data) return;
-    if (page <= 1) return;
+    if (!data || page <= 1) return;
+
     setPage(page - 1);
   }, [data, page]);
 
   const nextPage = useCallback(() => {
-    if (!data) return;
-    if (page >= data.pagination.totalPages) return;
+    if (!data || page >= data.pagination.totalPages) return;
+
     setPage(page + 1);
   }, [data, page]);
 
-  // NOTE: disable search if there are errors
   const toolBar = useMemo(() => {
     const hasIsActiveFilter = isActive.value !== undefined;
+    const disable = isLoading || !!error;
     return (
       <div className={cn("flex gap-1 justify-between")}>
         <div className={cn("flex gap-1 min-w-md")}>
@@ -78,7 +73,7 @@ const Contractor = () => {
             onChange={handleTextChange}
             placeholder="Search..."
             className={cn("bg-white", "max-w-sm")}
-            disabled={isLoading}
+            disabled={disable}
           />
           <div className="relative">
             <ChooseMenu
@@ -89,7 +84,7 @@ const Contractor = () => {
               ]}
               state={isActive.value}
               handleSelect={setIsActive}
-              disabled={isLoading}
+              disabled={disable}
               label="Status"
             />
             {hasIsActiveFilter && (
@@ -103,6 +98,7 @@ const Contractor = () => {
       </div>
     );
   }, [inputValue, isActive.value, isLoading, handleTextChange]);
+
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">
