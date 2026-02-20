@@ -1,3 +1,4 @@
+import type { JSX } from "react";
 import {
   type ColumnDef,
   flexRender,
@@ -14,15 +15,10 @@ import {
 } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
-import {
-  AlertCircle,
-  ArrowLeft,
-  ArrowRight,
-  Loader,
-} from "lucide-react";
-import { Alert, AlertDescription } from "./ui/alert";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
-import type { JSX } from "react";
+import DisplayLoading from "./loading";
+import DisplayError from "./error";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -54,32 +50,15 @@ const DataTable = <TData, TValue>({
   });
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Loader className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <DisplayLoading />;
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load information. Please try again.
-        </AlertDescription>
-      </Alert>
+      <DisplayError description="Failed to load information. Please try again" />
     );
   }
 
-  if (!data) {
-    return (
-      <Alert variant="default">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>No data found</AlertDescription>
-      </Alert>
-    );
-  }
   return (
     <div className={cn("grid grid-rows-[auto_1fr_auto]", "gap-2")}>
       {toolBar && toolBar}

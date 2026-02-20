@@ -7,6 +7,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { ChevronDown } from "lucide-react";
 
 type OptionType<T> = {
   name: string;
@@ -25,7 +26,10 @@ const ChooseMenu = <T,>(props: ChooseMenuProps<T>) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">{props.label}</Button>
+        <Button variant="outline" className="flex items-center gap-2">
+          {props.label}
+          <ChevronDown className="w-4 h-4" />
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent>
         <DropdownMenuLabel>

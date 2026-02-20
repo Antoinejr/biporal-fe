@@ -129,15 +129,14 @@ export async function getPersons(payload: GetPersonQuery) {
   if (payload.page) {
     data.page = payload.page;
   }
-  if (payload.isActive !== undefined) {
-    data.isActive = payload.isActive;
-  }
   if (payload.search && payload.search !== "") {
     data.search = payload.search;
   }
   if (payload.category) {
     data.category = payload.category;
   }
+  // BUG: Hardcoded
+  data.isActive = true;
   console.log("Get contractor request...", data);
   try {
     const response = await http.get<GetPersonsResponse>("/api/person", {

@@ -101,12 +101,12 @@ const Contractor = () => {
 
   return (
     <div className="px-4 space-y-8">
-      <div className="space-y-2">
+      <header className="space-y-2">
         <h1 className="text-3xl font-bold tracking-tight">Contractors</h1>
         <p className="text-muted-foreground">
           Manage your organization's contractors
         </p>
-      </div>
+      </header>
       <DataTable
         columns={ContractorColumns}
         data={data?.data ?? []}

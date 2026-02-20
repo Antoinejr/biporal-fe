@@ -34,7 +34,7 @@ function Setting() {
 
   if (hasError) {
     return (
-      <DisplayError description=" Failed to settings. Please try again." />
+      <DisplayError description=" Failed to load settings. Please try again." />
     );
   }
 
@@ -43,7 +43,7 @@ function Setting() {
       <div className="container mx-auto max-w-4xl py-12 px-4 space-y-8">
         <header className="border-b pb-6">
           <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">
-            Estate Management Settings
+            Access Management Settings
           </h1>
           <p className="text-slate-500 mt-1">
             Configure gate access hours, entry fees, and security enforcement

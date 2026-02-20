@@ -23,7 +23,7 @@ function RateCard({ rateData }: RateCardProps) {
                 <p className="text-sm text-muted-foreground font-medium">
                   Current Price
                 </p>
-                <p className="text-3xl font-bold tracking-tight">
+                <p className="text-3xl font-mono font-bold tracking-tight">
                   {formatCurrency(rateData.rate)}
                 </p>
               </div>

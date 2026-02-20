@@ -1,4 +1,3 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -25,34 +24,23 @@ import {
   useField,
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { AlertCircle, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 import ChooseMenu from "./ChooseMenu";
 import { Textarea } from "@/components/ui/textarea";
+import FormError from "@/components/form-error";
+import FieldInput from "@/components/field-input";
 
 type PersonFormProps = {
-  category: Category
-}
+  category: Category;
+};
 
 const { fieldContext, formContext } = createFormHookContexts();
 
 const { useAppForm } = createFormHook({
-  fieldComponents: {
-    Field,
-    FieldLabel,
-    FieldError,
-    FieldGroup,
-    Textarea,
-    Input,
-    InputPassword,
-    ChooseMenu,
-  },
-  formComponents: {
-    Button,
-    FieldGroup,
-  },
+  fieldComponents: {},
+  formComponents: {},
   fieldContext,
   formContext,
 });
@@ -86,7 +74,7 @@ const formSchema = z
         z
           .string()
           .min(4, { message: "Passcode must be at least 4 characters long" })
-          .max(4, { message: "Passcode must be at most 4 characters" })
+          .max(4, { message: "Passcode must be at most 4 characters" }),
       ),
     ),
     category: z.enum(["RESIDENT", "WORKER", "DEPENDENT", "SUPERVISOR"], {
@@ -131,6 +119,7 @@ const formSchema = z
   });
 
 function PersonForm({ category }: PersonFormProps) {
+  const [show, setShow] = useState<boolean>(false);
   const queryClient = useQueryClient();
   const { data } = useQuery({
     queryKey: ["static-residents"],
@@ -148,7 +137,6 @@ function PersonForm({ category }: PersonFormProps) {
     },
   });
 
-  const [show, setShow] = useState<boolean>(false);
   const form = useAppForm({
     defaultValues: {
       firstName: "",
@@ -165,13 +153,13 @@ function PersonForm({ category }: PersonFormProps) {
     validators: {
       onSubmit: formSchema,
     },
+
     onSubmit: async ({ value }) => {
       const result = await formSchema.safeParseAsync(value);
       if (!result.success) {
         console.error("Form validation failed", result.error);
         return;
       }
-      console.log("Clean Data", result.data);
       mutation.mutate(result.data, {
         onSuccess: async () => {
           if (result.data.category === "RESIDENT") {
@@ -192,7 +180,7 @@ function PersonForm({ category }: PersonFormProps) {
   const currentCategory = fieldState.state.value;
 
   return (
-    <Dialog open={show} onOpenChange={(open) => setShow(open)}>
+    <Dialog open={show} onOpenChange={setShow}>
       <DialogTrigger asChild>
         <Button variant="default">Register</Button>
       </DialogTrigger>
@@ -208,86 +196,19 @@ function PersonForm({ category }: PersonFormProps) {
             form.handleSubmit();
           }}
         >
-          <form.FieldGroup
-            className={cn(
-              "grid grid-cols-[repeat(auto-fit,minmax(400px,1fr))]",
-            )}
-          >
-            {mutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {mutation.error instanceof AxiosError
-                    ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message : ""}`
-                    : mutation.error instanceof Error
-                      ? mutation.error.message
-                      : "Failed to create contractor. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
+          <FieldGroup className={cn("grid grid-cols-1")}>
+            <FormError error={mutation.error} title="Create Failed" />
             <form.AppField
               name="firstName"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
-                return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      First Name
-                    </field.FieldLabel>
-                    <field.Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="First Name..."
-                      autoComplete="off"
-                    />
-                    {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
-                    )}
-                  </field.Field>
-                );
-              }}
+              children={(field) => (
+                <FieldInput field={field} label="First Name" />
+              )}
             />
             <form.AppField
               name="lastName"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
-                return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Last Name
-                    </field.FieldLabel>
-                    <field.Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(event) =>
-                        field.handleChange(event.target.value)
-                      }
-                      placeholder="Last Name..."
-                      autoComplete="off"
-                    />
-                    {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
-                    )}
-                  </field.Field>
-                );
-              }}
+              children={(field) => (
+                <FieldInput field={field} label="Last Name" />
+              )}
             />
             <form.AppField
               name="mobile"
@@ -296,11 +217,9 @@ function PersonForm({ category }: PersonFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Mobile
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Phone</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
@@ -317,9 +236,9 @@ function PersonForm({ category }: PersonFormProps) {
                       autoComplete="off"
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -330,16 +249,13 @@ function PersonForm({ category }: PersonFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      {" "}
-                      Lagos ID{" "}
-                    </field.FieldLabel>
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Lagos ID</FieldLabel>
                     <div className="flex">
                       <span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
                         LAG
                       </span>
-                      <field.Input
+                      <Input
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
@@ -361,9 +277,9 @@ function PersonForm({ category }: PersonFormProps) {
                       />
                     </div>
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -375,18 +291,14 @@ function PersonForm({ category }: PersonFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field className={cn("col-span-full")}>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Address
-                    </field.FieldLabel>
-                    <field.Textarea
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Address</FieldLabel>
+                    <Textarea
                       id={field.name}
                       name={field.name}
+                      rows={2}
                       value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
+                      onBlur={field.handleBlur}
                       onChange={(event) =>
                         field.handleChange(event.target.value)
                       }
@@ -394,9 +306,9 @@ function PersonForm({ category }: PersonFormProps) {
                       autoComplete="off"
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -407,19 +319,17 @@ function PersonForm({ category }: PersonFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field className={cn("col-span-full")}>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Category
-                    </field.FieldLabel>
+                  <Field className={cn("col-span-full")}>
+                    <FieldLabel htmlFor={field.name}>Category</FieldLabel>
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                    <field.ChooseMenu
+                    <ChooseMenu
                       disabled={true}
                       options={[
-                        { name: "Resident", value: "RESIDENT" as Category },
-                        { name: "Worker", value: "WORKER" as Category },
-                        { name: "Dependent", value: "DEPENDENT" as Category },
+                        // { name: "Resident", value: "RESIDENT" as Category },
+                        // { name: "Worker", value: "WORKER" as Category },
+                        // { name: "Dependent", value: "DEPENDENT" as Category },
                         { name: "Supervisor", value: "SUPERVISOR" as Category },
                       ]}
                       state={field.state.value}
@@ -437,7 +347,7 @@ function PersonForm({ category }: PersonFormProps) {
                           form.setFieldValue("residentId", "");
                       }}
                     />
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -449,11 +359,9 @@ function PersonForm({ category }: PersonFormProps) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Duration
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Duration</FieldLabel>
+                    <Input
                       id={field.name}
                       type="text"
                       name={field.name}
@@ -470,9 +378,9 @@ function PersonForm({ category }: PersonFormProps) {
                       placeholder="Length of days of access"
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -485,11 +393,9 @@ function PersonForm({ category }: PersonFormProps) {
                     field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0;
                   return (
-                    <field.Field>
-                      <field.FieldLabel htmlFor={field.name}>
-                        Pin
-                      </field.FieldLabel>
-                      <field.InputPassword
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Pin</FieldLabel>
+                      <InputPassword
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
@@ -503,9 +409,9 @@ function PersonForm({ category }: PersonFormProps) {
                         maxLength={4}
                       />
                       {isInvalid && (
-                        <field.FieldError errors={field.state.meta.errors} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </field.Field>
+                    </Field>
                   );
                 }}
               />
@@ -518,11 +424,9 @@ function PersonForm({ category }: PersonFormProps) {
                     field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0;
                   return (
-                    <field.Field>
-                      <field.FieldLabel htmlFor={field.name}>
-                        Resident
-                      </field.FieldLabel>
-                      <field.ChooseMenu
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Resident</FieldLabel>
+                      <ChooseMenu
                         options={data ?? []}
                         state={field.state.value}
                         label={
@@ -534,9 +438,9 @@ function PersonForm({ category }: PersonFormProps) {
                         }
                       />
                       {isInvalid && (
-                        <field.FieldError errors={field.state.meta.errors} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </field.Field>
+                    </Field>
                   );
                 }}
               />
@@ -550,11 +454,9 @@ function PersonForm({ category }: PersonFormProps) {
                     field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0;
                   return (
-                    <field.Field>
-                      <field.FieldLabel htmlFor={field.name}>
-                        Employer
-                      </field.FieldLabel>
-                      <field.ChooseMenu
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Employer</FieldLabel>
+                      <ChooseMenu
                         options={data ?? []}
                         state={field.state.value}
                         label={
@@ -566,33 +468,33 @@ function PersonForm({ category }: PersonFormProps) {
                         }
                       />
                       {isInvalid && (
-                        <field.FieldError errors={field.state.meta.errors} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </field.Field>
+                    </Field>
                   );
                 }}
               />
             )}
             <form.AppForm>
-              <Field orientation="horizontal">
-                <form.Button type="submit">
+              <Field className="flex justify-end" orientation="horizontal">
+                <DialogClose asChild>
+                  <Button type="button" variant="outline">
+                    Close
+                  </Button>
+                </DialogClose>
+                <Button type="submit">
                   {mutation.isPending ? (
                     <>
-                      Submitting....{" "}
                       <Loader className="ml-2 h-4 w-4 animate-spin" />
+                      Submitting...
                     </>
                   ) : (
                     <>Submit</>
                   )}
-                </form.Button>
-                <DialogClose asChild>
-                  <form.Button type="button" variant="outline">
-                    Close
-                  </form.Button>
-                </DialogClose>
+                </Button>
               </Field>
             </form.AppForm>
-          </form.FieldGroup>
+          </FieldGroup>
         </form>
       </DialogContent>
     </Dialog>

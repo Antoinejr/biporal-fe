@@ -3,6 +3,7 @@ import type { PageBasedPagination } from "@/lib/baseTypes";
 
 interface BlockListQuery {
   page?: number;
+  search?: string;
 }
 
 interface BlockListEntriesResponse {

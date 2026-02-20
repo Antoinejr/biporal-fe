@@ -14,6 +14,30 @@ import { Eye, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router";
 import SiteDisengage from "./SiteDisengage";
 
+const SiteActions = ({ site }: { site: SiteType }) => {
+  const navigate = useNavigate();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open Menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => navigate(`/sites/d/${site.id}`)}>
+          <Eye className="h-4 w-4" />
+          View Details
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <SiteDisengage site={site} />
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+};
+
 export const SiteColumns: ColumnDef<SiteType>[] = [
   {
     id: "name",
@@ -47,36 +71,13 @@ export const SiteColumns: ColumnDef<SiteType>[] = [
   {
     accessorKey: "owner",
     header: "Site Owner",
-    cell({row}) {
+    cell({ row }) {
       const owner = row.original.owner;
-      return `${owner}`
-    }
+      return `${owner}`;
+    },
   },
   {
     id: "actions",
-    cell: ({ row }) => {
-      const site = row.original;
-      const navigate = useNavigate();
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="h-8 w-8 p-0">
-              <span className="sr-only">Open Menu</span>
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => navigate(`/sites/d/${site.id}`)}>
-              <Eye className="h-4 w-4" />
-              View Details
-            </DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <SiteDisengage site={site} />
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
+    cell: ({ row }) => <SiteActions site={row.original} />,
   },
 ];

@@ -1,6 +1,5 @@
 import DataTable from "@/components/data-table";
 import { Input } from "@/components/ui/input";
-import ChooseMenu from "@/features/ChooseMenu";
 import { PersonColumns } from "@/features/PersonColumnDef";
 import PersonForm from "@/features/PersonForm";
 import type { Category } from "@/lib/activityLogsTypes";
@@ -8,25 +7,19 @@ import { cn } from "@/lib/utils";
 import { getPersons } from "@/services/personService";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useParams, useLocation, useNavigate} from "react-router";
-
+import { useParams, useLocation, useNavigate } from "react-router";
 
 const Person = () => {
   const { category } = useParams();
   const navigator = useNavigate();
-  const location = useLocation()
+  const location = useLocation();
   const [page, setPage] = useState<number>(1);
   const [search, setSearch] = useState<string>("");
-  const [isActive, setIsActive] = useState<{
-    name: string;
-    value: boolean | undefined;
-  }>({ name: "All", value: undefined });
   const { data, isLoading, error } = useQuery({
-    queryKey: ["persons", page, search, isActive.value, category],
+    queryKey: ["persons", page, search, category],
     queryFn: () =>
       getPersons({
         page: page,
-        isActive: isActive.value,
         search: search,
         category: category as Category,
       }),
@@ -35,18 +28,17 @@ const Person = () => {
   const [inputValue, setInputValue] = useState(search);
   const timeoutRef = useRef<number | undefined>(undefined);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (category !== "SUPERVISOR") {
-      navigator("not-found", {replace: true})
+      navigator("not-found", { replace: true });
     }
-  }, [])
+  }, []);
 
-  const pageName= useMemo(()=> {
+  const pageName = useMemo(() => {
     const splitstring = location.pathname.split("/");
-    const length = splitstring.length
-    return splitstring[length-1];
+    const length = splitstring.length;
+    return splitstring[length - 1];
   }, [location.pathname]);
-
 
   const handleTextChange = useCallback(
     (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,7 +78,6 @@ const Person = () => {
   }, [data, page]);
 
   const toolBar = useMemo(() => {
-    const hasIsActiveFilter = isActive.value !== undefined;
     return (
       <div className={cn("flex gap-1 justify-between")}>
         <div className={cn("flex gap-1 min-w-md")}>
@@ -97,30 +88,11 @@ const Person = () => {
             className={cn("bg-white", "max-w-sm")}
             disabled={isLoading}
           />
-
-          <div className="relative">
-            <ChooseMenu
-              options={[
-                { name: "All", value: undefined },
-                { name: "Active", value: true },
-                { name: "Inactive", value: false },
-              ]}
-              state={isActive.value}
-              handleSelect={setIsActive}
-              disabled={isLoading}
-              label="Status"
-            />
-            {hasIsActiveFilter && (
-              <span className="absolute -top-1 -right-1 text-red-500 text-lg">
-                *
-              </span>
-            )}
-          </div>
         </div>
-        <PersonForm category={category as Category}/>
+        <PersonForm category={category as Category} />
       </div>
     );
-  }, [inputValue, isActive.value, isLoading,handleTextChange, category]);
+  }, [inputValue, isLoading, handleTextChange, category]);
 
   return (
     <div className="px-4 space-y-8">

@@ -1,4 +1,5 @@
 import FormError from "@/components/form-error";
+import NairaIcon from "@/components/naira-icon";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -67,7 +68,7 @@ function RateForm() {
   });
 
   return (
-    <Dialog open={show} onOpenChange={(open) => setShow(open)}>
+    <Dialog open={show} onOpenChange={setShow}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
           <Banknote className="h-4 w-4" />
@@ -105,26 +106,39 @@ function RateForm() {
                     >
                       New Ticket Price (NGN)
                     </FieldLabel>
-                    <Input
-                      className="pl-7 font-mono"
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, "");
-                        const numericalValue = digits
-                          ? parseInt(digits, 10) / 100
-                          : 0;
-                        const formatted = numericalValue.toFixed(2);
-                        field.handleChange(formatted);
-                      }}
-                      placeholder="Enter new price..."
-                      autoComplete="off"
-                    />
+                    <div
+                      tabIndex={-1}
+                      className="flex p-2 gap-2 border border-2
+                      rounded-md items-center
+                      transition-all duration-200 ease-in-out
+                      has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring
+                      has-[:focus-visible]:ring-offset"
+                    >
+                      <NairaIcon className="h-4 w-4 opacity-50" />
+                      <Input
+                        className="shadow-none font-mono border-none 
+                        focus-visible:ring-0 focus-visible:ring-offset-0
+                        focus-visible:border-none
+                        "
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={(e) => {
+                          field.handleChange(e.target.value.trim());
+                          field.handleBlur();
+                        }}
+                        onChange={(e) => {
+                          const digits = e.target.value.replace(/\D/g, "");
+                          const numericalValue = digits
+                            ? parseInt(digits, 10) / 100
+                            : 0;
+                          const formatted = numericalValue.toFixed(2);
+                          field.handleChange(formatted);
+                        }}
+                        placeholder="Enter new price..."
+                        autoComplete="off"
+                      />
+                    </div>
                     {isInvalid && (
                       <FieldError errors={field.state.meta.errors} />
                     )}
