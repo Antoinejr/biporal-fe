@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
+import BlockForm from "@/features/BlockForm";
 import SiteEnrollForm from "@/features/SiteEnrollForm";
 import SiteForm from "@/features/SiteForm";
 import { cn } from "@/lib/utils";
@@ -199,7 +200,9 @@ function Blocklist() {
             disabled={disable}
           />
         </div>
-        {/* <div className={cn("flex gap-1")}></div> */}
+        <div className={cn("flex gap-1")}>
+          <BlockForm />
+        </div>
       </div>
     );
   }, [inputValue, isLoading, handleTextChange]);

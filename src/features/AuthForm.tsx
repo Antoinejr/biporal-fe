@@ -23,6 +23,11 @@ import { cn } from "@/lib/utils";
 import FormError from "@/components/form-error";
 import { Loader } from "lucide-react";
 
+const formSchema = z.object({
+  username: z.string().min(1, "Username must be entered"),
+  passcode: z.string().min(1, "Passcode must be entered"),
+});
+
 const AuthForm = () => {
   const { signIn } = useAuth();
   const navigator = useNavigate();
@@ -31,10 +36,6 @@ const AuthForm = () => {
     onSuccess: () => navigator("/"),
   });
 
-  const formSchema = z.object({
-    username: z.string().min(1, "Username must be entered"),
-    passcode: z.string().min(1, "Passcode must be entered"),
-  });
   const form = useForm({
     defaultValues: {
       username: "",
@@ -42,10 +43,9 @@ const AuthForm = () => {
     },
     validators: {
       onSubmit: formSchema,
-      onSubmitAsync: async ({ value }) => {
-        console.log("Form submit got called", { value: value });
-        mutation.mutate(value);
-      },
+    },
+    onSubmit: ({ value }) => {
+      mutation.mutate(value);
     },
   });
 

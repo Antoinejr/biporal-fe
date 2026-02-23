@@ -6,7 +6,11 @@ import { Eye } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const ContractorColumns: ColumnDef<ContractorType>[] = [
-  { accessorKey: "name", header: "Name", cell: ({row}) => `${row.original.name.toUpperCase()}` },
+  {
+    accessorKey: "name",
+    header: "Name",
+    cell: ({ row }) => `${row.original.name.toUpperCase()}`,
+  },
   { accessorKey: "phone", header: "Phone" },
   { accessorKey: "email", header: "Email" },
   {
@@ -33,7 +37,7 @@ export const ContractorColumns: ColumnDef<ContractorType>[] = [
 
       return (
         <Button
-          variant="outline"
+          variant="ghost"
           size="sm"
           onClick={() => navigate(`/contractors/d/${contractor.id}`)}
         >

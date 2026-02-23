@@ -123,10 +123,7 @@ function RateForm() {
                         id={field.name}
                         name={field.name}
                         value={field.state.value}
-                        onBlur={(e) => {
-                          field.handleChange(e.target.value.trim());
-                          field.handleBlur();
-                        }}
+                        onBlur={field.handleBlur}
                         onChange={(e) => {
                           const digits = e.target.value.replace(/\D/g, "");
                           const numericalValue = digits
