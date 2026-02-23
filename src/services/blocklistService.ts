@@ -1,6 +1,14 @@
 import http from "@/lib/axiosClient";
 import type { PageBasedPagination } from "@/lib/baseTypes";
 
+export interface TokensActiveToday {
+  id: string;
+  firstName: string;
+  lastName: string;
+  supervisorName: string;
+  lagId: string | null;
+}
+
 interface BlockListQuery {
   page?: number;
   search?: string;
@@ -18,7 +26,8 @@ interface WarningResponse {
 export interface AddToBlocklist {
   firstName: string;
   lastName: string;
-  lagId: string;
+  lagId?: string;
+  tokenId?: string;
   notes?: string;
 }
 
@@ -55,7 +64,7 @@ export async function fetchEntries(query: BlockListQuery) {
   }
 }
 
-export async function blockLagId(payload: AddToBlocklist) {
+export async function blockAccess(payload: AddToBlocklist) {
   const filtered = Object.fromEntries(
     Object.entries(payload).filter(
       ([_, value]) => value !== undefined && value !== "",
@@ -115,6 +124,20 @@ export async function updateWarning({ limit }: { limit: number }) {
 export async function getWarning() {
   try {
     const response = await http.get<WarningResponse>("api/moderation/warning");
+    return response.data;
+  } catch (err) {
+    throw err;
+  }
+}
+
+export async function findTokensActiveToday(query: { search: string }) {
+  try {
+    const response = await http.get<{ data: TokensActiveToday[] }>(
+      "api/tokens/light",
+      {
+        params: query,
+      },
+    );
     return response.data;
   } catch (err) {
     throw err;

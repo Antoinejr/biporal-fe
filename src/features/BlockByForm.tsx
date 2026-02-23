@@ -7,6 +7,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { blockAccess } from "@/services/blocklistService";
 import { createFormHookContexts, createFormHook } from "@tanstack/react-form";
 import { useMutation } from "@tanstack/react-query";
 import { Loader } from "lucide-react";
@@ -22,10 +23,11 @@ const { useAppForm } = createFormHook({
 });
 
 const BLOCK_VALIDATOR = z.object({
-  firstName: z.string().min(1, { error: "First name is mandatory" }),
-  lastName: z.string().min(1, { error: "Last name is mandatory" }),
+  firstName: z.string().trim().min(1, { error: "First name is mandatory" }),
+  lastName: z.string().trim().min(1, { error: "Last name is mandatory" }),
   lagId: z
     .string()
+    .trim()
     .regex(/^\d{10}$/, { error: "Not a valid lag Id" })
     .transform((val) => `LAG${val}`),
 });
@@ -34,19 +36,9 @@ interface BlockByIDFormProps {
   CloseBtn?: (disabled: boolean, onClick: () => void) => ReactElement;
 }
 
-//TODO: remove once not useful
-const handleProto = (obj: any) => {
-  return new Promise((res, _) => {
-    setTimeout(() => {
-      alert(JSON.stringify(obj));
-      res(0);
-    }, 1000);
-  });
-};
-
-const BlockByLagIDForm = ({ CloseBtn }: BlockByIDFormProps) => {
+const BlockByForm = ({ CloseBtn }: BlockByIDFormProps) => {
   const mutation = useMutation({
-    mutationFn: handleProto,
+    mutationFn: blockAccess,
   });
 
   const form = useAppForm({
@@ -59,22 +51,27 @@ const BlockByLagIDForm = ({ CloseBtn }: BlockByIDFormProps) => {
       onSubmit: BLOCK_VALIDATOR,
     },
     onSubmit: ({ value }) => {
+      const parse = BLOCK_VALIDATOR.safeParse(value);
+      if (parse.error) {
+        throw new Error("Form is invalid");
+      }
+      const { firstName, lastName, lagId } = parse.data;
       mutation.mutate({
-        firstName: value.firstName,
-        lastName: value.lastName,
-        lagId: value.lagId,
+        firstName,
+        lastName,
+        lagId,
       });
     },
   });
   return (
     <form
-      id="blockByLagForm"
+      id="blockByForm"
       onSubmit={(e) => {
         e.preventDefault();
         form.handleSubmit();
       }}
     >
-      <FieldGroup className="flex gap-2">
+      <FieldGroup className="flex gap-2 justify-end">
         <FormError error={mutation.error} title="Create Failed" />
         <form.AppField
           name="firstName"
@@ -129,19 +126,25 @@ const BlockByLagIDForm = ({ CloseBtn }: BlockByIDFormProps) => {
             return (
               <Field>
                 <FieldLabel htmlFor={field.name}>{label}</FieldLabel>
-                <Input
-                  id={field.name}
-                  name={field.name}
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(event) => {
-                    const numericVal = event.target.value.replace(/\D/g, "");
-                    field.handleChange(numericVal);
-                  }}
-                  placeholder={label}
-                  autoComplete="off"
-                  maxLength={10}
-                />
+                <div className="flex">
+                  <span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
+                    LAG
+                  </span>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    className="rounded-l-none"
+                    onBlur={field.handleBlur}
+                    onChange={(event) => {
+                      const numericVal = event.target.value.replace(/\D/g, "");
+                      field.handleChange(numericVal);
+                    }}
+                    placeholder={label}
+                    autoComplete="off"
+                    maxLength={10}
+                  />
+                </div>
                 {isInvalid && <FieldError errors={field.state.meta.errors} />}
               </Field>
             );
@@ -171,4 +174,4 @@ const BlockByLagIDForm = ({ CloseBtn }: BlockByIDFormProps) => {
   );
 };
 
-export default BlockByLagIDForm;
+export default BlockByForm;

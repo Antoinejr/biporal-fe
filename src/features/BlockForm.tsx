@@ -10,7 +10,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useState } from "react";
-import BlockByLagIDForm from "./BlockByLagIDForm";
+import BlockByForm from "./BlockByForm";
+import BlockBySearch from "./BlockBySearch";
 
 const BlockForm = () => {
   const [show, setShow] = useState<boolean>(false);
@@ -38,22 +39,22 @@ const BlockForm = () => {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Block Person</DialogTitle>
-          <DialogDescription>Suspend access onto premises</DialogDescription>
+          <DialogDescription>Suspend access to premises</DialogDescription>
         </DialogHeader>
-        <PageSwitcher defaultForm="lag">
-          <nav>
-            <PageSwitcher.Button name="lag">
-              <>LagID</>
+        <PageSwitcher className="min-h-[250px]" defaultForm="input">
+          <nav className="flex justify-center">
+            <PageSwitcher.Button name="input">
+              <>Block</>
             </PageSwitcher.Button>
-            <PageSwitcher.Button name="token">
-              <>Token</>
+            <PageSwitcher.Button name="search">
+              <>Search</>
             </PageSwitcher.Button>
           </nav>
-          <PageSwitcher.Panel name="lag">
-            <BlockByLagIDForm CloseBtn={CloseButton} />
+          <PageSwitcher.Panel name="input">
+            <BlockByForm CloseBtn={CloseButton} />
           </PageSwitcher.Panel>
-          <PageSwitcher.Panel name="token">
-            <form></form>
+          <PageSwitcher.Panel name="search">
+            <BlockBySearch />
           </PageSwitcher.Panel>
         </PageSwitcher>
       </DialogContent>

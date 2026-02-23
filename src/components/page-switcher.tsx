@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 interface PageSwitcherProps {
   children: ReactNode;
   defaultForm: string;
+  className?: string;
 }
 
 interface PageSwitcherContext {
@@ -20,11 +21,15 @@ interface PageSwitcherContext {
 
 const pageContext = createContext<PageSwitcherContext | null>(null);
 
-const PageSwitcher = ({ children, defaultForm }: PageSwitcherProps) => {
+const PageSwitcher = ({
+  children,
+  defaultForm,
+  className,
+}: PageSwitcherProps) => {
   const [page, setPage] = useState(defaultForm);
   return (
     <pageContext.Provider value={{ page, toggle: (n: string) => setPage(n) }}>
-      {children}
+      <div className={cn(className)}>{children}</div>
     </pageContext.Provider>
   );
 };
@@ -42,7 +47,7 @@ const PageToggle = ({
     <Button
       onClick={() => toggle(name)}
       variant="link"
-      className={cn(active ? "font-bold" : "")}
+      className={cn(active ? "font-bold underline" : "")}
     >
       {children}
     </Button>
