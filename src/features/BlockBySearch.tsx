@@ -59,15 +59,16 @@ const BlockBySearch = () => {
     <div className="flex flex-col items-center justfy-center">
       <Input
         type="text"
+        className="mb-4"
         placeholder="Search..."
         value={value}
         onChange={(e) => handleValueChange(e)}
-        disabled={isLoading || error !== null}
+        disabled={isLoading}
       />
       {isLoading && <Loader className="animate-spin" />}
       {error && <FormError error={error} title="Fetch Failed" />}
       {data && (
-        <div className="flex flex-col gap-4 min-w-full mt-3">
+        <div className="flex flex-col gap-4 min-w-full">
           <div className="flex flex-col gap-2 max-h-[250px] overflow-y-auto p-2">
             {data.data.map((d, index) => {
               const isSuccess = blockedIds.has(d.id) || blockedIds.has(d.lagId);

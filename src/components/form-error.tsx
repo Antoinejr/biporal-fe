@@ -14,7 +14,7 @@ function FormError({ error, title = "Something went wrong" }: FormErrorProps) {
   return (
     <Alert
       variant="destructive"
-      className="animate-in ease-out fade-in slide-in-from-top-2 duration-300"
+      className="flex items-center animate-in ease-out fade-in slide-in-from-top-2 duration-300"
     >
       <AlertCircle className="h-4 w-4" />
       <div className="ml-2">

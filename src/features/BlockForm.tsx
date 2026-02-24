@@ -41,7 +41,7 @@ const BlockForm = () => {
           <DialogTitle>Block Person</DialogTitle>
           <DialogDescription>Suspend access to premises</DialogDescription>
         </DialogHeader>
-        <PageSwitcher className="min-h-[250px]" defaultForm="input">
+        <PageSwitcher className="min-h-[300px]" defaultForm="input">
           <nav className="flex justify-center">
             <PageSwitcher.Button name="input">
               <>Block</>

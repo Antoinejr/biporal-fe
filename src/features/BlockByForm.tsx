@@ -1,4 +1,5 @@
 import FormError from "@/components/form-error";
+import FormSuccess from "@/components/form-success";
 import { Button } from "@/components/ui/button";
 import {
   Field,
@@ -9,9 +10,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { blockAccess } from "@/services/blocklistService";
 import { createFormHookContexts, createFormHook } from "@tanstack/react-form";
-import { useMutation } from "@tanstack/react-query";
+import {
+  QueryClient,
+  QueryClientContext,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import { Loader } from "lucide-react";
-import type { ReactElement } from "react";
+import { useState, type ReactElement } from "react";
 import z from "zod";
 
 const { fieldContext, formContext } = createFormHookContexts();
@@ -37,8 +43,16 @@ interface BlockByIDFormProps {
 }
 
 const BlockByForm = ({ CloseBtn }: BlockByIDFormProps) => {
+  const [hasSuccess, setHasSucccess] = useState(false);
+  const qc = useQueryClient();
   const mutation = useMutation({
     mutationFn: blockAccess,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["blocklist"] });
+      setHasSucccess(true);
+      setTimeout(() => setHasSucccess(false), 2500);
+      form.reset();
+    },
   });
 
   const form = useAppForm({
@@ -72,7 +86,12 @@ const BlockByForm = ({ CloseBtn }: BlockByIDFormProps) => {
       }}
     >
       <FieldGroup className="flex gap-2 justify-end">
-        <FormError error={mutation.error} title="Create Failed" />
+        <FormError error={mutation.error} title="Block Failed" />
+        <FormSuccess
+          hasSuccess={hasSuccess}
+          title="Block Successful"
+          message="Persons  access has success been restricted"
+        />
         <form.AppField
           name="firstName"
           children={(field) => {
