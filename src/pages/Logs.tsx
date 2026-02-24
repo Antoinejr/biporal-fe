@@ -12,6 +12,12 @@ import { Label } from "@/components/ui/label";
 import ChooseMenu from "@/features/ChooseMenu";
 import { ReportLogsColumns } from "@/features/ReportColumnDef";
 import type { Category } from "@/lib/activityLogsTypes";
+import {
+  AccessStatusEnum,
+  LogStatusEnum,
+  type AccessStatus,
+  type LogStatus,
+} from "@/lib/dashboardType";
 import { cn } from "@/lib/utils";
 import {
   getLogCsv,
@@ -33,27 +39,20 @@ import { useCallback, useMemo, useState } from "react";
 function Logs() {
   const [downloading, setIsDownloading] = useState(false);
   const [page, setPage] = useState(1);
-  const [action, setAction] = useState<{
+  const [type, setType] = useState<{
     name: string;
     value: string | undefined;
   }>({ name: "All", value: undefined });
-  const [isRejected, setIsRejected] = useState<{
+  const [logStatus, setLogStatus] = useState<{
     name: string;
-    value: boolean | undefined;
+    value: LogStatus | undefined;
   }>({
     name: "All",
     value: undefined,
   });
-  const [isLate, setIsLate] = useState<{
+  const [accessStatus, setAccessStatus] = useState<{
     name: string;
-    value: boolean | undefined;
-  }>({
-    name: "All",
-    value: undefined,
-  });
-  const [hasNotLeft, setHasNotLeft] = useState<{
-    name: string;
-    value: boolean | undefined;
+    value: AccessStatus | undefined;
   }>({
     name: "All",
     value: undefined,
@@ -72,47 +71,38 @@ function Logs() {
     value: undefined,
   });
 
+  const getFieldsForDownload = () => {
+    return {
+      page: page,
+      action: type.value?.toUpperCase(),
+      accessStatus: accessStatus.value,
+      logStatus: logStatus.value,
+      startDate: startDate,
+      endDate: endDate,
+      category: categoryState.value,
+      siteId: site.value,
+    };
+  };
+
   const { data, isLoading, error } = useQuery({
     queryKey: [
       "reports",
       page,
-      action.value,
-      isRejected.value,
+      type.value,
       startDate,
       endDate,
       categoryState.value,
       site.value,
-      isLate.value,
-      hasNotLeft.value,
+      accessStatus.value,
+      logStatus.value,
     ],
-    queryFn: () =>
-      getLogSnapshot({
-        page: page,
-        action: action.value?.toUpperCase(),
-        isRejected: isRejected.value,
-        startDate: startDate,
-        endDate: endDate,
-        category: categoryState.value,
-        siteId: site.value,
-        isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value,
-      }),
+    queryFn: () => getLogSnapshot(getFieldsForDownload()),
   });
 
   async function downloadPdf() {
     try {
       setIsDownloading(true);
-      await getLogPdf({
-        page: page,
-        action: action.value?.toUpperCase(),
-        isRejected: isRejected.value,
-        startDate: startDate,
-        endDate: endDate,
-        category: categoryState.value,
-        siteId: site.value,
-        isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value,
-      });
+      await getLogPdf(getFieldsForDownload());
       return;
     } catch (err) {
       console.error(error);
@@ -124,17 +114,7 @@ function Logs() {
   async function downloadCsv() {
     try {
       setIsDownloading(true);
-      await getLogCsv({
-        page: page,
-        action: action.value?.toUpperCase(),
-        isRejected: isRejected.value,
-        startDate: startDate,
-        endDate: endDate,
-        category: categoryState.value,
-        siteId: site.value,
-        isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value,
-      });
+      await getLogCsv(getFieldsForDownload());
       return;
     } catch (err) {
       console.error(error);
@@ -146,17 +126,7 @@ function Logs() {
   async function downloadXlsx() {
     try {
       setIsDownloading(true);
-      await getLogXlsx({
-        page: page,
-        action: action.value?.toUpperCase(),
-        isRejected: isRejected.value,
-        startDate: startDate,
-        endDate: endDate,
-        category: categoryState.value,
-        siteId: site.value,
-        isLate: isLate.value,
-        hasNotLeft: hasNotLeft.value,
-      });
+      await getLogXlsx(getFieldsForDownload());
       return;
     } catch (err) {
       console.error(error);
@@ -192,10 +162,9 @@ function Logs() {
   const toolBar = useMemo(() => {
     const hasStartDate = startDate !== "";
     const hasEndDate = endDate !== "";
-    const hasActionFilter = action.value !== undefined;
-    const hasRejectedFilter = isRejected.value !== undefined;
-    const hasLateFilter = isLate.value !== undefined;
-    const hasNotLeftFilter = hasNotLeft.value !== undefined;
+    const hasActionFilter = type.value !== undefined;
+    const hasAccessStatusFilter = accessStatus.value !== undefined;
+    const hasLogStatusFilter = logStatus.value !== undefined;
     const hasCategoryFilter = categoryState.value !== undefined;
     const hasSiteFilter = site.value !== undefined;
     return (
@@ -243,28 +212,6 @@ function Logs() {
           <div className="relative">
             <ChooseMenu
               options={[
-                { name: "All", value: undefined },
-                { name: "Granted", value: false },
-                { name: "Rejected", value: true },
-              ]}
-              state={isRejected.value}
-              handleSelect={setIsRejected}
-              disabled={isLoading}
-              label="Log Status"
-            />
-            {hasRejectedFilter && (
-              <span className="absolute -top-1 -right-1 text-red-500 text-lg">
-                *
-              </span>
-            )}
-          </div>
-          <div className="relative">
-            <ChooseMenu
-              options={[
-                // { name: "All", value: undefined },
-                // { name: "Resident", value: "RESIDENT" as Category },
-                // { name: "Worker", value: "WORKER" as Category },
-                // { name: "Dependent", value: "DEPENDENT" as Category },
                 { name: "Supervisor", value: "SUPERVISOR" as Category },
                 { name: "Artisan", value: "ARTISAN" as Category },
               ]}
@@ -300,10 +247,10 @@ function Logs() {
                 { name: "Entry", value: "IN" },
                 { name: "Exit", value: "OUT" },
               ]}
-              state={action.value}
-              handleSelect={setAction}
+              state={type.value}
+              handleSelect={setType}
               disabled={isLoading}
-              label="Action"
+              label="Type"
             />
             {hasActionFilter && (
               <span className="absolute -top-1 -right-1 text-red-500 text-lg">
@@ -315,15 +262,16 @@ function Logs() {
             <ChooseMenu
               options={[
                 { name: "All", value: undefined },
-                { name: "Yes", value: true },
-                { name: "No", value: false },
+                { name: "Exited", value: LogStatusEnum.EXITED },
+                { name: "Overstayed", value: LogStatusEnum.OVERSTAYED },
+                { name: "Still In", value: LogStatusEnum.STILL_IN },
               ]}
-              state={isLate.value}
-              handleSelect={setIsLate}
+              state={logStatus.value}
+              handleSelect={setLogStatus}
               disabled={isLoading}
-              label="Late Exit"
+              label="Status"
             />
-            {hasLateFilter && (
+            {hasLogStatusFilter && (
               <span className="absolute -top-1 -right-1 text-red-500 text-lg">
                 *
               </span>
@@ -333,15 +281,16 @@ function Logs() {
             <ChooseMenu
               options={[
                 { name: "All", value: undefined },
-                { name: "Yes", value: true },
-                { name: "No", value: false },
+                { name: "Granted", value: AccessStatusEnum.GRANTED },
+                { name: "Rejected", value: AccessStatusEnum.REJECTED },
+                { name: "Flagged", value: AccessStatusEnum.FLAGGED },
               ]}
-              state={hasNotLeft.value}
-              handleSelect={setHasNotLeft}
+              state={accessStatus.value}
+              handleSelect={setAccessStatus}
               disabled={isLoading}
-              label="Still In"
+              label="Access"
             />
-            {hasNotLeftFilter && (
+            {hasAccessStatusFilter && (
               <span className="absolute -top-1 -right-1 text-red-500 text-lg">
                 *
               </span>
@@ -396,12 +345,11 @@ function Logs() {
   }, [
     startDate,
     endDate,
-    isRejected.value,
-    isLate.value,
-    hasNotLeft.value,
+    accessStatus.value,
+    logStatus.value,
     categoryState.value,
     site.value,
-    action.value,
+    type.value,
     siteLookupTable,
     isLoading,
   ]);

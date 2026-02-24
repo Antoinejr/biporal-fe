@@ -1,5 +1,5 @@
 import CategoryBadge from "@/components/category-badge";
-import type { LogReport } from "@/lib/dashboardType";
+import { AccessStatusEnum, type LogReport } from "@/lib/dashboardType";
 import { cn, formatDateTime } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
 
@@ -17,7 +17,7 @@ export const ReportLogsColumns: ColumnDef<LogReport>[] = [
     cell({ row }) {
       const firstName = row.original.firstName;
       const lastName = row.original.lastName;
-      const isPersonFlagged = row.original.isLate || row.original.hasNotLeft;
+      const isPersonFlagged = row.original.hasViolations;
       const cell = `${firstName.toUpperCase()} ${lastName.toUpperCase()}`;
       return (
         <span className={cn(isPersonFlagged ? "text-red-500" : "")}>
@@ -66,55 +66,29 @@ export const ReportLogsColumns: ColumnDef<LogReport>[] = [
     },
   },
   {
-    accessorKey: "isRejected",
+    accessorKey: "status",
+    header: "Status",
+  },
+  {
+    id: "accessStatus",
     header: "Access",
     cell: ({ row }) => (
       <span
         className={`px-2 py-1 rounded text-sm ${
           row.original.isRejected
             ? "bg-red-100 text-red-700"
-            : "bg-green-100 text-green-700"
+            : row.original.hasViolations
+              ? "bg-yellow-100 text-yellow-700"
+              : "bg-green-100 text-green-700"
         }`}
       >
-        {row.original.isRejected ? "Rejected" : "Granted"}
+        {row.original.isRejected
+          ? AccessStatusEnum.REJECTED
+          : row.original.hasViolations
+            ? AccessStatusEnum.FLAGGED
+            : AccessStatusEnum.GRANTED}
       </span>
     ),
-  },
-  {
-    accessorKey: "isLate",
-    header: "Late Exit",
-    cell({ row }) {
-      const isLate = row.original.isLate;
-      const isRejected = row.original.isRejected;
-
-      if (isRejected) {
-        return "N/A";
-      } else {
-        if (isLate) {
-          return "Yes";
-        } else {
-          return "No";
-        }
-      }
-    },
-  },
-  {
-    accessorKey: "hasNotLeft",
-    header: "Still In",
-    cell({ row }) {
-      const hasNotLeft = row.original.hasNotLeft;
-      const isRejected = row.original.isRejected;
-
-      if (isRejected) {
-        return "N/A";
-      } else {
-        if (hasNotLeft) {
-          return "Yes";
-        } else {
-          return "No";
-        }
-      }
-    },
   },
   {
     accessorKey: "reason",

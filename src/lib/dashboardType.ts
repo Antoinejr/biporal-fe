@@ -1,20 +1,38 @@
 import type { CursorBasedPagination, PageBasedPagination } from "./baseTypes";
 
+export const LogStatusEnum = {
+  STILL_IN: "STILL_IN",
+  OVERSTAYED: "OVERSTAYED",
+  EXITED: "EXITED",
+};
+
+export type LogStatus = (typeof LogStatusEnum)[keyof typeof LogStatusEnum];
+
+export const AccessStatusEnum = {
+  GRANTED: "GRANTED",
+  REJECTED: "REJECTED",
+  FLAGGED: "FLAGGED",
+} as const;
+
+export type AccessStatus =
+  (typeof AccessStatusEnum)[keyof typeof AccessStatusEnum];
+
 export type LogReport = {
   id: string;
   firstName: string;
   lastName: string;
-  lagId: string | null;
+  lagId: string;
   isRejected: boolean;
   isOutOfOrder: boolean;
   action: Action;
   category: Category;
-  isLate: boolean;
-  hasNotLeft: boolean;
+  status: Status;
   tokenId: string;
   siteId: string;
-  siteName: string;
+  hasViolations: boolean;
+  violationDetails: String | null;
   reason: string | null;
+  siteName: string;
   createdAt: Date;
 };
 
@@ -32,6 +50,8 @@ export type ActivitiyLog = {
   tokenId: string;
 };
 
+export type Status = "EXITED" | "NOT_LEFT" | "OVERSTAYED";
+
 export type ActivityLogResponse = {
   data: ActivitiyLog[];
   pagination: CursorBasedPagination;
@@ -45,7 +65,6 @@ export type Category =
   | "DEPENDENT"
   | "SUPERVISOR"
   | "ARTISAN";
-
 export type ReportLogResponse = {
   data: LogReport[];
   pagination: PageBasedPagination;

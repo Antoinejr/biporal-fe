@@ -1,34 +1,37 @@
 import http from "@/lib/axiosClient";
 import type { ActivityLogResponse, Category } from "@/lib/activityLogsTypes";
 import type { PageDirection } from "@/lib/baseTypes";
-import type { ReportLogResponse } from "@/lib/dashboardType";
+import type {
+  AccessStatus,
+  LogStatus,
+  ReportLogResponse,
+} from "@/lib/dashboardType";
 import type { AxiosResponse } from "axios";
 
 type ReportQueryType = {
   page?: number;
   startDate?: string;
   endDate?: string;
-  siteId?: string;
   action?: string;
   category?: Category;
-  isRejected?: boolean;
-  isLate?: boolean;
-  hasNotLeft?: boolean;
-}
+  accessStatus?: AccessStatus;
+  logStatus?: LogStatus;
+  siteId?: string;
+};
 
 export interface Kpi {
   totalEntriesToday: number;
   totalExitsToday: number;
-  topSite: {site: string, count: number};
-  peakHourToday: {hour: number, count: number};
-  peakDayAllTime: {day: string, count: number};
+  topSite: { site: string; count: number };
+  peakHourToday: { hour: number; count: number };
+  peakDayAllTime: { day: string; count: number };
 }
 
 export async function getDashboardKpi() {
   try {
-    const res = await http.get<Kpi>("api/analytics/dashboard")
-    return res.data
-  } catch(err) {
+    const res = await http.get<Kpi>("api/analytics/dashboard");
+    return res.data;
+  } catch (err) {
     throw err;
   }
 }
@@ -61,15 +64,15 @@ export const getRecentLogActivity = async ({
 export async function getLogSnapshot(queries: ReportQueryType) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
-      ([_, value]) => value !== undefined && value !== ""
+      ([_, value]) => value !== undefined && value !== "",
     ),
-  ) as ReportQueryType
+  ) as ReportQueryType;
   try {
     const response = await http.get<ReportLogResponse>("api/access/report", {
-      params: filtered
+      params: filtered,
     });
     return response.data;
-  } catch(error) {
+  } catch (error) {
     console.error(error);
     throw error;
   }
@@ -77,35 +80,34 @@ export async function getLogSnapshot(queries: ReportQueryType) {
 
 function getFileName(r: AxiosResponse, extension: string) {
   const contentDisposition = r.headers["content-disposition"];
-  let fileName= `log_report_${new Date().toLocaleDateString("en-NG")}.${extension}`
+  let fileName = `log_report_${new Date().toLocaleDateString("en-NG")}.${extension}`;
   if (contentDisposition) {
-    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/)
-    if (fileNameMatch > 1)
-    fileName = fileNameMatch[1]
+    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/);
+    if (fileNameMatch > 1) fileName = fileNameMatch[1];
   }
-  return fileName
+  return fileName;
 }
 
 export async function getLogPdf(queries: ReportQueryType) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
-      ([_, value]) => value !== undefined && value !== ""
+      ([_, value]) => value !== undefined && value !== "",
     ),
-  ) as ReportQueryType
+  ) as ReportQueryType;
   try {
-     const response = await http.get("api/export/access/pdf", {
+    const response = await http.get("api/export/access/pdf", {
       params: filtered,
-      responseType: "blob"
+      responseType: "blob",
     });
     const href = window.URL.createObjectURL(response.data);
     const link = document.createElement("a");
     link.href = href;
-    link.download = `log_report_${new Date().toLocaleDateString("en-NG")}.pdf`
+    link.download = `log_report_${new Date().toLocaleDateString("en-NG")}.pdf`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(href);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
   }
 }
@@ -113,48 +115,47 @@ export async function getLogPdf(queries: ReportQueryType) {
 export async function getLogCsv(queries: ReportQueryType) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
-      ([_, value]) => value !== undefined && value !== ""
+      ([_, value]) => value !== undefined && value !== "",
     ),
-  ) as ReportQueryType
+  ) as ReportQueryType;
   try {
-     const response = await http.get("api/export/access/csv", {
+    const response = await http.get("api/export/access/csv", {
       params: filtered,
-      responseType: "blob"
+      responseType: "blob",
     });
     const href = window.URL.createObjectURL(response.data);
     const link = document.createElement("a");
     link.href = href;
-    link.download = getFileName(response, "csv")
+    link.download = getFileName(response, "csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(href);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
   }
 }
 
-
 export async function getLogXlsx(queries: ReportQueryType) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
-      ([_, value]) => value !== undefined && value !== ""
+      ([_, value]) => value !== undefined && value !== "",
     ),
-  ) as ReportQueryType
+  ) as ReportQueryType;
   try {
-     const response = await http.get("api/export/access/xlsx", {
+    const response = await http.get("api/export/access/xlsx", {
       params: filtered,
-      responseType: "blob"
+      responseType: "blob",
     });
     const href = window.URL.createObjectURL(response.data);
     const link = document.createElement("a");
     link.href = href;
-    link.download = getFileName(response, "xlsx")
+    link.download = getFileName(response, "xlsx");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(href);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
   }
 }
