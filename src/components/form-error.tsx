@@ -21,7 +21,7 @@ function FormError({ error, title = "Something went wrong" }: FormErrorProps) {
         <AlertTitle className="text-md font-bold tracking-tight">
           {title}
         </AlertTitle>
-        <AlertDescription className="text-xs opacity-90 leading-relaxed">
+        <AlertDescription className="italics text-sm font-bold opacity-90 leading-relaxed">
           {getFriendlyErrorMessage(error)}
         </AlertDescription>
       </div>

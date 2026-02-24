@@ -14,14 +14,14 @@ const FormSuccess = ({ hasSuccess, title, message }: FormSuccessErrors) => {
   return (
     <Alert
       variant="default"
-      className="flex items-center border-green-500 text-green-700 animate-in ease-out fade-in slide-in-from-top-2 duration-300"
+      className="flex items-center text-green-700 animate-in ease-out fade-in slide-in-from-top-2 duration-300"
     >
       <AlertCircle className="h-4 w-4" />
       <div className="ml-2">
         <AlertTitle className="text-md font-bold tracking-tight">
           {title}
         </AlertTitle>
-        <AlertDescription className="text-xs opacity-90 leading-relaxed">
+        <AlertDescription className="italics text-sm font-bold opacity-90 leading-relaxed">
           {message}
         </AlertDescription>
       </div>
