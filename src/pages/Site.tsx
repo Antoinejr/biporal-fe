@@ -1,7 +1,6 @@
 import DataTable from "@/components/data-table";
 import { Input } from "@/components/ui/input";
 import { SiteColumns } from "@/features/SiteColumnDef";
-import SiteEnrollForm from "@/features/SiteEnrollForm";
 import SiteForm from "@/features/SiteForm";
 import { cn } from "@/lib/utils";
 import { getSites } from "@/services/siteService";
@@ -72,7 +71,6 @@ const Site = () => {
         </div>
         <div className={cn("flex gap-1")}>
           <SiteForm />
-          <SiteEnrollForm />
         </div>
       </div>
     );

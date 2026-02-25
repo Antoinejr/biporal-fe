@@ -12,7 +12,7 @@ import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import type { SiteType } from "@/lib/siteTypes";
 import { removeContractorFromSite } from "@/services/siteService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Ban } from "lucide-react";
+import { CircleMinus, Loader } from "lucide-react";
 import { useState } from "react";
 
 function SiteDisengage({ site }: { site: SiteType }) {
@@ -29,13 +29,13 @@ function SiteDisengage({ site }: { site: SiteType }) {
     <Dialog open={show} onOpenChange={(open) => setShow(open)}>
       <DialogTrigger asChild>
         <DropdownMenuItem
-          disabled={site && site.contractors.length < 1}
+          variant="destructive"
           onSelect={(e) => {
-            e.preventDefault();
             setShow(true);
+            e.preventDefault();
           }}
         >
-          <Ban className="mr-2 w-4 h-4" />
+          <CircleMinus className="w-4 h-4" />
           <>Remove Contractor</>
         </DropdownMenuItem>
       </DialogTrigger>
@@ -46,11 +46,18 @@ function SiteDisengage({ site }: { site: SiteType }) {
             This actions removes a contractor from a site.
             <br />
             Are you sure you want to remove{" "}
-            <span className="font-bold>">{site.contractors.length > 0 ? site.contractors[0].name : "N/A"}</span>
-            {" "}from{" "}<span className="font-bold">{site.name}</span>
+            <span className="font-bold>">
+              {site.contractors.length > 0 ? site.contractors[0].name : "N/A"}
+            </span>{" "}
+            from <span className="font-bold">{site.name}</span>
           </DialogDescription>
         </DialogHeader>
-        <div className="flex gap-2">
+        <div className="flex justify-end gap-2">
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
           <Button
             onClick={() => {
               removeContractor.mutate(site.contractors[0].id);
@@ -59,17 +66,19 @@ function SiteDisengage({ site }: { site: SiteType }) {
             variant="default"
             disabled={removeContractor.isPending}
           >
-            Yes
+            {removeContractor.isPending ? (
+              <>
+                <Loader className="w-4 h-4 animate-spin" />
+                Saving...
+              </>
+            ) : (
+              <>Yes</>
+            )}
           </Button>
-          <DialogClose asChild>
-            <Button type="button" variant="outline">
-              Cancel
-            </Button>
-          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
 
-export default SiteDisengage
+export default SiteDisengage;

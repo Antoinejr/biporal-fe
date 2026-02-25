@@ -3,7 +3,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -13,6 +12,7 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router";
 import SiteDisengage from "./SiteDisengage";
+import SiteEnrollForm from "./SiteEnrollForm";
 
 const SiteActions = ({ site }: { site: SiteType }) => {
   const navigate = useNavigate();
@@ -24,15 +24,17 @@ const SiteActions = ({ site }: { site: SiteType }) => {
           <MoreHorizontal className="h-4 w-4" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
+      <DropdownMenuContent align="center">
         <DropdownMenuItem onClick={() => navigate(`/sites/d/${site.id}`)}>
           <Eye className="h-4 w-4" />
           View Details
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <SiteDisengage site={site} />
+        {site.contractors.length > 0 ? (
+          <SiteDisengage site={site} />
+        ) : (
+          <SiteEnrollForm site={site} />
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
