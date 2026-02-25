@@ -37,7 +37,7 @@ const Person = () => {
   const pageName = useMemo(() => {
     const splitstring = location.pathname.split("/");
     const length = splitstring.length;
-    return splitstring[length - 1];
+    return splitstring[length - 1] + "S";
   }, [location.pathname]);
 
   const handleTextChange = useCallback(
@@ -64,16 +64,13 @@ const Person = () => {
       }
     };
   }, []);
-
   const prevPage = useCallback(() => {
-    if (!data) return;
-    if (page <= 1) return;
+    if (!data || page <= 1) return;
     setPage(page - 1);
   }, [data, page]);
 
   const nextPage = useCallback(() => {
-    if (!data) return;
-    if (page >= data.pagination.totalPages) return;
+    if (!data || page >= data.pagination.totalPages) return;
     setPage(page + 1);
   }, [data, page]);
 

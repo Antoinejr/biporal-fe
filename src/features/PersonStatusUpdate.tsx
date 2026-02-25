@@ -74,10 +74,12 @@ function PersonStatusUpdate({ person }: { person: Person }) {
               <DialogDescription className="space-y-2">
                 <span className="font-bold">
                   Deactivate {person.firstName} {person.lastName}.
-                </span><br />
+                </span>
+                <br />
                 <span className="text-red-700">
                   <span className="font=bold">NOTE: </span>
-                  Deactivating a Resident deactivates their dependents and workers
+                  Deactivating a Resident deactivates their dependents and
+                  workers
                 </span>
               </DialogDescription>
             </>
@@ -116,27 +118,27 @@ function PersonStatusUpdate({ person }: { person: Person }) {
             </Alert>
           )}
         </DialogHeader>
-      <div className="flex gap-2">
-        <Button
-          onClick={() => {
-            if (person.deletedAt) {
-              reactivePerson.mutate(person.id);
-            } else {
-              removePerson.mutate(person.id);
-            }
-          }}
-          type="button"
-          variant="default"
-          disabled={reactivePerson.isPending || removePerson.isPending}
-        >
-          Accept
-        </Button>
-        <DialogClose asChild>
-          <Button type="button" variant="outline">
-            Cancel
+        <div className="flex gap-2">
+          <Button
+            onClick={() => {
+              if (person.deletedAt) {
+                reactivePerson.mutate(person.id);
+              } else {
+                removePerson.mutate(person.id);
+              }
+            }}
+            type="button"
+            variant="default"
+            disabled={reactivePerson.isPending || removePerson.isPending}
+          >
+            Accept
           </Button>
-        </DialogClose>
-      </div>
+          <DialogClose asChild>
+            <Button type="button" variant="outline">
+              Cancel
+            </Button>
+          </DialogClose>
+        </div>
       </DialogContent>
     </Dialog>
   );

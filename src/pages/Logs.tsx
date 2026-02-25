@@ -356,7 +356,7 @@ function Logs() {
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Access Logs</h1>
+        <h1 className="text-3xl font-bold tracking-tight">ACCESS LOGS</h1>
         <p className="text-muted-foreground">Filter through access logs</p>
       </div>
       <DataTable

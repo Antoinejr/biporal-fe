@@ -290,7 +290,7 @@ function Funding() {
   return (
     <div className="px-4 space-y-8">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Fundings</h1>
+        <h1 className="text-3xl font-bold tracking-tight">FUNDINGS</h1>
         <p className="text-muted-foreground">Filter through Payments</p>
       </div>
       <DataTable

@@ -211,7 +211,7 @@ function Blocklist() {
   return (
     <div className="px-4 space-y-8">
       <header>
-        <h1 className="text-3xl font-bold tracking-tight">Blocklist</h1>
+        <h1 className="text-3xl font-bold tracking-tight">BLOCKLIST</h1>
         <p className="text-muted-foreground">
           View and manage individuals currently restricted from entering the
           premises

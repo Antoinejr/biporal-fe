@@ -60,7 +60,7 @@ const Dashboard = () => {
   return (
     <div className={cn("grid grid-rows-[auto_1fr]", "px-4 space-y-8")}>
       <header className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+        <h1 className="text-3xl font-bold tracking-tight">DASHBOARD</h1>
         <p className="text-muted-foreground">
           Monitor all entries and exits in realtime
         </p>
