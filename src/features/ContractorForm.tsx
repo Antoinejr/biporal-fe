@@ -1,4 +1,4 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import FormError from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import {
   DialogContent,
@@ -19,8 +19,7 @@ import { createContractor } from "@/services/contractorService";
 import { Dialog, DialogClose } from "@radix-ui/react-dialog";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { AlertCircle, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 
@@ -60,7 +59,7 @@ function ContractorForm() {
     mutationFn: createContractor,
     onSuccess: async () => {
       await queryClient.invalidateQueries({
-        queryKey: ["contractors"]
+        queryKey: ["contractors"],
       });
       await queryClient.refetchQueries({
         queryKey: ["static-contractors"],
@@ -112,18 +111,7 @@ function ContractorForm() {
           }}
         >
           <form.FieldGroup className="gap-2">
-            {mutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {mutation.error instanceof AxiosError
-                    ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message : ""}`
-                    : mutation.error instanceof Error
-                      ? mutation.error.message
-                      : "Failed to create contractor. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
+            <FormError error={mutation.error} title="Failed to Create" />
             <form.AppField
               name="name"
               children={(field) => {

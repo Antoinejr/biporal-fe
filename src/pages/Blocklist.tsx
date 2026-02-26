@@ -5,7 +5,6 @@ import {
   DialogClose,
   DialogHeader,
   DialogContent,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   DropdownMenu,
@@ -16,8 +15,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import BlockForm from "@/features/BlockForm";
-import SiteEnrollForm from "@/features/SiteEnrollForm";
-import SiteForm from "@/features/SiteForm";
 import { cn } from "@/lib/utils";
 import {
   fetchEntries,
@@ -27,32 +24,43 @@ import {
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Loader, MoreHorizontal } from "lucide-react";
+import { CheckCircle, Loader, MoreHorizontal, Notebook } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 
 const BlockListActions = ({ person }: { person: BlockListEntry }) => {
+  const [showRestoreForm, setShowRestoreForm] = useState(false);
   const navigate = useNavigate();
+  const name = `${person.firstName} ${person.lastName}`.toUpperCase();
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost">
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="start">
-        <DropdownMenuItem
-          onClick={() => navigate(`/notes/d/${person.id}!${person.lagId}`)}
-        >
-          View Notes
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <RestorePerson
-          name={`${person.firstName} ${person.lastName}`.toUpperCase()}
-          lagId={person.lagId}
-        />
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div>
+      <RestorePerson
+        name={name}
+        lagId={person.lagId}
+        show={showRestoreForm}
+        setShow={setShowRestoreForm}
+      />
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start">
+          <DropdownMenuItem
+            onClick={() => navigate(`/notes/d/${person.id}!${person.lagId}`)}
+          >
+            <Notebook className="w-4 h-4" />
+            Notes
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setShowRestoreForm(true)}>
+            <CheckCircle className="h-4 w-4" />
+            Restore
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 
@@ -79,40 +87,37 @@ const BlocklistColumns: ColumnDef<BlockListEntry>[] = [
   },
 ];
 
-function RestorePerson({ name, lagId }: { name: string; lagId: string }) {
+function RestorePerson({
+  name,
+  lagId,
+  show,
+  setShow,
+}: {
+  name: string;
+  lagId: string;
+  show: boolean;
+  setShow: (b: boolean) => void;
+}) {
   const queryClient = useQueryClient();
-  const [show, setShow] = useState(false);
   const mutation = useMutation({
     mutationFn: removeFromBlocklist,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["blocklist"],
-      });
+      await queryClient.invalidateQueries({ queryKey: ["blocklist"] });
       setShow(false);
     },
   });
 
   return (
     <Dialog open={show} onOpenChange={setShow}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem
-          onSelect={(e) => {
-            e.preventDefault();
-            setShow(true);
-          }}
-        >
-          Restore Person
-        </DropdownMenuItem>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader className="font-bold text-lg">
-          Confirm Restoration
+          Restore Person
         </DialogHeader>
         <DialogDescription>
-          You are about to restore access for{" "}
-          <span className="font-bold">{name}</span>.
+          You are about to restore access for
           <br />
-          This will allow them access into estate. Continue?
+          <span className="font-bold">{name}</span>. This will allow them access
+          into estate.
         </DialogDescription>
         <div className="flex justify-end gap-2">
           <DialogClose asChild>
@@ -130,7 +135,7 @@ function RestorePerson({ name, lagId }: { name: string; lagId: string }) {
                 Updating...
               </>
             ) : (
-              <>Confirm Restoration</>
+              <>Confirm</>
             )}
           </Button>
         </div>
@@ -151,14 +156,12 @@ function Blocklist() {
   });
 
   const goPrev = useCallback(() => {
-    if (!data) return;
-    if (page <= 1) return;
+    if (!data || page <= 1) return;
     setPage(page - 1);
   }, [data, page]);
 
   const goNext = useCallback(() => {
-    if (!data) return;
-    if (page >= data.metadata.totalPages) return;
+    if (!data || page >= data.metadata.totalPages) return;
     setPage(page + 1);
   }, [data, page]);
 

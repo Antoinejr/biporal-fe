@@ -91,16 +91,6 @@ export async function extendToken(payload: {
   }
 }
 
-export async function revokeToken(id: string): Promise<void> {
-  try {
-    await http.patch(`/api/person/revoke/${id}`);
-    return;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  }
-}
-
 export async function updatePerson(payload: {
   id: string;
   payload: Partial<CreatePersonType>;
@@ -136,8 +126,7 @@ export async function getPersons(payload: GetPersonQuery) {
     data.category = payload.category;
   }
   // BUG: Hardcoded
-  data.isActive = true;
-  console.log("Get contractor request...", data);
+  // data.isActive = true;
   try {
     const response = await http.get<GetPersonsResponse>("/api/person", {
       params: data,
@@ -151,7 +140,6 @@ export async function getPersons(payload: GetPersonQuery) {
 
 export async function createPerson(payload: CreatePersonType) {
   try {
-    console.log("Creating new person...", payload);
     await http.post<void>("/api/person", payload);
     return;
   } catch (error) {

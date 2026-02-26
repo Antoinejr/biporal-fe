@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldGroup } from "@/components/ui/field";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import ChooseMenu from "./ChooseMenu";
-import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createSiteEngagement } from "@/services/siteService";
 import { lookupContractors } from "@/services/contractorService";
@@ -12,13 +11,11 @@ import {
   DialogContent,
   DialogTitle,
   DialogHeader,
-  DialogTrigger,
   DialogDescription,
 } from "@/components/ui/dialog";
 import * as z from "zod";
-import { CirclePlus, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import FormError from "@/components/form-error";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import type { SiteType } from "@/lib/siteTypes";
 
 const { fieldContext, formContext } = createFormHookContexts();
@@ -36,11 +33,12 @@ const formSchema = z.object({
 
 interface SiteEnrollFormProps {
   site: SiteType;
+  show: boolean;
+  setShow: (b: boolean) => void;
 }
 
-const SiteEnrollForm = ({ site }: SiteEnrollFormProps) => {
+const SiteEnrollForm = ({ site, show, setShow }: SiteEnrollFormProps) => {
   const queryClient = useQueryClient();
-  const [show, setShow] = useState(false);
   const contractorLookupQuery = useQuery({
     queryKey: ["static-contractors"],
     queryFn: lookupContractors,
@@ -79,18 +77,6 @@ const SiteEnrollForm = ({ site }: SiteEnrollFormProps) => {
 
   return (
     <Dialog open={show} onOpenChange={(open) => setShow(open)}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem
-          variant="default"
-          onSelect={(e) => {
-            e.preventDefault();
-            setShow(true);
-          }}
-        >
-          <CirclePlus className="h-4 w-4" />
-          Add Contractor
-        </DropdownMenuItem>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add Contractor To {site.name}</DialogTitle>
@@ -138,18 +124,22 @@ const SiteEnrollForm = ({ site }: SiteEnrollFormProps) => {
             <form.AppForm>
               <Field className="flex justify-end" orientation="horizontal">
                 <DialogClose asChild>
-                  <Button type="button" variant="outline">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    disabled={mutation.isPending}
+                  >
                     Cancel
                   </Button>
                 </DialogClose>
-                <Button type="submit">
+                <Button type="submit" disabled={mutation.isPending}>
                   {mutation.isPending ? (
                     <>
                       <Loader className="h-4 w-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    <>Add</>
+                    <>Confirm</>
                   )}
                 </Button>
               </Field>

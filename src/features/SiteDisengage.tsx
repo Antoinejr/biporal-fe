@@ -6,18 +6,22 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import type { SiteType } from "@/lib/siteTypes";
 import { removeContractorFromSite } from "@/services/siteService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { CircleMinus, Loader } from "lucide-react";
-import { useState } from "react";
+import { Loader } from "lucide-react";
 
-function SiteDisengage({ site }: { site: SiteType }) {
+function SiteDisengage({
+  site,
+  show,
+  setShow,
+}: {
+  site: SiteType;
+  show: boolean;
+  setShow: (b: boolean) => void;
+}) {
   const queryClient = useQueryClient();
-  const [show, setShow] = useState(false);
   const removeContractor = useMutation({
     mutationFn: removeContractorFromSite,
     onSuccess: async () => {
@@ -25,20 +29,11 @@ function SiteDisengage({ site }: { site: SiteType }) {
       setShow(false);
     },
   });
+  const name = (
+    site.contractors.length > 0 ? site.contractors[0].name : "N/A"
+  ).toUpperCase();
   return (
     <Dialog open={show} onOpenChange={(open) => setShow(open)}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem
-          variant="destructive"
-          onSelect={(e) => {
-            setShow(true);
-            e.preventDefault();
-          }}
-        >
-          <CircleMinus className="w-4 h-4" />
-          <>Remove Contractor</>
-        </DropdownMenuItem>
-      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Remove Contractor</DialogTitle>
@@ -46,15 +41,17 @@ function SiteDisengage({ site }: { site: SiteType }) {
             This actions removes a contractor from a site.
             <br />
             Are you sure you want to remove{" "}
-            <span className="font-bold>">
-              {site.contractors.length > 0 ? site.contractors[0].name : "N/A"}
-            </span>{" "}
-            from <span className="font-bold">{site.name}</span>
+            <span className="font-bold">{name}</span> from{" "}
+            <span className="font-bold">{site.name.toUpperCase()}</span>
           </DialogDescription>
         </DialogHeader>
         <div className="flex justify-end gap-2">
           <DialogClose asChild>
-            <Button type="button" variant="outline">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={removeContractor.isPending}
+            >
               Cancel
             </Button>
           </DialogClose>
@@ -72,7 +69,7 @@ function SiteDisengage({ site }: { site: SiteType }) {
                 Saving...
               </>
             ) : (
-              <>Yes</>
+              <>Confirm</>
             )}
           </Button>
         </div>

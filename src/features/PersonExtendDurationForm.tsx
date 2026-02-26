@@ -1,4 +1,4 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import FormError from "@/components/form-error";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -7,9 +7,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
-import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import {
   Field,
   FieldError,
@@ -22,24 +20,14 @@ import { cn } from "@/lib/utils";
 import { extendToken } from "@/services/personService";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { AlertCircle, Loader, RulerDimensionLine } from "lucide-react";
-import { useState } from "react";
+import { Loader } from "lucide-react";
+import { useMemo } from "react";
 import * as z from "zod";
 
 const { fieldContext, formContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
-  fieldComponents: {
-    Field,
-    FieldLabel,
-    Input,
-    FieldError,
-    FieldGroup,
-  },
-  formComponents: {
-    Button,
-    FieldGroup,
-  },
+  fieldComponents: {},
+  formComponents: {},
   fieldContext,
   formContext,
 });
@@ -50,21 +38,31 @@ const formSchema = z.object({
     .min(1, { message: "Please select an expiration date" }),
 });
 
-function PersonExtendDurationForm({ person }: { person: Person }) {
+function PersonExtendDurationForm({
+  person,
+  show,
+  setShow,
+}: {
+  person: Person;
+  show: boolean;
+  setShow: (v: boolean) => void;
+}) {
   const queryClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: extendToken,
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["persons"],
-      });
-      form.reset();
+      queryClient.invalidateQueries({ queryKey: ["persons"] });
       setShow(false);
+      form.reset();
     },
   });
-  const [show, setShow] = useState(false);
 
-  const minDate = new Date(person.expirationDate).toISOString().split("T")[0];
+  const minDate = useMemo(() => {
+    const ed = new Date(person.expirationDate);
+    const now = new Date();
+    const greaterDate = now > ed ? now : ed;
+    return greaterDate.toISOString().split("T")[0];
+  }, [person]);
 
   const form = useAppForm({
     defaultValues: {
@@ -98,18 +96,6 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
 
   return (
     <Dialog open={show} onOpenChange={setShow}>
-      <DialogTrigger asChild>
-        <DropdownMenuItem
-          disabled={!!person.deletedAt}
-          onSelect={(e) => {
-            e.preventDefault();
-            setShow(true);
-          }}
-        >
-          <RulerDimensionLine className="mr-2 h-4 w-4" />
-          Extend
-        </DropdownMenuItem>
-      </DialogTrigger>
       <DialogContent className={cn("max-h-[90vh] overflow-y-auto")}>
         <DialogHeader>
           <DialogTitle>Extend Token</DialogTitle>
@@ -124,23 +110,8 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
             form.handleSubmit();
           }}
         >
-          <form.FieldGroup className={cn("flex")}>
-            {mutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {mutation.error instanceof AxiosError
-                    ? `${mutation.error.message}\n${
-                        mutation.error.response
-                          ? mutation.error.response.data.message
-                          : ""
-                      }`
-                    : mutation.error instanceof Error
-                      ? mutation.error.message
-                      : "Failed to extend token. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
+          <FieldGroup className={cn("flex")}>
+            <FormError error={mutation.error} title="Failed to Update" />
             <form.AppField
               name="expirationDate"
               children={(field) => {
@@ -148,11 +119,11 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>
                       New Expiration Date
-                    </field.FieldLabel>
-                    <field.Input
+                    </FieldLabel>
+                    <Input
                       id={field.name}
                       type="date"
                       name={field.name}
@@ -163,9 +134,9 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
                       autoComplete="off"
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -192,7 +163,7 @@ function PersonExtendDurationForm({ person }: { person: Person }) {
                 </DialogClose>
               </Field>
             </form.AppForm>
-          </form.FieldGroup>
+          </FieldGroup>
         </form>
       </DialogContent>
     </Dialog>

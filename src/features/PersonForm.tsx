@@ -53,19 +53,23 @@ const ston = z.string().transform((e) => (e === "" ? 0 : Number(e)));
 
 const formSchema = z
   .object({
-    firstName: z.string().min(1, "First name must be entered"),
-    lastName: z.string().min(1, "Last name must be entered"),
+    firstName: z.string().trim().min(1, "First name must be entered"),
+    lastName: z.string().trim().min(1, "Last name must be entered"),
     mobile: z
       .string()
+      .trim()
       .min(1, "Phone must be entered")
       .regex(/^(070|080|090|081|091)\d{8}$/, {
         message: "Invalid phone number",
       }),
-    address: z.string().min(1, { message: "Address cannot be empty" }),
+    address: z.string().trim().min(1, { message: "Address cannot be empty" }),
     lagId: optionalString.pipe(
       appendLag.pipe(
         z.optional(
-          z.string().regex(/^LAG\d{10}$/, { message: "Invalid Lag ID" }),
+          z
+            .string()
+            .trim()
+            .regex(/^LAG\d{10}$/, { message: "Invalid Lag ID" }),
         ),
       ),
     ),
@@ -73,6 +77,7 @@ const formSchema = z
       z.optional(
         z
           .string()
+          .trim()
           .min(4, { message: "Passcode must be at least 4 characters long" })
           .max(4, { message: "Passcode must be at most 4 characters" }),
       ),
@@ -223,10 +228,7 @@ function PersonForm({ category }: PersonFormProps) {
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
+                      onBlur={field.handleBlur}
                       onChange={(event) => {
                         const value = event.target.value;
                         const numericVal = value.replace(/\D/g, "");
@@ -260,10 +262,7 @@ function PersonForm({ category }: PersonFormProps) {
                         name={field.name}
                         value={field.state.value}
                         className="rounded-l-none"
-                        onBlur={(e) => {
-                          field.handleChange(e.target.value.trim());
-                          field.handleBlur();
-                        }}
+                        onBlur={field.handleBlur}
                         onChange={(event) => {
                           const numericVal = event.target.value.replace(
                             /\D/g,

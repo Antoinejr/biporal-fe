@@ -1,3 +1,7 @@
+import DisplayError from "@/components/error";
+import FormError from "@/components/form-error";
+import FormSuccess from "@/components/form-success";
+import DisplayLoading from "@/components/loading";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -17,43 +21,26 @@ import {
   useStore,
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle2,
-  Loader,
-  Edit,
-  X,
-} from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader, Edit, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import * as z from "zod";
 
 const { fieldContext, formContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
-  fieldComponents: {
-    Field,
-    FieldLabel,
-    FieldError,
-    FieldGroup,
-    Textarea,
-    Input,
-  },
+  fieldComponents: {},
   fieldContext,
-  formComponents: {
-    Button,
-    FieldGroup,
-  },
+  formComponents: {},
   formContext,
 });
 
 const formSchema = z.object({
-  name: z.string().min(1, { message: "Name is required" }),
-  address: z.string().min(1, { message: "Address is required" }),
-  owner: z.string().min(1, {message: "Address must be entered"}),
+  name: z.string().trim().min(1, { message: "Name is required" }),
+  address: z.string().trim().min(1, { message: "Address is required" }),
+  owner: z.string().trim().min(1, { message: "Owner is required" }),
   contact: z
     .string()
+    .trim()
     .min(1, "Phone must be entered")
     .regex(/^(070|080|090|081|091)\d{8}$/, {
       message: "Invalid phone number",
@@ -71,7 +58,7 @@ function SiteDetails() {
     return (
       <Alert variant="destructive">
         <AlertCircle className="h-4 w-4" />
-        <AlertDescription>Person ID is missing.</AlertDescription>
+        <AlertDescription>Site ID is missing.</AlertDescription>
       </Alert>
     );
   }
@@ -82,11 +69,13 @@ function SiteDetails() {
   });
 
   const editSite = useMutation({
-    mutationFn: updateSite, onSuccess: async () => {
+    mutationFn: updateSite,
+    onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["site-details", id] });
-      setShowSuccess(true);
+      scrollTo({ top: 0, behavior: "smooth" });
       setIsEditing(false);
-      setTimeout(() => setShowSuccess(false), 4000);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
     },
   });
 
@@ -114,7 +103,15 @@ function SiteDetails() {
   }
 
   function buildUpdatePayload(original: SiteType, formValues: CreateSiteType) {
-    const { id, balance, createdAt, updatedAt, deletedAt, contractors, ...rest } = original;
+    const {
+      id,
+      balance,
+      createdAt,
+      updatedAt,
+      deletedAt,
+      contractors,
+      ...rest
+    } = original;
     const diff = stripUnchanged(rest, formValues);
     return diff;
   }
@@ -128,7 +125,8 @@ function SiteDetails() {
       if (!data) return;
       const payload = buildUpdatePayload(data, value);
       if (Object.keys(payload).length === 0) return;
-      editSite.mutate({ id, payload });
+      const v = formSchema.partial().parse(payload);
+      editSite.mutate({ id, payload: v });
     },
   });
 
@@ -141,42 +139,24 @@ function SiteDetails() {
   const formState = useStore(form.store, (state) => state.isDirty);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <DisplayLoading />;
   }
-
   if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load person details. Please try again.
-        </AlertDescription>
-      </Alert>
-    );
+    return <DisplayError description="Failed to load site details" />;
   }
 
   return (
-    <div className={cn("grid gap-10 container mx-auto max-w-full")}>
-      <div>
-        <Button variant="ghost" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-      </div>
-      <div
-        className={cn(
-          "flex flex-col",
-          "w-full",
-          "gap-5",
-          "justify-center",
-          "items-center",
-        )}
+    <div>
+      <Button
+        className="flex justify-start w-fit"
+        variant="ghost"
+        onClick={() => navigate(-1)}
       >
-        <div className="flex-1 flex flex-col gap-4 p-6 border rounded-lg bg-muted/50 min-w-2xl w-full max-w-2xl">
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </Button>
+      <div className={cn("grid gap-4 container mx-auto max-w-2xl")}>
+        <section className="flex-1 flex flex-col gap-4 p-6 border rounded-lg bg-muted/50 min-w-2xl w-full max-w-2xl">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold">Site Information</h3>
           </div>
@@ -188,7 +168,44 @@ function SiteDetails() {
               {formatCurrency(data?.balance ?? 0)}
             </span>
           </div>
-        </div>
+        </section>
+
+        <section className="w-full flex justify-end">
+          {!isEditing ? (
+            <div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  scrollTo({
+                    top: window.innerHeight,
+                    behavior: "smooth",
+                  });
+                  setIsEditing(true);
+                }}
+              >
+                <Edit className="h-4 w-4" />
+                Edit
+              </Button>
+            </div>
+          ) : (
+            <div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setIsEditing(false);
+                  form.reset(baseValues);
+                  editSite.reset();
+                }}
+              >
+                <X className="mh-4 w-4 text-red-500" />
+                <span className="text-red-500">Cancel</span>
+              </Button>
+            </div>
+          )}
+        </section>
         <form
           id="site-update-form"
           onSubmit={(event) => {
@@ -197,58 +214,13 @@ function SiteDetails() {
             form.handleSubmit();
           }}
         >
-          <form.FieldGroup className="shrink-0 w-2xl">
-            {showSuccess && (
-              <Alert className="border-green-200 bg-green-50 text-green-900">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription>Site updated successfully.</AlertDescription>
-              </Alert>
-            )}
-
-            {editSite.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {editSite.error instanceof AxiosError
-                    ? `${editSite.error.message}\n${
-                        editSite.error.response
-                          ? editSite.error.response.data.message
-                          : ""
-                      }`
-                    : editSite.error instanceof Error
-                      ? editSite.error.message
-                      : "Failed to update site. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
-            {!isEditing ? (
-              <div className="flex justify-end">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => {
-                    setIsEditing(true);
-                  }}>
-                  <Edit className="mr-2 h-4 w-4" />
-                  Edit
-                </Button>
-              </div>
-            ) : (
-              <div className="flex justify-end">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => {
-                    setIsEditing(false);
-                    form.reset(baseValues);
-                    editSite.reset();
-                  }}
-                >
-                  <X className="mr-2 h-4 w-4 text-red-500" />
-                  <span className="text-red-500">Cancel</span>
-                </Button>
-              </div>
-            )}
+          <FieldGroup>
+            <FormSuccess
+              hasSuccess={showSuccess}
+              title=" Update Successful"
+              message="Site Updated Successfully"
+            />
+            <FormError error={editSite.error} title="Failed to Update" />
             <form.AppField
               name="name"
               children={(field) => {
@@ -256,27 +228,22 @@ function SiteDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Name
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
+                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Name..."
                       autoComplete="off"
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -287,27 +254,22 @@ function SiteDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Address
-                    </field.FieldLabel>
-                    <field.Textarea
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Address</FieldLabel>
+                    <Textarea
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
+                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Address..."
                       autoComplete="off"
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -318,29 +280,23 @@ function SiteDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field data-invalid={isInvalid}>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Owner
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel htmlFor={field.name}>Owner</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
                       aria-invalid={isInvalid}
-                      onBlur={(e) => {
-                        if (!isEditing) return;
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
+                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
                       placeholder="Owner..."
                       autoComplete="off"
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -351,19 +307,13 @@ function SiteDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Phone
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Phone</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
-                      onBlur={(e) => {
-                        if (!isEditing) return;
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
+                      onBlur={field.handleBlur}
                       onChange={(e) => {
                         const numericValue = e.target.value.replace(/\D/g, "");
                         field.handleChange(numericValue);
@@ -373,40 +323,45 @@ function SiteDetails() {
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
-            {isEditing && (
-              <form.AppForm>
-                <Field orientation="responsive">
-                  <form.Button
-                    disabled={editSite.isPending || !formState}
-                    type="submit"
-                  >
-                    {editSite.isPending ? (
-                      <>
-                        Saving...
-                        <Loader className="ml-2 h-4 w-4 animate-spin" />
-                      </>
-                    ) : (
-                      <>Save</>
-                    )}
-                  </form.Button>
-                  <form.Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => form.reset(baseValues)}
-                    disabled={editSite.isPending}
-                  >
-                    Reset
-                  </form.Button>
-                </Field>
-              </form.AppForm>
-            )}
-          </form.FieldGroup>
+            <div
+              className={cn(
+                "grid",
+                isEditing
+                  ? "grid-rows-[1fr] opacity-100"
+                  : "grid-rows-[0fr] opacity-0",
+              )}
+            >
+              <Field className="flex justify-end" orientation="responsive">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => form.reset(baseValues)}
+                  disabled={editSite.isPending}
+                >
+                  Reset
+                </Button>
+                <Button
+                  disabled={editSite.isPending || !formState}
+                  type="submit"
+                >
+                  {editSite.isPending ? (
+                    <>
+                      <Loader className="ml-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    <>Save</>
+                  )}
+                </Button>
+              </Field>
+            </div>
+          </FieldGroup>
         </form>
       </div>
     </div>

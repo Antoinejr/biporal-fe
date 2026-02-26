@@ -1,5 +1,7 @@
+import DisplayError from "@/components/error";
 import FieldTextarea from "@/components/field-textarea";
 import FormError from "@/components/form-error";
+import DisplayLoading from "@/components/loading";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -44,7 +46,7 @@ const { useAppForm } = createFormHook({
 });
 
 const FORM_SCHEMA = z.object({
-  body: z.string().min(1, { message: "Note content cannot be empty" }),
+  body: z.string().trim().min(1, { message: "Note content cannot be empty" }),
 });
 
 function List({ notes }: { notes: Note[] }) {
@@ -81,9 +83,8 @@ function ListItem({ note }: { note: Note }) {
           <p className="text-md text-slate-700 leading-relaxed italic">
             "{note.reason}"
           </p>
-          {/* Example of adding a timestamp metadata if available */}
-          <div className="flex items-center text-sm uppercase tracking-wider text-muted-foreground whitespace-nowrap">
-            <Calendar className="mr-1 h-3 w-3" />
+          <div className="flex gap-1 items-center text-sm uppercase tracking-wider text-muted-foreground whitespace-nowrap">
+            <Calendar className="h-4 w-4" />
             {formatDateTime(new Date(note.createdAt))}
           </div>
         </div>
@@ -121,8 +122,7 @@ function NoteForm({ body, lagId }: { body: string; lagId: string }) {
     <Dialog open={show} onOpenChange={setShow}>
       <DialogTrigger asChild>
         <Button
-          onSelect={(e) => {
-            e.preventDefault();
+          onClick={() => {
             setShow(true);
           }}
         >
@@ -191,9 +191,19 @@ function Notes() {
   const { tid } = useParams<{ tid: string }>();
   const navigate = useNavigate();
   if (!tid) {
-    return;
+    return (
+      <Alert variant="destructive">
+        <AlertCircle className="h-4 w-4" />
+        <AlertDescription>
+          Note TID is missing.
+          <br />
+          <Button onClick={() => navigate(-1)} variant="link">
+            Go Back
+          </Button>
+        </AlertDescription>
+      </Alert>
+    );
   }
-  console.log("TID", tid);
   const [id, lagId] = tid.split("!");
   console.log(id);
   console.log(lagId);
@@ -203,21 +213,12 @@ function Notes() {
   });
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-12">
-        <Loader className="h-6 w-6 animate-spin text-primary" />
-      </div>
-    );
+    return <DisplayLoading />;
   }
 
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load notes. Please refresh the page.
-        </AlertDescription>
-      </Alert>
+      <DisplayError description=" Failed to load notes. Please refresh the page. " />
     );
   }
 
@@ -227,7 +228,7 @@ function Notes() {
         <Button
           variant="ghost"
           size="sm"
-          className="pl-0 text-foreground"
+          className="text-foreground"
           onClick={() => navigate(-1)}
         >
           <ArrowLeft className="mr-2 h-4 w-4" />

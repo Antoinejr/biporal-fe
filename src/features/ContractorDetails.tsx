@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { InputPassword } from "@/components/ui/input-password";
 import { Textarea } from "@/components/ui/textarea";
 import type { CreateContractorType } from "@/lib/contractorTypes";
-import { cn, formatCurrency} from "@/lib/utils";
 import {
   updateContractor,
   getOneContractor,
@@ -34,21 +33,24 @@ import {
   createFormHookContexts,
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
 import {
   AlertCircle,
-  CheckCircle2,
   Loader,
   ArrowLeft,
   Trash2,
   RotateCcw,
   Edit,
   X,
+  ChevronDown,
 } from "lucide-react";
 import * as z from "zod";
 import { useMemo, useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router";
-import { type ColumnConfig, GenericList } from "@/components/item-list";
+import DisplayLoading from "@/components/loading";
+import DisplayError from "@/components/error";
+import FormSuccess from "@/components/form-success";
+import FormError from "@/components/form-error";
+import { cn } from "@/lib/utils";
 
 const { fieldContext, formContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
@@ -81,93 +83,13 @@ const formSchema = z.object({
     .or(z.literal("")),
 });
 
-type Site = {
-  id: string;
-  name: string;
-  balance: number;
-  disengagedAt: Date | null;
-};
-type Supervisor = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  lagId: string | null;
-  siteName: string;
-  disengagedAt: Date | null;
-};
-
-// for sites
-const sitecolumns: ColumnConfig<Site>[] = [
-  { key: "name", header: "name", render: (s) => s.name.toUpperCase() },
-  {
-    key: "balance",
-    header: "balance",
-    render: (s) => `${formatCurrency(s.balance)}`,
-  },
-  {
-    key: "disengagedAt",
-    header: "status",
-    render: (s) => (
-      <div className="flex justify-center items-center gap-2">
-        <span
-          className={cn(
-            "px-2 py-1 rounded text-sm",
-            s.disengagedAt
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700",
-          )}
-        >
-          {s.disengagedAt ? "Inactive" : "Active"}
-        </span>
-        <span>
-          {s.disengagedAt ? new Date(s.disengagedAt).toDateString() : "----"}
-        </span>{" "}
-      </div>
-    ),
-  },
-];
-
-// for supervisors
-const supervisorcolumns: ColumnConfig<Supervisor>[] = [
-  {
-    key: "name",
-    header: "name",
-    render: (s) => `${s.firstName} ${s.lastName}`,
-  },
-
-  { key: "siteName", header: "Site", render: (s) => s.siteName.toUpperCase() },
-  { key: "lagId", header: "lag id", render: (s) => s.lagId ?? "----" },
-
-  {
-    key: "disengagedAt",
-    header: "status",
-
-    render: (s) => (
-      <div className="flex justify-center items-center gap-2">
-        <span
-          className={cn(
-            "px-2 py-1 rounded text-sm",
-            s.disengagedAt
-              ? "bg-red-100 text-red-700"
-              : "bg-green-100 text-green-700",
-          )}
-        >
-          {s.disengagedAt ? "Inactive" : "Active"}
-        </span>
-        <span>
-          {s.disengagedAt ? new Date(s.disengagedAt).toDateString() : ""}
-        </span>{" "}
-      </div>
-    ),
-  },
-];
-
 function ContractorDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showSuccess, setShowSuccess] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [expanded, setExpandState] = useState(false);
 
   if (!id) {
     return (
@@ -200,8 +122,9 @@ function ContractorDetails() {
         queryKey: ["contractor-details", id],
       });
       setShowSuccess(true);
+      scrollTo({ top: 0, behavior: "smooth" });
       setIsEditing(false);
-      setTimeout(() => setShowSuccess(false), 4000);
+      setTimeout(() => setShowSuccess(false), 3000);
     },
   });
 
@@ -278,33 +201,22 @@ function ContractorDetails() {
   const formState = useStore(form.store, (state) => state.isDirty);
 
   if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <Loader className="h-8 w-8 animate-spin" />
-      </div>
-    );
+    return <DisplayLoading />;
   }
 
   if (error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load contractor details. Please try again.
-        </AlertDescription>
-      </Alert>
-    );
+    return <DisplayError description="Failed to load contractor details" />;
   }
 
   return (
-    <div className={cn("grid grid-cols-3", "gap-2")}>
-      <div>
-        <div>
-          <Button variant="ghost" onClick={() => navigate(-1)}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back
-          </Button>
-        </div>
+    <div>
+      <section>
+        <Button variant="ghost" onClick={() => navigate(-1)}>
+          <ArrowLeft className="mr-2 h-4 w-4" />
+          Back
+        </Button>
+      </section>
+      <section className="flex flex-col container mx-auto max-w-2xl">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-medium">Information</h3>
           {!isEditing ? (
@@ -331,329 +243,316 @@ function ContractorDetails() {
             </Button>
           )}
         </div>
-        <form
-          id="contractor-update-form"
-          onSubmit={(event) => {
-            event.preventDefault();
-            editContractor.reset();
-            form.handleSubmit();
-          }}
-        >
-          <form.FieldGroup className={cn("grid grid-cols-1 gap-2")}>
-            {showSuccess && (
-              <Alert className="border-green-200 bg-green-50 text-green-900">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription>
-                  Contractor updated successfully.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {editContractor.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {editContractor.error instanceof AxiosError
-                    ? `${editContractor.error.message}\n${editContractor.error.response ? editContractor.error.response.data.message : ""}`
-                    : editContractor.error instanceof Error
-                      ? editContractor.error.message
-                      : "Failed to update contractor. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
-
-            <form.AppField
-              name="name"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
-                return (
-                  <field.Field data-invalid={isInvalid}>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Name
-                    </field.FieldLabel>
-                    <field.Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                      placeholder="Name..."
-                      autoComplete="off"
-                      disabled={!isEditing}
-                    />
-                    {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
-                    )}
-                  </field.Field>
-                );
-              }}
-            />
-            <form.AppField
-              name="phone"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
-                return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Phone
-                    </field.FieldLabel>
-                    <field.Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(e) => {
-                        const numericValue = e.target.value.replace(/\D/g, "");
-                        field.handleChange(numericValue);
-                      }}
-                      placeholder="Phone..."
-                      autoComplete="off"
-                      disabled={!isEditing}
-                    />
-                    {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
-                    )}
-                  </field.Field>
-                );
-              }}
-            />
-            <form.AppField
-              name="email"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
-                return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Email
-                    </field.FieldLabel>
-                    <field.Input
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      placeholder="Email..."
-                      autoComplete="off"
-                      disabled={!isEditing}
-                    />
-                    {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
-                    )}
-                  </field.Field>
-                );
-              }}
-            />
-            <form.AppField
-              name="passcode"
-              children={(field) => {
-                const isInvalid =
-                  field.state.meta.isTouched &&
-                  field.state.meta.errors.length > 0;
-                return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Password
-                    </field.FieldLabel>
-                    <field.InputPassword
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      onBlur={(e) => {
-                        field.handleChange(e.target.value.trim());
-                        field.handleBlur();
-                      }}
-                      onChange={(e) => {
-                        const validValue = e.target.value.replace(/\s/g, "");
-                        field.handleChange(validValue);
-                      }}
-                      placeholder="Password..."
-                      autoComplete="off"
-                      disabled={!isEditing}
-                    />
-                    {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
-                    )}
-                  </field.Field>
-                );
-              }}
-            />
-          </form.FieldGroup>
-        </form>
-        {isEditing && (
-          <div className="mt-4 flex gap-2">
-            <Button
-              disabled={!formState || editContractor.isPending}
-              type="submit"
-              form="contractor-update-form"
-            >
-              {editContractor.isPending ? (
-                <>
-                  Saving...
-                  <Loader className="ml-2 h-4 w-4 animate-spin" />
-                </>
-              ) : (
-                <>Save</>
-              )}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              disabled={editContractor.isPending}
-              onClick={() => {
-                form.reset(baseValues);
-              }}
-            >
-              Reset
-            </Button>
-          </div>
-        )}
-      </div>
-      <div>
-        <h3 className="mb-4 text-lg font-medium">Sites</h3>
-        <GenericList items={data?.data.sites ?? []} columns={sitecolumns} />
-      </div>
-      <div>
-        <h3 className="mb-4 text-lg font-medium">Supervisors</h3>
-        <GenericList
-          items={data?.data.supervisors ?? []}
-          columns={supervisorcolumns}
-        />
-      </div>
-
+        <div>
+          <form
+            id="contractor-update-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              editContractor.reset();
+              form.handleSubmit();
+            }}
+          >
+            <FieldGroup>
+              <FormSuccess
+                hasSuccess={showSuccess}
+                title="Update Successful"
+                message="Contractor updated successfully"
+              />
+              <FormError error={editContractor.error} title="Update Failed" />
+              <form.AppField
+                name="name"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0;
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name}>Name</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                        placeholder="Name..."
+                        autoComplete="off"
+                        disabled={!isEditing}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+              <form.AppField
+                name="phone"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0;
+                  return (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Phone</FieldLabel>
+                      <field.Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => {
+                          const numericValue = e.target.value.replace(
+                            /\D/g,
+                            "",
+                          );
+                          field.handleChange(numericValue);
+                        }}
+                        placeholder="Phone..."
+                        autoComplete="off"
+                        disabled={!isEditing}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+              <form.AppField
+                name="email"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0;
+                  return (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Email</FieldLabel>
+                      <Input
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        placeholder="Email..."
+                        autoComplete="off"
+                        disabled={!isEditing}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+              <form.AppField
+                name="passcode"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched &&
+                    field.state.meta.errors.length > 0;
+                  return (
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Password</FieldLabel>
+                      <InputPassword
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => {
+                          const validValue = e.target.value.replace(/\s/g, "");
+                          field.handleChange(validValue);
+                        }}
+                        placeholder="Password..."
+                        autoComplete="off"
+                        disabled={!isEditing}
+                      />
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  );
+                }}
+              />
+            </FieldGroup>
+          </form>
+          {isEditing && (
+            <div className="flex gap-2 mt-4 justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                disabled={editContractor.isPending}
+                onClick={() => {
+                  form.reset(baseValues);
+                }}
+              >
+                Reset
+              </Button>
+              <Button
+                disabled={!formState || editContractor.isPending}
+                type="submit"
+                form="contractor-update-form"
+              >
+                {editContractor.isPending ? (
+                  <>
+                    <Loader className="h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  <>Save</>
+                )}
+              </Button>
+            </div>
+          )}
+        </div>
+      </section>
       {/* Danger Zone */}
-      <div className="col-span-3 mt-8 rounded-lg border border-destructive/50 bg-destructive/5 p-4">
-        <h3 className="mb-2 text-lg font-medium text-destructive">
-          Danger Zone
-        </h3>
+      <section>
+        <Button
+          className={cn(expanded ? "underline" : "")}
+          onClick={() => {
+            setExpandState(!expanded);
+            if (expanded === false) {
+              scrollTo({ top: window.outerHeight, behavior: "smooth" });
+            } else {
+              scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
+          variant="link"
+        >
+          Advanced Options
+          <ChevronDown
+            className={cn(
+              "w-4 h-4 transition-transform duration-300",
+              expanded ? "rotate-180" : "rotate-0",
+            )}
+          />
+        </Button>
+        <div
+          className={cn(
+            "mb-2 rounded-lg border border-destructive/50 bg-destructive/5 p-4",
+            "grid transition-all duration-300 ease-in-out",
+            expanded
+              ? "grid-rows-[1fr] opacity-100 mt-4"
+              : "grid-rows-[0fr] opacity-0 mt-0",
+          )}
+        >
+          <h3 className="mb-2 text-lg font-medium text-destructive">
+            Deactivate Contractor
+          </h3>
 
-        {data?.data.contractor.deletedAt === null ? (
-          <>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Deleting a contractor will remove all their site engagements and
-              assignments.{" "}
-              <span className="font-medium">
-                You can restore the contractor later if needed.
-              </span>
-            </p>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="destructive"
-                  disabled={removeContractor.isPending}
-                >
-                  {removeContractor.isPending ? (
-                    <>
-                      Deleting...
-                      <Loader className="ml-2 h-4 w-4 animate-spin" />
-                    </>
-                  ) : (
-                    <>
-                      <Trash2 className="mr-2 h-4 w-4" />
-                      Delete Contractor
-                    </>
-                  )}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will remove all site engagements and assignments for "
-                    {data?.data.contractor.name}". You can restore the
-                    contractor later.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => removeContractor.mutate(id)}
-                    className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          {data?.data.contractor.deletedAt === null ? (
+            <div>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Deactivating a contractor will remove all their site engagements
+                and assignments.
+                <br />
+                <span className="font-bold">
+                  You can restore the contractor later if needed.
+                </span>
+              </p>
+              <div className="flex justify-start">
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button
+                      variant="destructive"
+                      disabled={removeContractor.isPending}
+                    >
+                      {removeContractor.isPending ? (
+                        <>
+                          <Loader className="h-4 w-4 animate-spin" />
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <Trash2 className="h-4 w-4" />
+                          Deactivate Contractor
+                        </>
+                      )}
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will remove all site engagements and assignments
+                        for
+                        <br />
+                        <span className="font-bold">
+                          "{(data?.data.contractor.name ?? "").toUpperCase()}"
+                        </span>
+                        <br />
+                        You can restore the contractor later.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => removeContractor.mutate(id)}
+                        className="bg-destructive text-white hover:bg-destructive/70"
+                      >
+                        Confirm
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+              <FormError
+                error={removeContractor.error}
+                title="Failed to Update"
+              />
+            </div>
+          ) : (
+            <>
+              <p className="mb-4 text-sm text-muted-foreground">
+                This contractor has been deleted. You can restore them to make
+                them active again.
+              </p>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button
+                    variant="outline"
+                    disabled={reactivateContractor.isPending}
                   >
-                    Delete
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            {removeContractor.isError && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Failed to delete contractor. Please try again.
-                </AlertDescription>
-              </Alert>
-            )}
-          </>
-        ) : (
-          <>
-            <p className="mb-4 text-sm text-muted-foreground">
-              This contractor has been deleted. You can restore them to make
-              them active again.
-            </p>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button
-                  variant="outline"
-                  disabled={reactivateContractor.isPending}
-                >
-                  {reactivateContractor.isPending ? (
-                    <>
-                      Restoring...
-                      <Loader className="ml-2 h-4 w-4 animate-spin" />
-                    </>
-                  ) : (
-                    <>
-                      <RotateCcw className="mr-2 h-4 w-4" />
-                      Restore Contractor
-                    </>
-                  )}
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Restore contractor?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will restore "{data?.data.contractor.name}" and make
-                    them active again. Previous site engagements will not be
-                    restored.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() => reactivateContractor.mutate(id)}
-                  >
-                    Restore
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-            {reactivateContractor.isError && (
-              <Alert variant="destructive" className="mt-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Failed to restore contractor. Please try again.
-                </AlertDescription>
-              </Alert>
-            )}
-          </>
-        )}
-      </div>
+                    {reactivateContractor.isPending ? (
+                      <>
+                        Restoring...
+                        <Loader className="ml-2 h-4 w-4 animate-spin" />
+                      </>
+                    ) : (
+                      <>
+                        <RotateCcw className="mr-2 h-4 w-4" />
+                        Restore Contractor
+                      </>
+                    )}
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Restore contractor?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This will restore "{data?.data.contractor.name}" and make
+                      them active again. Previous site engagements will not be
+                      restored.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() => reactivateContractor.mutate(id)}
+                    >
+                      Restore
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <FormError
+                error={reactivateContractor.error}
+                title="Failed to Update"
+              />
+            </>
+          )}
+        </div>
+      </section>
     </div>
   );
 }

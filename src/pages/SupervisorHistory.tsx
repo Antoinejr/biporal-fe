@@ -1,4 +1,6 @@
 import DataTable from "@/components/data-table";
+import DisplayError from "@/components/error";
+import DisplayLoading from "@/components/loading";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +8,7 @@ import { SupervisorHistoryColumns } from "@/features/PersonColumnDef";
 import { cn } from "@/lib/utils";
 import { getSupervisorHistory } from "@/services/personService";
 import { useQuery } from "@tanstack/react-query";
-import { AlertCircle, ArrowLeft, Loader } from "lucide-react";
+import { AlertCircle, ArrowLeft } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 
@@ -58,14 +60,12 @@ function SupervisorHistory() {
   }, []);
 
   const prevPage = useCallback(() => {
-    if (!data) return;
-    if (page <= 1) return;
+    if (!data || page <= 1) return;
     setPage(page - 1);
   }, [data, page]);
 
   const nextPage = useCallback(() => {
-    if (!data) return;
-    if (page >= data.pagination.totalPages) return;
+    if (!data || page >= data.pagination.totalPages) return;
     setPage(page + 1);
   }, [data, page]);
 
@@ -86,21 +86,11 @@ function SupervisorHistory() {
   }, [inputValue, isLoading, handleTextChange]);
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    return <DisplayLoading />;
   }
-
   if (error) {
     return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load supervisor history. Please try again.
-        </AlertDescription>
-      </Alert>
+      <DisplayError description=" Failed to load supervisor history. Please try again." />
     );
   }
 

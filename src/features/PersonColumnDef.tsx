@@ -3,18 +3,25 @@ import { cn, formatDate } from "@/lib/utils";
 import { type ColumnDef } from "@tanstack/react-table";
 import PersonExtendDurationForm from "./PersonExtendDurationForm";
 import { useNavigate } from "react-router";
-import { Eye, HistoryIcon, MoreHorizontal } from "lucide-react";
+import {
+  Ban,
+  CheckCircle,
+  Eye,
+  HistoryIcon,
+  MoreHorizontal,
+  RulerDimensionLine,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import PersonStatusUpdate from "./PersonStatusUpdate";
 import type { SupervisorHistory } from "@/services/personService";
+import { useState } from "react";
 
 const getRemainingDays = (date: string | Date) => {
   const today = new Date();
@@ -23,48 +30,84 @@ const getRemainingDays = (date: string | Date) => {
   return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 };
 
+const BlockedTag = ({ isBlocked }: { isBlocked: boolean }) => {
+  if (!isBlocked) {
+    return null;
+  }
+  return (
+    <span className="bg-grey-500 text-red-600 p-2 rounded-sm">Blocked</span>
+  );
+};
+
 const ExpirationTag = ({ isExpired }: { isExpired: boolean }) => {
+  if (!isExpired) {
+    return null;
+  }
   return (
     <div>
-      {isExpired ? (
-        <span className="bg-grey-500 text-red-600 p-2 rounded-sm">Expired</span>
-      ) : (
-        <></>
-      )}
+      <span className="bg-grey-500 text-red-600 p-2 rounded-sm">Expired</span>
     </div>
   );
 };
 
 const PersonActions = ({ person }: { person: Person }) => {
+  const [showExtensionDialog, setShowExtensionDialog] = useState(false);
+  const [showBlockDialog, setShowBlockDialog] = useState(false);
   const navigate = useNavigate();
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="end">
-        <DropdownMenuLabel>Actions</DropdownMenuLabel>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={() => navigate(`/persons/d/${person.id}`)}>
-          <Eye className="mr-2 h-4 w-4" />
-          View Details
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <DropdownMenuItem
-          onClick={() => navigate(`/persons/d/history/${person.id}`)}
-        >
-          <HistoryIcon className="mr-2 h-4 w-4" />
-          View History
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        <PersonExtendDurationForm person={person} />
-        <DropdownMenuSeparator />
-        <PersonStatusUpdate person={person} />
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div>
+      <PersonExtendDurationForm
+        show={showExtensionDialog}
+        setShow={setShowExtensionDialog}
+        person={person}
+      />
+
+      <PersonStatusUpdate
+        show={showBlockDialog}
+        setShow={setShowBlockDialog}
+        person={person}
+      />
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center">
+          <DropdownMenuItem
+            onSelect={() => navigate(`/persons/d/${person.id}`)}
+          >
+            <Eye className="h-4 w-4" />
+            Details
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem
+            onSelect={() => navigate(`/persons/d/history/${person.id}`)}
+          >
+            <HistoryIcon className="h-4 w-4" />
+            History
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setShowExtensionDialog(true)}>
+            <RulerDimensionLine className="h-4 w-4" />
+            Extend
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setShowBlockDialog(true)}>
+            {person.deletedAt ? (
+              <>
+                <CheckCircle className="w-4 h-4" /> Activate
+              </>
+            ) : (
+              <>
+                <Ban className="w-4 h-4" /> Deactivate
+              </>
+            )}
+          </DropdownMenuItem>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 
@@ -107,6 +150,11 @@ export const PersonColumns: ColumnDef<Person>[] = [
     cell: ({ getValue }) => (
       <ExpirationTag isExpired={getValue<number>() === 0} />
     ),
+  },
+  {
+    id: "blockedTag",
+    header: "",
+    cell: ({ row }) => <BlockedTag isBlocked={!!row.original.deletedAt} />,
   },
   {
     id: "actions",

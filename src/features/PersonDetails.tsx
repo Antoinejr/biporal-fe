@@ -22,38 +22,22 @@ import {
   useStore,
 } from "@tanstack/react-form";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import {
-  AlertCircle,
-  ArrowLeft,
-  CheckCircle2,
-  Loader,
-  Edit,
-  X,
-} from "lucide-react";
+import { AlertCircle, ArrowLeft, Loader, Edit, X } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import * as z from "zod";
 import ChooseMenu from "./ChooseMenu";
 import type { Category } from "@/lib/activityLogsTypes";
+import FormError from "@/components/form-error";
+import FormSuccess from "@/components/form-success";
+import DisplayLoading from "@/components/loading";
+import DisplayError from "@/components/error";
 
 const { fieldContext, formContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
-  fieldComponents: {
-    Field,
-    FieldLabel,
-    FieldError,
-    FieldGroup,
-    ChooseMenu,
-    Textarea,
-    Input,
-    InputPassword,
-  },
+  fieldComponents: {},
   fieldContext,
-  formComponents: {
-    Button,
-    FieldGroup,
-  },
+  formComponents: {},
   formContext,
 });
 
@@ -149,9 +133,10 @@ function PersonDetails() {
     mutationFn: updatePerson,
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: ["person-details", id] });
-      setShowSuccess(true);
+      scrollTo({ top: 0, behavior: "smooth" });
       setIsEditing(false);
-      setTimeout(() => setShowSuccess(false), 4000);
+      setShowSuccess(true);
+      setTimeout(() => setShowSuccess(false), 3000);
     },
   });
 
@@ -289,32 +274,23 @@ function PersonDetails() {
   const currentCategory = fieldState.state.value;
 
   if (personQuery.isLoading) {
-    return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <Loader className="h-8 w-8 animate-spin text-muted-foreground" />
-      </div>
-    );
+    <DisplayLoading />;
   }
 
   if (personQuery.error) {
-    return (
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertDescription>
-          Failed to load person details. Please try again.
-        </AlertDescription>
-      </Alert>
-    );
+    return <DisplayError description="Failed to load details." />;
   }
 
   return (
     <div>
-      <div>
-        <Button variant="ghost" onClick={() => navigate(-1)}>
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
-      </div>
+      <Button
+        className="flex justify-start w-fit"
+        variant="ghost"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </Button>
       <div className="flex flex-col gap-10 container mx-auto max-w-2xl">
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold">Person Details</h2>
@@ -350,32 +326,13 @@ function PersonDetails() {
             form.handleSubmit();
           }}
         >
-          <form.FieldGroup>
-            {showSuccess && (
-              <Alert className="border-green-200 bg-green-50 text-green-900">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <AlertDescription>
-                  Person updated successfully.
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {editPerson.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {editPerson.error instanceof AxiosError
-                    ? `${editPerson.error.message}\n${
-                        editPerson.error.response
-                          ? editPerson.error.response.data.message
-                          : ""
-                      }`
-                    : editPerson.error instanceof Error
-                      ? editPerson.error.message
-                      : "Failed to update person. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
+          <FieldGroup>
+            <FormSuccess
+              hasSuccess={showSuccess}
+              title="Update Success"
+              message="Person details updated"
+            />
+            <FormError error={editPerson.error} title="Failed to Update" />
 
             <form.AppField
               name="firstName"
@@ -384,11 +341,9 @@ function PersonDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      First Name
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>First Name</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
@@ -404,9 +359,9 @@ function PersonDetails() {
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -418,11 +373,9 @@ function PersonDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Last Name
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Last Name</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
@@ -438,9 +391,9 @@ function PersonDetails() {
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -452,11 +405,9 @@ function PersonDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Mobile
-                    </field.FieldLabel>
-                    <field.Input
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Mobile</FieldLabel>
+                    <Input
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
@@ -476,9 +427,9 @@ function PersonDetails() {
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -490,15 +441,13 @@ function PersonDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Lagos ID
-                    </field.FieldLabel>
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Lagos ID</FieldLabel>
                     <div className="flex">
                       <span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
                         LAG
                       </span>
-                      <field.Input
+                      <Input
                         id={field.name}
                         name={field.name}
                         disabled={!isEditing}
@@ -521,9 +470,9 @@ function PersonDetails() {
                       />
                     </div>
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -535,11 +484,9 @@ function PersonDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Address
-                    </field.FieldLabel>
-                    <field.Textarea
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Address</FieldLabel>
+                    <Textarea
                       id={field.name}
                       name={field.name}
                       value={field.state.value}
@@ -555,9 +502,9 @@ function PersonDetails() {
                       disabled={!isEditing}
                     />
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -569,14 +516,12 @@ function PersonDetails() {
                   field.state.meta.isTouched &&
                   field.state.meta.errors.length > 0;
                 return (
-                  <field.Field>
-                    <field.FieldLabel htmlFor={field.name}>
-                      Category
-                    </field.FieldLabel>
+                  <Field>
+                    <FieldLabel htmlFor={field.name}>Category</FieldLabel>
                     {isInvalid && (
-                      <field.FieldError errors={field.state.meta.errors} />
+                      <FieldError errors={field.state.meta.errors} />
                     )}
-                    <field.ChooseMenu
+                    <ChooseMenu
                       disabled={true}
                       options={[
                         {
@@ -607,7 +552,7 @@ function PersonDetails() {
                           form.setFieldValue("passcode", "");
                       }}
                     />
-                  </field.Field>
+                  </Field>
                 );
               }}
             />
@@ -620,29 +565,26 @@ function PersonDetails() {
                     field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0;
                   return (
-                    <field.Field>
-                      <field.FieldLabel htmlFor={field.name}>
-                        Pin
-                      </field.FieldLabel>
-                      <field.InputPassword
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Pin</FieldLabel>
+                      <InputPassword
                         id={field.name}
+                        name={field.name}
                         value={field.state.value}
-                        onBlur={(e) => {
-                          field.handleChange(e.target.value.trim());
-                          field.handleBlur();
-                        }}
+                        onBlur={field.handleBlur}
                         onChange={(e) => {
                           const validValue = e.target.value.replace(/\D/g, "");
                           field.handleChange(validValue);
                         }}
                         placeholder="Pin..."
                         autoComplete="off"
+                        maxLength={4}
                         disabled={!isEditing}
                       />
                       {isInvalid && (
-                        <field.FieldError errors={field.state.meta.errors} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </field.Field>
+                    </Field>
                   );
                 }}
               />
@@ -656,11 +598,9 @@ function PersonDetails() {
                     field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0;
                   return (
-                    <field.Field>
-                      <field.FieldLabel htmlFor={field.name}>
-                        Resident
-                      </field.FieldLabel>
-                      <field.ChooseMenu
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Resident</FieldLabel>
+                      <ChooseMenu
                         options={lookupQuery.data ?? []}
                         state={field.state.value}
                         label={
@@ -674,9 +614,9 @@ function PersonDetails() {
                         disabled={!isEditing}
                       />
                       {isInvalid && (
-                        <field.FieldError errors={field.state.meta.errors} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </field.Field>
+                    </Field>
                   );
                 }}
               />
@@ -690,10 +630,8 @@ function PersonDetails() {
                     field.state.meta.isTouched &&
                     field.state.meta.errors.length > 0;
                   return (
-                    <field.Field>
-                      <field.FieldLabel htmlFor={field.name}>
-                        Employer
-                      </field.FieldLabel>
+                    <Field>
+                      <FieldLabel htmlFor={field.name}>Employer</FieldLabel>
                       <ChooseMenu
                         options={lookupQuery.data ?? []}
                         state={field.state.value}
@@ -708,30 +646,16 @@ function PersonDetails() {
                         disabled={!isEditing}
                       />
                       {isInvalid && (
-                        <field.FieldError errors={field.state.meta.errors} />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
-                    </field.Field>
+                    </Field>
                   );
                 }}
               />
             )}
 
             {isEditing && (
-              <div className="flex gap-2 pt-4">
-                <Button
-                  type="submit"
-                  form="person-update-form"
-                  disabled={editPerson.isPending || !formState}
-                >
-                  {editPerson.isPending ? (
-                    <>
-                      Saving...
-                      <Loader className="ml-2 h-4 w-4 animate-spin" />
-                    </>
-                  ) : (
-                    "Save"
-                  )}
-                </Button>
+              <div className="flex gap-2 mt-2 justify-end">
                 <Button
                   type="button"
                   variant="outline"
@@ -740,9 +664,23 @@ function PersonDetails() {
                 >
                   Reset
                 </Button>
+                <Button
+                  type="submit"
+                  form="person-update-form"
+                  disabled={editPerson.isPending || !formState}
+                >
+                  {editPerson.isPending ? (
+                    <>
+                      <Loader className="h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save"
+                  )}
+                </Button>
               </div>
             )}
-          </form.FieldGroup>
+          </FieldGroup>
         </form>
       </div>
     </div>

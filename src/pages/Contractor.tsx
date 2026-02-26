@@ -3,7 +3,6 @@ import { Input } from "@/components/ui/input";
 import ChooseMenu from "@/features/ChooseMenu";
 import ContractorForm from "@/features/ContractorForm";
 import { ContractorColumns } from "@/features/ContractorsColumnDef";
-import { cn } from "@/lib/utils";
 import { getContractors } from "@/services/contractorService";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -52,13 +51,11 @@ const Contractor = () => {
 
   const prevPage = useCallback(() => {
     if (!data || page <= 1) return;
-
     setPage(page - 1);
   }, [data, page]);
 
   const nextPage = useCallback(() => {
     if (!data || page >= data.pagination.totalPages) return;
-
     setPage(page + 1);
   }, [data, page]);
 
@@ -66,13 +63,13 @@ const Contractor = () => {
     const hasIsActiveFilter = isActive.value !== undefined;
     const disable = isLoading || !!error;
     return (
-      <div className={cn("flex gap-1 justify-between")}>
-        <div className={cn("flex gap-1 min-w-md")}>
+      <div className="flex gap-1 justify-between">
+        <div className="flex gap-1 min-w-md">
           <Input
             value={inputValue}
             onChange={handleTextChange}
             placeholder="Search..."
-            className={cn("bg-white", "max-w-sm")}
+            className={"bg-white max-w-sm"}
             disabled={disable}
           />
           <div className="relative">
@@ -89,7 +86,7 @@ const Contractor = () => {
             />
             {hasIsActiveFilter && (
               <span className="absolute -top-1 -right-1 text-red-500 text-lg">
-                *{" "}
+                *
               </span>
             )}
           </div>

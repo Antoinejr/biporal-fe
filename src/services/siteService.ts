@@ -20,13 +20,16 @@ export async function removeContractorFromSite(id: string) {
   try {
     await http.delete(`/api/site/site-engagement/${id}`);
     return;
-  } catch(error) {
+  } catch (error) {
     console.error(error);
     throw error;
   }
 }
 
-export async function updateSite(payload: {id: string, payload: Partial<CreateSiteType>}) {
+export async function updateSite(payload: {
+  id: string;
+  payload: Partial<CreateSiteType>;
+}) {
   try {
     await http.patch(`/api/site/${payload.id}`, payload.payload);
     return;
@@ -36,11 +39,10 @@ export async function updateSite(payload: {id: string, payload: Partial<CreateSi
   }
 }
 
-export async function findSite(id: string): Promise<SiteType | undefined>{
+export async function findSite(id: string): Promise<SiteType | undefined> {
   try {
     const response = await http.get<SiteType>(`/api/site/${id}`);
-    console.log(response.data);
-    return response.data
+    return response.data;
   } catch (error) {
     console.error(error);
     throw error;
@@ -89,7 +91,6 @@ export async function lookupSites() {
 
 export async function createSiteEngagement(payload: CreateSiteEngagement) {
   try {
-    console.log("Submitting site-engagement request", { data: payload });
     await http.post("/api/site/site-engagement", payload);
     return;
   } catch (error) {

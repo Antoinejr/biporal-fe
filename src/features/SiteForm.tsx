@@ -1,4 +1,3 @@
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -20,10 +19,10 @@ import { cn } from "@/lib/utils";
 import { createSite } from "@/services/siteService";
 import { createFormHook, createFormHookContexts } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { AxiosError } from "axios";
-import { AlertCircle, Loader } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
+import FormError from "@/components/form-error";
 
 const { fieldContext, formContext } = createFormHookContexts();
 const { useAppForm } = createFormHook({
@@ -77,7 +76,7 @@ const SiteForm = () => {
       name: "",
       address: "",
       owner: "",
-      contact: ""
+      contact: "",
     },
     validators: {
       onSubmit: formSchema,
@@ -111,18 +110,7 @@ const SiteForm = () => {
           }}
         >
           <form.FieldGroup className={cn("grid grid-cols-1]")}>
-            {mutation.isError && (
-              <Alert variant="destructive">
-                <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  {mutation.error instanceof AxiosError
-                    ? `${mutation.error.message}\n${mutation.error.response ? mutation.error.response.data.message : ""}`
-                    : mutation.error instanceof Error
-                      ? mutation.error.message
-                      : "Failed to create contractor. Please try again."}
-                </AlertDescription>
-              </Alert>
-            )}
+            <FormError error={mutation.error} title="Failed to Create" />
             <form.AppField
               name="name"
               children={(field) => {

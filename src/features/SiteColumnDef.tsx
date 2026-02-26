@@ -9,34 +9,58 @@ import {
 import type { SiteType } from "@/lib/siteTypes";
 import { formatCurrency } from "@/lib/utils";
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, MoreHorizontal } from "lucide-react";
+import { CircleMinus, CirclePlus, Eye, MoreHorizontal } from "lucide-react";
 import { useNavigate } from "react-router";
 import SiteDisengage from "./SiteDisengage";
 import SiteEnrollForm from "./SiteEnrollForm";
+import { useState } from "react";
 
 const SiteActions = ({ site }: { site: SiteType }) => {
+  const [showBlockForm, setShowBlockForm] = useState(false);
+  const [showRestoreForm, setShowRestoreForm] = useState(false);
   const navigate = useNavigate();
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 p-0">
-          <span className="sr-only">Open Menu</span>
-          <MoreHorizontal className="h-4 w-4" />
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent align="center">
-        <DropdownMenuItem onClick={() => navigate(`/sites/d/${site.id}`)}>
-          <Eye className="h-4 w-4" />
-          View Details
-        </DropdownMenuItem>
-        <DropdownMenuSeparator />
-        {site.contractors.length > 0 ? (
-          <SiteDisengage site={site} />
-        ) : (
-          <SiteEnrollForm site={site} />
-        )}
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <div>
+      <SiteDisengage
+        show={showBlockForm}
+        setShow={setShowBlockForm}
+        site={site}
+      />
+      <SiteEnrollForm
+        show={showRestoreForm}
+        setShow={setShowRestoreForm}
+        site={site}
+      />
+
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8">
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="center">
+          <DropdownMenuItem onClick={() => navigate(`/sites/d/${site.id}`)}>
+            <Eye className="h-4 w-4" />
+            View Details
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
+          {site.contractors.length > 0 ? (
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => setShowBlockForm(true)}
+            >
+              <CircleMinus className="w-4 h-4" />
+              Remove Contractor
+            </DropdownMenuItem>
+          ) : (
+            <DropdownMenuItem onSelect={() => setShowRestoreForm(true)}>
+              <CirclePlus className="h-4 w-4" />
+              Add Contractor
+            </DropdownMenuItem>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    </div>
   );
 };
 
