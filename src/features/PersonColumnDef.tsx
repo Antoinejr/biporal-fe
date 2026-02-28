@@ -94,7 +94,10 @@ const PersonActions = ({ person }: { person: Person }) => {
             Extend
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onSelect={() => setShowBlockDialog(true)}>
+          <DropdownMenuItem
+            variant={person.deletedAt ? "default" : "destructive"}
+            onSelect={() => setShowBlockDialog(true)}
+          >
             {person.deletedAt ? (
               <>
                 <CheckCircle className="w-4 h-4" /> Activate
