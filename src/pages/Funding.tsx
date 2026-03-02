@@ -82,6 +82,14 @@ function Funding() {
     gcTime: Infinity,
   });
 
+  const contractorLookupTable = useMemo(
+    () => [
+      { name: "All", value: undefined },
+      ...(contractorLookupQuery.data ?? []),
+    ],
+    [contractorLookupQuery.data],
+  );
+
   async function downloadPdf() {
     try {
       setIsDownloading(true);
@@ -135,14 +143,6 @@ function Funding() {
       setIsDownloading(false);
     }
   }
-
-  const contractorLookupTable = useMemo(
-    () => [
-      { name: "All", value: undefined },
-      ...(contractorLookupQuery.data ?? []),
-    ],
-    [contractorLookupQuery.data],
-  );
 
   const prevPage = useCallback(() => {
     if (!data) return;

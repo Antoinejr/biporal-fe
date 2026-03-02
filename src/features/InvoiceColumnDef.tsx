@@ -30,7 +30,7 @@ export const InvoiceColumns: ColumnDef<Invoice>[] = [
     accessorFn(row) {
       return `${row.supervisor.lagId ?? "N/A"}`;
     },
-    header: "Supervisor's Lagos ID",
+    header: "Supervisor LAG ID",
   },
   {
     id: "siteName",

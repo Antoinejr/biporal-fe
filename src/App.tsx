@@ -22,6 +22,8 @@ import NotFound from "./pages/NotFound";
 import SupervisorHistory from "./pages/SupervisorHistory";
 import Blocklist from "./pages/Blocklist";
 import Notes from "./pages/Notes";
+import Engagements from "./pages/Engagements";
+import Assignments from "./pages/Assignments";
 
 const queryClient = new QueryClient();
 function App() {
@@ -41,6 +43,8 @@ function App() {
                   <Route path="logs" element={<Logs />} />
                   <Route path="fundings" element={<Funding />} />
                   <Route path="expenditures" element={<Expenditure />} />
+                  <Route path="contractor-report" element={<Engagements />} />
+                  <Route path="supervisor-report" element={<Assignments />} />
                   <Route path="defaulters" element={<Defaulters />} />
                   <Route path="blocklist" element={<Blocklist />} />
                   <Route path="settings" element={<Setting />} />

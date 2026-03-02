@@ -13,7 +13,6 @@ import {
   Clipboard,
   Home,
   MapPinned,
-  Ticket,
   User,
   HardHat,
   Settings,
@@ -21,7 +20,6 @@ import {
   ChevronDown,
   BanknoteArrowUp,
   BanknoteArrowDown,
-  UserLock,
   Ban,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router";
@@ -88,11 +86,16 @@ const reportMenuItems = [
     path: "/expenditures",
     icon: <BanknoteArrowDown className="w-4 h-4" />,
   },
-  // {
-  //   name: "Defaulters",
-  //   path: "/defaulters",
-  //   icon: <UserLock className="w-4 h-4" />,
-  // },
+  {
+    name: "Contractors",
+    path: "/contractor-report",
+    icon: <HardHat className="w-4 h-4" />,
+  },
+  {
+    name: "Supervisors",
+    path: "/supervisor-report",
+    icon: <User className="w-4 h-4" />,
+  },
 ];
 
 const Layout = ({ children }: { children: React.ReactNode }) => {

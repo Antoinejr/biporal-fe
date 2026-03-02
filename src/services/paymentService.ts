@@ -17,14 +17,14 @@ export type Payment = {
   amount: number;
   email: string;
   paidAt: Date;
-  site: Pick<SiteType,"id" | "name">;
+  site: Pick<SiteType, "id" | "name">;
   contractor: Pick<ContractorType, "id" | "name">;
-}
+};
 
 export type PaymentResponse = {
   data: Payment[];
-  pagination: PageBasedPagination
-} 
+  pagination: PageBasedPagination;
+};
 
 export async function findPayments(queries: FindPaymentFilters) {
   const filtered = Object.fromEntries(
@@ -34,7 +34,7 @@ export async function findPayments(queries: FindPaymentFilters) {
   ) as FindPaymentFilters;
   try {
     const response = await http.get<PaymentResponse>("api/payment", {
-      params: filtered
+      params: filtered,
     });
     return response.data;
   } catch (error) {
@@ -44,35 +44,34 @@ export async function findPayments(queries: FindPaymentFilters) {
 }
 function getFileName(r: AxiosResponse, extension: string) {
   const contentDisposition = r.headers["content-disposition"];
-  let fileName= `funding_report_${new Date().toLocaleDateString("en-NG")}.${extension}`
+  let fileName = `funding_report_${new Date().toLocaleDateString("en-NG")}.${extension}`;
   if (contentDisposition) {
-    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/)
-    if (fileNameMatch > 1)
-    fileName = fileNameMatch[1]
+    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/);
+    if (fileNameMatch > 1) fileName = fileNameMatch[1];
   }
-  return fileName
+  return fileName;
 }
 
 export async function getPaymentPdf(queries: FindPaymentFilters) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
-      ([_, value]) => value !== undefined && value !== ""
+      ([_, value]) => value !== undefined && value !== "",
     ),
-  ) as FindPaymentFilters
+  ) as FindPaymentFilters;
   try {
-     const response = await http.get("api/export/funding/pdf", {
+    const response = await http.get("api/export/funding/pdf", {
       params: filtered,
-      responseType: "blob"
+      responseType: "blob",
     });
     const href = window.URL.createObjectURL(response.data);
     const link = document.createElement("a");
     link.href = href;
-    link.download = getFileName(response, "pdf")
+    link.download = getFileName(response, "pdf");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(href);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
   }
 }
@@ -80,23 +79,23 @@ export async function getPaymentPdf(queries: FindPaymentFilters) {
 export async function getPaymentCsv(queries: FindPaymentFilters) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
-      ([_, value]) => value !== undefined && value !== ""
+      ([_, value]) => value !== undefined && value !== "",
     ),
-  ) as FindPaymentFilters
+  ) as FindPaymentFilters;
   try {
-     const response = await http.get("api/export/funding/csv", {
+    const response = await http.get("api/export/funding/csv", {
       params: filtered,
-      responseType: "blob"
+      responseType: "blob",
     });
     const href = window.URL.createObjectURL(response.data);
     const link = document.createElement("a");
     link.href = href;
-    link.download = getFileName(response, "csv")
+    link.download = getFileName(response, "csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(href);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
   }
 }
@@ -104,23 +103,23 @@ export async function getPaymentCsv(queries: FindPaymentFilters) {
 export async function getPaymentXlsx(queries: FindPaymentFilters) {
   const filtered = Object.fromEntries(
     Object.entries(queries).filter(
-      ([_, value]) => value !== undefined && value !== ""
+      ([_, value]) => value !== undefined && value !== "",
     ),
-  ) as FindPaymentFilters
+  ) as FindPaymentFilters;
   try {
-     const response = await http.get("api/export/funding/xlsx", {
+    const response = await http.get("api/export/funding/xlsx", {
       params: filtered,
-      responseType: "blob"
+      responseType: "blob",
     });
     const href = window.URL.createObjectURL(response.data);
     const link = document.createElement("a");
     link.href = href;
-    link.download = getFileName(response, "xlsx")
+    link.download = getFileName(response, "xlsx");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
     window.URL.revokeObjectURL(href);
-  } catch(error) {
+  } catch (error) {
     console.error(error);
   }
 }

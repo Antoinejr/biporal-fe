@@ -7,6 +7,7 @@ import type {
   Person,
   ResidentLookupResponse,
 } from "@/lib/personTypes";
+import type { AxiosResponse } from "axios";
 
 type GetPersonQuery = {
   page?: number;
@@ -36,6 +37,121 @@ type GetSupervisorHistoryResponse = {
 type GetSupervisorHistoryFilters = {
   search?: string;
 };
+
+export interface Assignment {
+  id: string;
+  firstName: string;
+  lastName: string;
+  supervisorId: string;
+  contractor: string;
+  contractorId: string;
+  site: string;
+  siteId: string;
+  startDate: Date;
+  endDate: Date | null;
+}
+
+interface AssignmentResponse {
+  data: Assignment[];
+  pagination: PageBasedPagination;
+}
+
+interface GetAssignmentQuery {
+  page?: number;
+  search?: string;
+}
+
+export async function getAssignments(query: GetAssignmentQuery) {
+  const filtered = Object.fromEntries(
+    Object.entries(query).filter(([_, v]) => v !== undefined && v !== ""),
+  ) as GetAssignmentQuery;
+  try {
+    const response = await http.get<AssignmentResponse>("api/person/report", {
+      params: filtered,
+    });
+    return response.data;
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+
+function getFileName(r: AxiosResponse, extension: string) {
+  const contentDisposition = r.headers["content-disposition"];
+  let fileName = `supervisor_report_${new Date().toLocaleDateString("en-NG")}.${extension}`;
+  if (contentDisposition) {
+    const fileNameMatch = contentDisposition.match(/fileName"?(.+?)"?$/);
+    if (fileNameMatch > 1) fileName = fileNameMatch[1];
+  }
+  return fileName;
+}
+
+export async function getAssignmentsPdf(query: GetAssignmentQuery) {
+  const filtered = Object.fromEntries(
+    Object.entries(query).filter(([_, v]) => v !== undefined && v !== ""),
+  ) as GetAssignmentQuery;
+  try {
+    const response = await http.get("api/export/supervisor/pdf", {
+      params: filtered,
+      responseType: "blob",
+    });
+    const href = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = getFileName(response, "pdf");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(href);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+export async function getAssignmentsCsv(query: GetAssignmentQuery) {
+  const filtered = Object.fromEntries(
+    Object.entries(query).filter(([_, v]) => v !== undefined && v !== ""),
+  ) as GetAssignmentQuery;
+  try {
+    const response = await http.get("api/export/supervisor/csv", {
+      params: filtered,
+      responseType: "blob",
+    });
+    const href = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = getFileName(response, "csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(href);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
+export async function getAssignmentsXlsx(query: GetAssignmentQuery) {
+  const filtered = Object.fromEntries(
+    Object.entries(query).filter(([_, v]) => v !== undefined && v !== ""),
+  ) as GetAssignmentQuery;
+  try {
+    const response = await http.get("api/export/supervisor/xlsx", {
+      params: filtered,
+      responseType: "blob",
+    });
+    const href = window.URL.createObjectURL(response.data);
+    const link = document.createElement("a");
+    link.href = href;
+    link.download = getFileName(response, "xlsx");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(href);
+  } catch (err) {
+    console.error(err);
+    throw err;
+  }
+}
 
 export async function getSupervisorHistory(
   id: string,
