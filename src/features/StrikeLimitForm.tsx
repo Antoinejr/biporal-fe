@@ -20,7 +20,7 @@ import { cn } from "@/lib/utils";
 import { updateWarning } from "@/services/blocklistService";
 import { createFormHookContexts, createFormHook } from "@tanstack/react-form";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { Loader, Minus, Plus } from "lucide-react";
+import { Loader } from "lucide-react";
 import { useState } from "react";
 import * as z from "zod";
 
