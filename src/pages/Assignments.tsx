@@ -94,7 +94,7 @@ const Assignments = () => {
     search: search,
   });
   const { data, isLoading, error } = useQuery({
-    queryKey: ["assignments"],
+    queryKey: ["assignments", search],
     queryFn: () => getAssignments(collateAssigmentQuery()),
   });
 

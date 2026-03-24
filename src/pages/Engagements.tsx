@@ -44,6 +44,7 @@ const EngagementsColumnDef: ColumnDef<Engagement>[] = [
     header: "Balance",
     accessorFn: (row) => formatCurrency(row.balance, { showSymbol: true }),
   },
+  { accessorKey: "supervisorCount", header: "Number of Supervisors" },
   {
     accessorKey: "startDate",
     header: "Start Date",
@@ -54,7 +55,6 @@ const EngagementsColumnDef: ColumnDef<Engagement>[] = [
     header: "End Date",
     accessorFn: (row) => (row.endDate ? formatDateTime(row.endDate) : "N/A"),
   },
-  { accessorKey: "supervisorCount", header: "Number of Supervisors" },
 ];
 
 const Engagements = () => {
