@@ -26,7 +26,7 @@ export type LogReport = {
   isOutOfOrder: boolean;
   action: Action;
   category: Category;
-  status: Status;
+  status: LogStatus;
   tokenId: string;
   siteId: string;
   hasViolations: boolean;
@@ -49,8 +49,6 @@ export type ActivitiyLog = {
   site: string;
   tokenId: string;
 };
-
-export type Status = "EXITED" | "NOT_LEFT" | "OVERSTAYED";
 
 export type ActivityLogResponse = {
   data: ActivitiyLog[];

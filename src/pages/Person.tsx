@@ -109,6 +109,7 @@ const Person = () => {
         prev={prevPage}
         hasNext={data ? page < data.pagination.totalPages : false}
         hasPrev={page > 1}
+        metadata={data?.pagination}
       />
     </div>
   );

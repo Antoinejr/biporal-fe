@@ -19,6 +19,7 @@ import { ArrowLeft, ArrowRight } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import DisplayLoading from "./loading";
 import DisplayError from "./error";
+import type { PageBasedPagination } from "@/lib/baseTypes";
 
 type DataTableProps<TData, TValue> = {
   columns: ColumnDef<TData, TValue>[];
@@ -30,6 +31,7 @@ type DataTableProps<TData, TValue> = {
   hasNext: boolean;
   hasPrev: boolean;
   toolBar?: JSX.Element;
+  metadata?: PageBasedPagination;
 };
 
 const DataTable = <TData, TValue>({
@@ -42,6 +44,7 @@ const DataTable = <TData, TValue>({
   hasNext,
   hasPrev,
   toolBar,
+  metadata,
 }: DataTableProps<TData, TValue>) => {
   const table = useReactTable({
     data,
@@ -59,6 +62,9 @@ const DataTable = <TData, TValue>({
     );
   }
 
+  const totalResults = metadata ? metadata.total : 1;
+  const currPage = metadata ? metadata.page : 1;
+  const totalPages = metadata ? metadata.totalPages : 1;
   return (
     <div className={cn("grid grid-rows-[auto_1fr_auto]", "gap-2")}>
       {toolBar && toolBar}
@@ -90,23 +96,38 @@ const DataTable = <TData, TValue>({
           </TableBody>
         </Table>
       </ScrollArea>
-      <div className={cn("flex gap-2 justify-end")}>
-        <Button
-          size="icon-sm"
-          variant="outline"
-          disabled={!hasPrev}
-          onClick={prev}
-        >
-          <ArrowLeft className={cn("w-4 h-4")} />
-        </Button>
-        <Button
-          size="icon-sm"
-          variant="outline"
-          disabled={!hasNext}
-          onClick={next}
-        >
-          <ArrowRight className={cn("w-4 h-4")} />
-        </Button>
+      <div
+        className={cn(metadata ? "flex justify-between" : "flex justify-end")}
+      >
+        {metadata ? (
+          <div className="flex items-center gap-1 text-sm text-slate-500 font-medium">
+            <span>Showing</span>
+            <span className="text-slate-900">{totalResults}</span>
+            <span>results.</span>
+            <span>Page</span>
+            <span className="text-slate-900">{currPage}</span>
+            <span>of</span>
+            <span className="text-slate-900">{totalPages}</span>
+          </div>
+        ) : null}
+        <div className="gap-2">
+          <Button
+            size="icon-sm"
+            variant="outline"
+            disabled={!hasPrev}
+            onClick={prev}
+          >
+            <ArrowLeft className={cn("w-4 h-4")} />
+          </Button>
+          <Button
+            size="icon-sm"
+            variant="outline"
+            disabled={!hasNext}
+            onClick={next}
+          >
+            <ArrowRight className={cn("w-4 h-4")} />
+          </Button>
+        </div>
       </div>
     </div>
   );

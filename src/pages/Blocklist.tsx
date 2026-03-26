@@ -230,6 +230,7 @@ function Blocklist() {
         prev={goPrev}
         hasNext={page < totalPages}
         hasPrev={page > 1}
+        metadata={data?.metadata}
       />
     </div>
   );

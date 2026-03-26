@@ -212,6 +212,7 @@ function Logs() {
           <div className="relative">
             <ChooseMenu
               options={[
+                { name: "All", value: undefined },
                 { name: "Supervisor", value: "SUPERVISOR" as Category },
                 { name: "Artisan", value: "ARTISAN" as Category },
               ]}
@@ -369,6 +370,7 @@ function Logs() {
         prev={prevPage}
         hasNext={data ? page < data.pagination.totalPages : false}
         hasPrev={page > 1}
+        metadata={data?.pagination}
       />
     </div>
   );

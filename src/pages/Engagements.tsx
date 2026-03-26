@@ -205,6 +205,7 @@ const Engagements = () => {
         error={error}
         next={nextPage}
         prev={prevPage}
+        metadata={data?.pagination}
       />
     </div>
   );

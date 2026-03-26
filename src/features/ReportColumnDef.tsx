@@ -68,6 +68,19 @@ export const ReportLogsColumns: ColumnDef<LogReport>[] = [
   {
     accessorKey: "status",
     header: "Status",
+    cell: ({ row }) => {
+      const status = row.original.status;
+      switch (status) {
+        case "STILL_IN":
+          return "Still In";
+        case "EXITED":
+          return "Exited";
+        case "OVERSTAYED":
+          return "Overstayed";
+        default:
+          return "N/A";
+      }
+    },
   },
   {
     id: "accessStatus",
