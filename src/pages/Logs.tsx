@@ -71,6 +71,18 @@ function Logs() {
     value: undefined,
   });
 
+  const changeFilter = <T,>(fn: (value: T) => void, value: T): void => {
+    fn(value);
+    setPage(1);
+  };
+
+  const handleMenuChange = <T,>(setter: (value: T) => void) => {
+    return (option: T) => {
+      setter(option);
+      setPage(1);
+    };
+  };
+
   const getFieldsForDownload = () => {
     return {
       page: page,
@@ -177,7 +189,7 @@ function Logs() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) => changeFilter(setStartDate, e.target.value)}
                 placeholder="Start Date"
                 className={cn("bg-white", "max-w-sm")}
                 disabled={isLoading}
@@ -197,7 +209,7 @@ function Logs() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => changeFilter(setEndDate, e.target.value)}
                 placeholder="End Date"
                 className={cn("bg-white", "max-w-sm")}
                 disabled={isLoading}
@@ -217,7 +229,7 @@ function Logs() {
                 { name: "Artisan", value: "ARTISAN" as Category },
               ]}
               state={categoryState.value}
-              handleSelect={setCategory}
+              handleSelect={handleMenuChange(setCategory)}
               disabled={isLoading}
               label="Category"
             />
@@ -231,7 +243,7 @@ function Logs() {
             <ChooseMenu
               options={siteLookupTable}
               state={site.value}
-              handleSelect={setSite}
+              handleSelect={handleMenuChange(setSite)}
               disabled={isLoading}
               label="Site"
             />
@@ -249,7 +261,7 @@ function Logs() {
                 { name: "Exit", value: "OUT" },
               ]}
               state={type.value}
-              handleSelect={setType}
+              handleSelect={handleMenuChange(setType)}
               disabled={isLoading}
               label="Type"
             />
@@ -268,7 +280,7 @@ function Logs() {
                 { name: "Still In", value: LogStatusEnum.STILL_IN },
               ]}
               state={logStatus.value}
-              handleSelect={setLogStatus}
+              handleSelect={handleMenuChange(setLogStatus)}
               disabled={isLoading}
               label="Status"
             />
@@ -287,7 +299,7 @@ function Logs() {
                 { name: "Flagged", value: AccessStatusEnum.FLAGGED },
               ]}
               state={accessStatus.value}
-              handleSelect={setAccessStatus}
+              handleSelect={handleMenuChange(setAccessStatus)}
               disabled={isLoading}
               label="Access"
             />

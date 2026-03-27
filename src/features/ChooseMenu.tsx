@@ -9,7 +9,7 @@ import {
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
-type OptionType<T> = {
+export type OptionType<T> = {
   name: string;
   value: T;
 };
