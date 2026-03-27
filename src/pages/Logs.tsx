@@ -71,7 +71,7 @@ function Logs() {
     value: undefined,
   });
 
-  const changeFilter = <T,>(fn: (value: T) => void, value: T): void => {
+  const handleFilterChange = <T,>(fn: (value: T) => void, value: T): void => {
     fn(value);
     setPage(1);
   };
@@ -189,7 +189,9 @@ function Logs() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e) => changeFilter(setStartDate, e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange(setStartDate, e.target.value)
+                }
                 placeholder="Start Date"
                 className={cn("bg-white", "max-w-sm")}
                 disabled={isLoading}
@@ -209,7 +211,7 @@ function Logs() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e) => changeFilter(setEndDate, e.target.value)}
+                onChange={(e) => handleFilterChange(setEndDate, e.target.value)}
                 placeholder="End Date"
                 className={cn("bg-white", "max-w-sm")}
                 disabled={isLoading}

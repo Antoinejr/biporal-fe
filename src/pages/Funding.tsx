@@ -44,6 +44,18 @@ function Funding() {
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
 
+  const handleFilterChange = <T,>(fn: (value: T) => void, value: T): void => {
+    fn(value);
+    setPage(1);
+  };
+
+  const handleMenuChange = <T,>(setter: (value: T) => void) => {
+    return (option: T) => {
+      setter(option);
+      setPage(1);
+    };
+  };
+
   const { data, isLoading, error } = useQuery({
     queryKey: [
       "payments",
@@ -171,7 +183,9 @@ function Funding() {
                 id="startDate"
                 type="date"
                 value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
+                onChange={(e) =>
+                  handleFilterChange(setStartDate, e.target.value)
+                }
                 placeholder="Start Date"
                 className={cn("bg-white", "max-w-sm")}
                 disabled={isLoading}
@@ -191,7 +205,7 @@ function Funding() {
                 id="endDate"
                 type="date"
                 value={endDate}
-                onChange={(e) => setEndDate(e.target.value)}
+                onChange={(e) => handleFilterChange(setEndDate, e.target.value)}
                 placeholder="End Date"
                 className={cn("bg-white", "max-w-sm")}
                 disabled={isLoading}
@@ -207,7 +221,7 @@ function Funding() {
             <ChooseMenu
               options={siteLookupTable}
               state={site.value}
-              handleSelect={setSite}
+              handleSelect={handleMenuChange(setSite)}
               disabled={isLoading}
               label="Site"
             />
@@ -221,7 +235,7 @@ function Funding() {
             <ChooseMenu
               options={contractorLookupTable}
               state={contractor.value}
-              handleSelect={setContractor}
+              handleSelect={handleMenuChange(setContractor)}
               disabled={isLoading}
               label="Contractor"
             />

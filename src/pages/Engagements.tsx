@@ -74,6 +74,14 @@ const Engagements = () => {
       contractor: contractor.value,
     };
   };
+
+  const handleMenuChange = <T,>(setter: (value: T) => void) => {
+    return (option: T) => {
+      setter(option);
+      setPage(1);
+    };
+  };
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["engagements", page, contractor.value],
     queryFn: () => getEngagements(buildQueryArguments()),
@@ -147,7 +155,7 @@ const Engagements = () => {
               options={contractorLookupTable}
               state={contractor.value}
               disabled={isLoading}
-              handleSelect={setContractor}
+              handleSelect={handleMenuChange(setContractor)}
               label="Contractor"
             />
             {hasContractorFilter && (

@@ -15,6 +15,13 @@ const Contractor = () => {
     value: boolean | undefined;
   }>({ name: "All", value: undefined });
 
+  const handleMenuChange = <T,>(setter: (value: T) => void) => {
+    return (option: T) => {
+      setter(option);
+      setPage(1);
+    };
+  };
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["contractors", page, search, isActive.value],
     queryFn: () =>
@@ -80,7 +87,7 @@ const Contractor = () => {
                 { name: "Inactive", value: false },
               ]}
               state={isActive.value}
-              handleSelect={setIsActive}
+              handleSelect={handleMenuChange(setIsActive)}
               disabled={disable}
               label="Status"
             />
