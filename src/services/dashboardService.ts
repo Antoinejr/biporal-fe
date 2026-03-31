@@ -35,22 +35,13 @@ export async function getDashboardKpi() {
     throw err;
   }
 }
-export const getRecentLogActivity = async ({
-  direction,
-  cursor,
-}: {
-  direction?: PageDirection;
-  cursor?: string;
-}) => {
+export const getRecentLogActivity = async ({ cursor }: { cursor?: Date }) => {
   try {
-    const payload: { direction?: PageDirection; cursor?: string } = {};
-    if (direction) {
-      payload.direction = direction;
-    }
+    const payload: { cursor?: Date; direction?: PageDirection } = {};
     if (cursor) {
       payload.cursor = cursor;
+      payload.direction = "next";
     }
-    console.log(payload);
     const response = await http.get<ActivityLogResponse>("/api/access", {
       params: payload,
     });

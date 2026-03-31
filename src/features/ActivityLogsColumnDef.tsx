@@ -8,6 +8,10 @@ const showAll = env.FUNCTIONALITY_LEVEL === "full";
 
 export const ActivityLogsColumns: ColumnDef<ActivitiyLog>[] = [
   {
+    id: "numberColumn",
+    cell: ({ row }) => row.index + 1,
+  },
+  {
     accessorKey: "createdAt",
     header: "Timestamp",
     cell: ({ row }) => formatDateTime(new Date(row.original.createdAt)),
