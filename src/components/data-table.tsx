@@ -110,7 +110,7 @@ const DataTable = <TData, TValue>({
             <span className="text-slate-900">{totalPages}</span>
           </div>
         ) : null}
-        <div className="gap-2">
+        <div className="flex gap-2">
           <Button
             size="icon-sm"
             variant="outline"
