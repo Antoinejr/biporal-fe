@@ -256,7 +256,7 @@ function PersonDetails() {
       const payload = buildUpdatePayload(personQuery.data, value);
       console.log(payload);
       if (Object.keys(payload).length === 0) return;
-      // editPerson.mutate({ id, payload });
+      editPerson.mutate({ id, payload });
     },
   });
 
