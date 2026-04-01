@@ -275,7 +275,7 @@ function PersonDetails() {
   const currentCategory = fieldState.state.value;
 
   if (personQuery.isLoading) {
-    <DisplayLoading />;
+    return <DisplayLoading />;
   }
 
   if (personQuery.error) {
