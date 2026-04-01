@@ -196,7 +196,7 @@ function PersonDetails() {
         mobile: original.mobile,
         address: original.address,
         category: original.category,
-        lagId: original.lagId,
+        lagId: original.lagId ?? "",
       },
       commonFields,
     );
@@ -254,8 +254,9 @@ function PersonDetails() {
     onSubmit: ({ value }) => {
       if (!personQuery.data) return;
       const payload = buildUpdatePayload(personQuery.data, value);
+      console.log(payload);
       if (Object.keys(payload).length === 0) return;
-      editPerson.mutate({ id, payload });
+      // editPerson.mutate({ id, payload });
     },
   });
 
