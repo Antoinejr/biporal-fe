@@ -30,6 +30,17 @@ const getRemainingDays = (date: string | Date) => {
   return Math.max(0, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
 };
 
+const NoAssignmentTag = ({ hasAssignment }: { hasAssignment: boolean }) => {
+  if (hasAssignment) {
+    return null;
+  }
+  return (
+    <span className="bg-grey-500 text-orange-600 p-2 rounded-sm">
+      WARN: No Assignment
+    </span>
+  );
+};
+
 const BlockedTag = ({ isBlocked }: { isBlocked: boolean }) => {
   if (!isBlocked) {
     return null;
@@ -145,6 +156,13 @@ export const PersonColumns: ColumnDef<Person>[] = [
         </span>
       );
     },
+  },
+  {
+    id: "notAssignedTag",
+    header: "",
+    cell: ({ row }) => (
+      <NoAssignmentTag hasAssignment={row.original.hasAssignment} />
+    ),
   },
   {
     id: "expiredTag",

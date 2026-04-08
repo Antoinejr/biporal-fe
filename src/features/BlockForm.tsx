@@ -46,15 +46,9 @@ const BlockForm = () => {
             <PageSwitcher.Button name="input">
               <>Block</>
             </PageSwitcher.Button>
-            <PageSwitcher.Button name="search">
-              <>Search</>
-            </PageSwitcher.Button>
           </nav>
           <PageSwitcher.Panel name="input">
             <BlockByForm CloseBtn={CloseButton} />
-          </PageSwitcher.Panel>
-          <PageSwitcher.Panel name="search">
-            <BlockBySearch />
           </PageSwitcher.Panel>
         </PageSwitcher>
       </DialogContent>

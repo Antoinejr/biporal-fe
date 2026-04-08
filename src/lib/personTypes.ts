@@ -23,6 +23,7 @@ export type Person = {
   lagId: string | null;
   category: Exclude<Category, "ARTISAN">;
   expirationDate: Date;
+  hasAssignment: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
