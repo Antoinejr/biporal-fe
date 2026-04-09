@@ -22,6 +22,11 @@ import {
 import PersonStatusUpdate from "./PersonStatusUpdate";
 import type { SupervisorHistory } from "@/services/personService";
 import { useState } from "react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const getRemainingDays = (date: string | Date) => {
   const today = new Date();
@@ -35,9 +40,14 @@ const NoAssignmentTag = ({ hasAssignment }: { hasAssignment: boolean }) => {
     return null;
   }
   return (
-    <span className="bg-grey-500 text-orange-600 p-2 rounded-sm">
-      WARN: No Assignment
-    </span>
+    <Tooltip>
+      <TooltipTrigger className="bg-orange-600 text-grey-500 rounded-md">
+        No Assignment
+      </TooltipTrigger>
+      <TooltipContent>
+        <p>Supervisor has not been added to a site by their contractor</p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 

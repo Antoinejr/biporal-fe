@@ -24,52 +24,55 @@ import Blocklist from "./pages/Blocklist";
 import Notes from "./pages/Notes";
 import Engagements from "./pages/Engagements";
 import Assignments from "./pages/Assignments";
+import { TooltipProvider } from "./components/ui/tooltip";
 
 const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <FunctionalityProvider>
-            <Routes>
-              <Route path="login" element={<Login />} />
-              <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<Dashboard />} />
-                <Route element={<FunctionalityRoute />}>
-                  <Route path="contractors" element={<Contractor />} />
-                  <Route path="sites" element={<Site />} />
-                  <Route path="tokens" element={<Token />} />
-                  <Route path="logs" element={<Logs />} />
-                  <Route path="fundings" element={<Funding />} />
-                  <Route path="expenditures" element={<Expenditure />} />
-                  <Route path="contractor-report" element={<Engagements />} />
-                  <Route path="supervisor-report" element={<Assignments />} />
-                  <Route path="defaulters" element={<Defaulters />} />
-                  <Route path="blocklist" element={<Blocklist />} />
-                  <Route path="settings" element={<Setting />} />
-                  <Route path="notes/d/:tid" element={<Notes />} />
-                  <Route
-                    path="contractors/d/:id"
-                    element={<ContractorDetails />}
-                  />
-                  <Route
-                    path="persons/category/:category"
-                    element={<Person />}
-                  />
-                  <Route path="persons/d/:id" element={<PersonDetails />} />
-                  <Route
-                    path="persons/d/history/:id"
-                    element={<SupervisorHistory />}
-                  />
-                  <Route path="sites/d/:id" element={<SiteDetails />} />
-                  <Route path="*" element={<NotFound />} />
+      <TooltipProvider>
+        <BrowserRouter>
+          <AuthProvider>
+            <FunctionalityProvider>
+              <Routes>
+                <Route path="login" element={<Login />} />
+                <Route element={<ProtectedRoute />}>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route element={<FunctionalityRoute />}>
+                    <Route path="contractors" element={<Contractor />} />
+                    <Route path="sites" element={<Site />} />
+                    <Route path="tokens" element={<Token />} />
+                    <Route path="logs" element={<Logs />} />
+                    <Route path="fundings" element={<Funding />} />
+                    <Route path="expenditures" element={<Expenditure />} />
+                    <Route path="contractor-report" element={<Engagements />} />
+                    <Route path="supervisor-report" element={<Assignments />} />
+                    <Route path="defaulters" element={<Defaulters />} />
+                    <Route path="blocklist" element={<Blocklist />} />
+                    <Route path="settings" element={<Setting />} />
+                    <Route path="notes/d/:tid" element={<Notes />} />
+                    <Route
+                      path="contractors/d/:id"
+                      element={<ContractorDetails />}
+                    />
+                    <Route
+                      path="persons/category/:category"
+                      element={<Person />}
+                    />
+                    <Route path="persons/d/:id" element={<PersonDetails />} />
+                    <Route
+                      path="persons/d/history/:id"
+                      element={<SupervisorHistory />}
+                    />
+                    <Route path="sites/d/:id" element={<SiteDetails />} />
+                    <Route path="*" element={<NotFound />} />
+                  </Route>
                 </Route>
-              </Route>
-            </Routes>
-          </FunctionalityProvider>
-        </AuthProvider>
-      </BrowserRouter>
+              </Routes>
+            </FunctionalityProvider>
+          </AuthProvider>
+        </BrowserRouter>
+      </TooltipProvider>
     </QueryClientProvider>
   );
 }
