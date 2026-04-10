@@ -4,10 +4,11 @@ import env from "@/lib/env";
 import { cn } from "@/lib/utils";
 import { getRecentLogActivity } from "@/services/dashboardService";
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import io from "socket.io-client";
 
 const Dashboard = () => {
+  const timeoutRef = useRef<number | null>(null);
   const queryClient = useQueryClient();
   const { data, isFetching, fetchNextPage, error } = useInfiniteQuery({
     queryKey: ["logs"],
@@ -39,11 +40,30 @@ const Dashboard = () => {
       queryClient.invalidateQueries({ queryKey: ["logs"] }),
     );
 
+    // register an event that occurs every at the end of the day
+    const scheduleNextDayRefresh = () => {
+      const now = new Date();
+      const tomorrow = new Date();
+      tomorrow.setDate(now.getDate() + 1);
+      tomorrow.setHours(0, 0, 1, 0);
+      const timeUntilNextDay = tomorrow.getTime() - now.getTime();
+
+      timeoutRef.current = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ["logs"] });
+        scheduleNextDayRefresh();
+      }, timeUntilNextDay);
+    };
+    scheduleNextDayRefresh();
+
     return () => {
       console.log("Cleaning up socket");
       socket.close();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
     };
   }, []);
+
   const columns = useMemo(() => ActivityLogsColumns, []);
   return (
     <div className={cn("grid grid-rows-[auto_1fr]", "px-4 space-y-8")}>
